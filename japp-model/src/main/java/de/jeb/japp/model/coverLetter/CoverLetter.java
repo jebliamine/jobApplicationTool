@@ -1,10 +1,17 @@
-package de.jeb.japp.model.CoverLetter;
+package de.jeb.japp.model.coverLetter;
+
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
-
+@Entity
+@Table(name = "coverletter")
 public class CoverLetter {
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private UUID id;
+
     private String resultText;
     private UUID requestId;
 
