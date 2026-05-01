@@ -18,17 +18,22 @@ public class CVDocument {
     private String fileName;
 
     private String filePath;
+    private String storageKey;
 
     private String contentType;
-
     private Long size;
-
     private LocalDateTime createdAt;
-
     private LocalDateTime updatedAt;
-
     @ManyToOne
     private User owner;
+
+    public String getStorageKey() {
+        return storageKey;
+    }
+
+    public void setStorageKey(String storageKey) {
+        this.storageKey = storageKey;
+    }
 
     public UUID getId() {
         return id;

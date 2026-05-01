@@ -10,9 +10,6 @@ import de.jeb.japp.security.service.JwtService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -35,22 +32,21 @@ public class CVServiceImpl implements CVServiceInterface {
     @Override
     public CVDocument uploadCv(MultipartFile file, String title, User owner) {
         try {
-            String path = saveFile(file);
-
-            CVDocument cv = new CVDocument();
-            cv.setTitle(title);
-            cv.setFileName(file.getOriginalFilename());
-            cv.setFilePath(path);
-            cv.setContentType(file.getContentType());
-            cv.setSize(file.getSize());
-            cv.setCreatedAt(LocalDateTime.now());
-
-            cv.setOwner(owner);
-
+            
             StoredFile stored =
                     storageService.save(file, owner.getId());
 
-            return cvDao.saveCV(cv);
+            CVDocument doc = new CVDocument();
+
+            doc.setTitle(title);
+            doc.setFileName(stored.getOriginalFilename());
+            doc.setStorageKey(stored.getStorageKey());
+            doc.setContentType(stored.getContentType());
+            doc.setSize(stored.getSize());
+            doc.setCreatedAt(LocalDateTime.now());
+            doc.setOwner(owner);
+
+            return cvDao.saveCV(doc);
 
         } catch (Exception e) {
             throw new RuntimeException("Upload failed", e);
@@ -62,11 +58,6 @@ public class CVServiceImpl implements CVServiceInterface {
         return null;
     }
 
-    private String saveFile(MultipartFile file) throws IOException {
-        String path = "uploads/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
-        Files.copy(file.getInputStream(), Paths.get(path));
-        return path;
-    }
 
     @Override
     public List<CVDocument> getAll() {
