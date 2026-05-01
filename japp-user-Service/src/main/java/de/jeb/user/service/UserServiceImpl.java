@@ -18,10 +18,6 @@ public class UserServiceImpl implements UserServiceInterface {
         this.userDao = userDao;
     }
 
-    @Override
-    public User registerUser(User user) {
-        return userDao.registerUser(userValidator.ValidateRegisterUser(user));
-    }
 
     @Override
     public User updateUserCredentials(UUID id, Credentials credentials) {

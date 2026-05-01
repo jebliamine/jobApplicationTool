@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>japp-cv-parser</artifactId>
+    <artifactId>japp-file-storage</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -24,22 +24,7 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>de.jeb</groupId>
-            <artifactId>japp-dao</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
-        <dependency>
-            <groupId>de.jeb</groupId>
-            <artifactId>japp-security-Service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>de.jeb</groupId>
-            <artifactId>japp-file-storage</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
     </dependencies>
 
 </project>

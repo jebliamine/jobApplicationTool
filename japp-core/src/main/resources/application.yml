@@ -5,10 +5,6 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
 
-logging:
-  level:
-    org.springframework.security: TRACE
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,3 +17,7 @@ logging:
     bootstrap-admin:
       email: admin@japp.com
       password: ChangeMe123!
+
+logging:
+  level:
+    org.springframework.security: TRACE

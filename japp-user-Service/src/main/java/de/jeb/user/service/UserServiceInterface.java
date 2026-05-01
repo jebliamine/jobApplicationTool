@@ -10,7 +10,6 @@ import java.util.UUID;
 @Service
 public interface UserServiceInterface {
 
-    public User registerUser(User user);
 
     public User updateUserCredentials(UUID id, Credentials credentials);
 

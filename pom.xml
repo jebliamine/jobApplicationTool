@@ -33,6 +33,7 @@
         <module>japp-dao</module>
         <module>japp-user-Service</module>
         <module>japp-security-Service</module>
+        <module>japp-file-storage</module>
     </modules>
 
     <scm>

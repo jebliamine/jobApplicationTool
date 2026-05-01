@@ -35,6 +35,13 @@
             <artifactId>japp-security-Service</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>de.jeb</groupId>
+            <artifactId>japp-cv-parser</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
 
 </project>

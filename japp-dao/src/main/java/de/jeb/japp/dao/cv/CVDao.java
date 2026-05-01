@@ -1,6 +1,7 @@
 package de.jeb.japp.dao.cv;
 
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.user.User;
 import de.jeb.japp.repositories.CVRepository;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +20,7 @@ public class CVDao {
     }
 
     public List<CVDocument> getAllCVs() {
+//        only admin can
         return cvRepository.findAll();
     }
 
@@ -28,6 +30,10 @@ public class CVDao {
 
     public CVDocument saveCV(CVDocument cvDocument) {
         return cvRepository.save(cvDocument);
+    }
+
+    public List<CVDocument> getAllCVsByOwner(User user) {
+        return cvRepository.findByOwner(user);
     }
 
     public void deleteCV(UUID id) {
