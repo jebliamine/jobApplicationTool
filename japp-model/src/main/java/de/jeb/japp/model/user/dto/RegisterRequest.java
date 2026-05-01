@@ -1,19 +1,11 @@
-package de.jeb.japp.model.user;
+package de.jeb.japp.model.user.dto;
 
-public class UserDto {
+public class RegisterRequest {
     private String fullName;
     private String email;
+    private String password;
 
-    public UserDto() {
-    }
-
-    public UserDto(String fullName, String email) {
-        this.fullName = fullName;
-        this.email = email;
-    }
-
-    public static UserDto from(User user) {
-        return new UserDto(user.getFullName(), user.getEmail());
+    public RegisterRequest() {
     }
 
     public String getFullName() {
@@ -30,5 +22,13 @@ public class UserDto {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

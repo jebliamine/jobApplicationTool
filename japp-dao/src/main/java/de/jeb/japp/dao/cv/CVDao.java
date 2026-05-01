@@ -2,11 +2,13 @@ package de.jeb.japp.dao.cv;
 
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.repositories.CVRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Repository
 public class CVDao {
 
     private final CVRepository cvRepository;

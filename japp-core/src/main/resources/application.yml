@@ -4,6 +4,10 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+    
+logging:
+  level:
+    org.springframework.security: TRACE
 
   jpa:
     hibernate:

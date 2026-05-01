@@ -1,8 +1,12 @@
 package de.jeb.japp.model.user;
 
+import jakarta.persistence.Column;
+
 public class Credentials {
 
     String userName;
+
+    @Column(nullable = false)
     String password;
 
     public String getUserName() {

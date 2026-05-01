@@ -1,13 +1,27 @@
 package de.jeb.japp.model.user;
 
+import jakarta.persistence.*;
+
 import java.util.UUID;
 
-
+@Entity
+@Table(name = "japuser")
 public class User {
-    private String fullName;
-    private String email;
-    private Credentials credentials;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    private String fullName;
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    @Column(nullable = false)
+    private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
 
     public String getEmail() {
         return email;
@@ -25,12 +39,12 @@ public class User {
         this.fullName = fullName;
     }
 
-    public Credentials getCredentials() {
-        return credentials;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void setCredentials(Credentials credentials) {
-        this.credentials = credentials;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
     public UUID getId() {
@@ -39,5 +53,13 @@ public class User {
 
     public void setId(UUID id) {
         this.id = id;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }

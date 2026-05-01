@@ -31,6 +31,8 @@
         <module>japp-model</module>
         <module>japp-rest</module>
         <module>japp-dao</module>
+        <module>japp-user-Service</module>
+        <module>japp-security-Service</module>
     </modules>
 
     <scm>

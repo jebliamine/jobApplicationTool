@@ -1,14 +1,14 @@
 package de.jeb.japp.model.cv;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "CVDocument")
 public class CVDocument {
-    
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
     private String url;
     private FileExtension type;

@@ -7,9 +7,9 @@ import java.util.UUID;
 @Entity
 @Table(name = "coverletter")
 public class CoverLetter {
-    
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     private String resultText;
