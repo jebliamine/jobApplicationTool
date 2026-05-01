@@ -4,7 +4,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
-    
+
 logging:
   level:
     org.springframework.security: TRACE
@@ -16,3 +16,8 @@ logging:
     properties:
       hibernate:
         format_sql: true
+
+  app:
+    bootstrap-admin:
+      email: admin@japp.com
+      password: ChangeMe123!

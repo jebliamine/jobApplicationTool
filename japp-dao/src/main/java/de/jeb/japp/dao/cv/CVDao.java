@@ -18,19 +18,19 @@ public class CVDao {
 
     }
 
-    public List<CVDocument> getAllLetters() {
+    public List<CVDocument> getAllCVs() {
         return cvRepository.findAll();
     }
 
-    public Optional<CVDocument> getLetterById(UUID id) {
+    public Optional<CVDocument> getCVById(UUID id) {
         return cvRepository.findById(id);
     }
 
-    public CVDocument saveLetter(CVDocument cvDocument) {
+    public CVDocument saveCV(CVDocument cvDocument) {
         return cvRepository.save(cvDocument);
     }
 
-    public void deleteLetter(UUID id) {
+    public void deleteCV(UUID id) {
         cvRepository.deleteById(id);
     }
 

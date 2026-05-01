@@ -1,6 +1,7 @@
 package de.jeb.japp.rest.admin;
 
 import de.jeb.japp.model.user.dto.AuthResponse;
+import de.jeb.japp.model.user.dto.LoginRequest;
 import de.jeb.japp.model.user.dto.RegisterRequest;
 import de.jeb.japp.security.service.AuthServiceInterface;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,12 @@ public class AuthController {
     @PostMapping("/register")
     public AuthResponse register(@RequestBody RegisterRequest registerRequest) {
         return authServiceInterface.register(registerRequest);
+    }
+
+
+    @PostMapping("/login")
+    public AuthResponse login(@RequestBody LoginRequest loginRequest) {
+        return authServiceInterface.login(loginRequest);
     }
 
 }
