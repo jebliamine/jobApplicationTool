@@ -1,11 +1,15 @@
 import Link from "next/link";
 import ResponsiveAppBar from "@/component/layout/ResponsiveAppBar";
+import Hero from "@/component/home/Hero";
+
 export default function HomePage() {
   return (
     <>
-      <ResponsiveAppBar />
+      <ResponsiveAppBar/>
 
-      <main style={{ padding: "40px", fontFamily: "Arial" }}>
+      <Hero/>
+
+      {/* <main style={{ padding: "40px", fontFamily: "Arial" }}>
         <h1>Japp</h1>
         <p>Create AI-powered cover letters in minutes.</p>
 
@@ -23,7 +27,7 @@ export default function HomePage() {
             <li>Generate cover letter</li>
           </ol>
         </section>
-      </main>
+      </main> */}
     </>
   );
 }
