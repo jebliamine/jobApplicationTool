@@ -31,4 +31,14 @@
   <app-nav-search [compact]="showMenuButton()" />
 
   <app-theme-toggle />
+
+  <button
+    mat-icon-button
+    type="button"
+    aria-label="Log out"
+    [matTooltip]="userEmail() ? 'Log out (' + userEmail() + ')' : 'Log out'"
+    (click)="logout()"
+  >
+    <svg lucideLogOut [size]="20" aria-hidden="true"></svg>
+  </button>
 </mat-toolbar>

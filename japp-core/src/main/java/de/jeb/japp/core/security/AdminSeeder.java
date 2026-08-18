@@ -22,7 +22,6 @@ public class AdminSeeder implements CommandLineRunner {
     public void run(String... args) {
 
         if (repo.findUserByEmail("admin@japp.de").isEmpty()) {
-
             User admin = new User();
             admin.setEmail("admin@japp.de");
             admin.setPasswordHash(encoder.encode("admin"));
