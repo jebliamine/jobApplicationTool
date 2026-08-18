@@ -1,0 +1,33 @@
+@if (compact() && !expanded()) {
+  <button mat-icon-button type="button" aria-label="Search pages" (click)="expand()">
+    <svg lucideSearch [size]="20" aria-hidden="true"></svg>
+  </button>
+} @else {
+  <div class="nav-search" [class.nav-search--overlay]="compact() && expanded()">
+    <mat-form-field appearance="outline" class="nav-search__field" subscriptSizing="dynamic">
+      <svg matIconPrefix lucideSearch [size]="18" aria-hidden="true"></svg>
+      <input
+        #searchInput
+        matInput
+        type="text"
+        placeholder="Search pages…"
+        aria-label="Search application pages"
+        [formControl]="control"
+        [matAutocomplete]="auto"
+        (keydown.enter)="onEnter()"
+      />
+      @if (compact()) {
+        <button matIconSuffix mat-icon-button type="button" aria-label="Close search" (click)="collapse()">
+          <svg lucideX [size]="16" aria-hidden="true"></svg>
+        </button>
+      }
+    </mat-form-field>
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
+      @for (page of results(); track page.path) {
+        <mat-option [value]="page.label">{{ page.label }}</mat-option>
+      } @empty {
+        <mat-option disabled>No matching pages</mat-option>
+      }
+    </mat-autocomplete>
+  </div>
+}

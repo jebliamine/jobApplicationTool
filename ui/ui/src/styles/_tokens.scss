@@ -1,0 +1,68 @@
+// JAPP design tokens.
+//
+// Semantic custom properties layered on top of Angular Material's M3 system
+// tokens (--mat-sys-*, defined by the `mat.theme()` calls in styles.scss).
+// Components should reference --japp-* tokens rather than --mat-sys-* or raw
+// colors, so the design system has a single place to evolve.
+
+:root {
+  // Color — brand
+  --japp-color-primary: var(--mat-sys-primary);
+  --japp-color-on-primary: var(--mat-sys-on-primary);
+  --japp-color-accent: var(--mat-sys-tertiary);
+  --japp-color-on-accent: var(--mat-sys-on-tertiary);
+
+  // Color — status
+  --japp-color-error: var(--mat-sys-error);
+  --japp-color-on-error: var(--mat-sys-on-error);
+  --japp-color-success: #15803d;
+  --japp-color-warning: #b45309;
+  --japp-color-info: #0369a1;
+
+  // Color — surfaces & text
+  --japp-background: var(--mat-sys-background);
+  --japp-surface: var(--mat-sys-surface);
+  --japp-surface-container: var(--mat-sys-surface-container);
+  --japp-surface-container-high: var(--mat-sys-surface-container-high);
+  --japp-text-primary: var(--mat-sys-on-surface);
+  --japp-text-secondary: var(--mat-sys-on-surface-variant);
+  --japp-border: var(--mat-sys-outline-variant);
+  --japp-border-strong: var(--mat-sys-outline);
+
+  // Spacing
+  --japp-spacing-xs: 4px;
+  --japp-spacing-sm: 8px;
+  --japp-spacing-md: 16px;
+  --japp-spacing-lg: 24px;
+  --japp-spacing-xl: 32px;
+
+  // Radius
+  --japp-radius-sm: 6px;
+  --japp-radius-md: 10px;
+  --japp-radius-lg: 16px;
+  --japp-radius-full: 999px;
+
+  // Elevation
+  --japp-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
+  --japp-shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 15px rgba(15, 23, 42, 0.08);
+
+  // Transitions
+  --japp-transition-fast: 120ms ease;
+  --japp-transition-base: 200ms ease;
+
+  // Layout dimensions
+  --japp-sidebar-width: 264px;
+  --japp-sidebar-width-collapsed: 72px;
+  --japp-topbar-height: 64px;
+}
+
+// Dark theme overrides. Only tokens that Material does not already remap
+// through --mat-sys-* need to be redeclared here.
+:root[data-theme='dark'] {
+  --japp-color-success: #4ade80;
+  --japp-color-warning: #fbbf24;
+  --japp-color-info: #38bdf8;
+
+  --japp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
+  --japp-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.45);
+}

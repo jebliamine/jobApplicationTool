@@ -1,0 +1,43 @@
+<button
+  mat-icon-button
+  type="button"
+  [matMenuTriggerFor]="menu"
+  matTooltip="Change theme"
+  aria-label="Change theme"
+>
+  @switch (theme.mode()) {
+    @case ('light') {
+      <svg lucideSun [size]="20" aria-hidden="true"></svg>
+    }
+    @case ('dark') {
+      <svg lucideMoon [size]="20" aria-hidden="true"></svg>
+    }
+    @default {
+      <svg lucideMonitor [size]="20" aria-hidden="true"></svg>
+    }
+  }
+</button>
+
+<mat-menu #menu="matMenu" xPosition="before">
+  <button mat-menu-item type="button" (click)="setMode('light')">
+    <svg lucideSun [size]="18" class="theme-toggle__item-icon" aria-hidden="true"></svg>
+    <span>Light</span>
+    @if (theme.mode() === 'light') {
+      <svg lucideCheck [size]="16" class="theme-toggle__check" aria-hidden="true"></svg>
+    }
+  </button>
+  <button mat-menu-item type="button" (click)="setMode('dark')">
+    <svg lucideMoon [size]="18" class="theme-toggle__item-icon" aria-hidden="true"></svg>
+    <span>Dark</span>
+    @if (theme.mode() === 'dark') {
+      <svg lucideCheck [size]="16" class="theme-toggle__check" aria-hidden="true"></svg>
+    }
+  </button>
+  <button mat-menu-item type="button" (click)="setMode('system')">
+    <svg lucideMonitor [size]="18" class="theme-toggle__item-icon" aria-hidden="true"></svg>
+    <span>System</span>
+    @if (theme.mode() === 'system') {
+      <svg lucideCheck [size]="16" class="theme-toggle__check" aria-hidden="true"></svg>
+    }
+  </button>
+</mat-menu>

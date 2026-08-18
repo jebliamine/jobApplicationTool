@@ -1,0 +1,13 @@
+:host {
+  display: inline-flex;
+}
+
+.theme-toggle__item-icon {
+  margin-right: var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+}
+
+.theme-toggle__check {
+  margin-left: auto;
+  color: var(--japp-color-primary);
+}

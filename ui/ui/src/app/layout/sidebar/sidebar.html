@@ -1,0 +1,115 @@
+<nav class="sidebar" aria-label="Primary">
+  <a class="sidebar__brand" routerLink="/dashboard" (click)="linkActivated.emit()">
+    <span class="sidebar__brand-mark" aria-hidden="true">J</span>
+    @if (!collapsed()) {
+      <span class="sidebar__brand-name">JAPP</span>
+    }
+  </a>
+
+  <mat-nav-list class="sidebar__list">
+    @if (!collapsed()) {
+      <h3 matSubheader class="sidebar__group-label">Workspace</h3>
+    }
+
+    <a
+      mat-list-item
+      routerLink="/dashboard"
+      routerLinkActive="sidebar__item--active"
+      [routerLinkActiveOptions]="{ exact: true }"
+      [matTooltip]="collapsed() ? 'Dashboard' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideLayoutDashboard [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Dashboard</span>
+      } @else {
+        <span class="japp-visually-hidden">Dashboard</span>
+      }
+    </a>
+
+    <a
+      mat-list-item
+      routerLink="/cv"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'CV' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideFileText [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>CV</span>
+      } @else {
+        <span class="japp-visually-hidden">CV</span>
+      }
+    </a>
+
+    <a
+      mat-list-item
+      routerLink="/jobs"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'Jobs' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideBriefcase [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Jobs</span>
+      } @else {
+        <span class="japp-visually-hidden">Jobs</span>
+      }
+    </a>
+
+    <a
+      mat-list-item
+      routerLink="/applications"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'Applications' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideClipboardList [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Applications</span>
+      } @else {
+        <span class="japp-visually-hidden">Applications</span>
+      }
+    </a>
+
+    <a
+      mat-list-item
+      routerLink="/cover-letters"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'Cover Letters' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideMail [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Cover Letters</span>
+      } @else {
+        <span class="japp-visually-hidden">Cover Letters</span>
+      }
+    </a>
+  </mat-nav-list>
+
+  <mat-divider class="sidebar__divider" />
+
+  <mat-nav-list class="sidebar__list sidebar__list--bottom">
+    <a
+      mat-list-item
+      routerLink="/settings"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'Settings' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideSettings [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Settings</span>
+      } @else {
+        <span class="japp-visually-hidden">Settings</span>
+      }
+    </a>
+  </mat-nav-list>
+</nav>

@@ -1,0 +1,27 @@
+:host {
+  display: contents;
+}
+
+.nav-search {
+  display: flex;
+  align-items: center;
+}
+
+.nav-search--overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  padding-inline: var(--japp-spacing-md);
+  background: var(--japp-surface);
+}
+
+.nav-search__field {
+  width: 100%;
+  max-width: 280px;
+}
+
+.nav-search--overlay .nav-search__field {
+  max-width: none;
+}

@@ -1,0 +1,25 @@
+<a class="japp-visually-hidden" href="#main-content">Skip to main content</a>
+
+<mat-sidenav-container class="shell">
+  <mat-sidenav
+    class="shell__sidenav"
+    [class.shell__sidenav--collapsed]="collapsed()"
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    (openedChange)="onOpenedChange($event)"
+  >
+    <app-sidebar [collapsed]="collapsed()" (linkActivated)="closeSidenavOnHandset()" />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell__content">
+    <app-topbar
+      [showMenuButton]="isHandset()"
+      [sidebarCollapsed]="collapsed()"
+      (menuToggle)="toggleSidenav()"
+      (collapseToggle)="toggleCollapsed()"
+    />
+    <main id="main-content" class="shell__main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

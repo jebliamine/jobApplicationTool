@@ -1,0 +1,91 @@
+@use '@angular/material' as mat;
+@use './styles/tokens';
+
+@include mat.core();
+
+html {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$azure-palette,
+        theme-type: light,
+      ),
+      typography: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
+    )
+  );
+}
+
+:root[data-theme='dark'] {
+  @include mat.theme(
+    (
+      color: (
+        primary: mat.$violet-palette,
+        tertiary: mat.$azure-palette,
+        theme-type: dark,
+      ),
+    )
+  );
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--japp-background);
+  color: var(--japp-text-primary);
+  font-family: var(--mat-sys-body-medium-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+}
+
+// Visible focus state for keyboard users, on top of whatever Material
+// already provides for its own components.
+:focus-visible {
+  outline: 2px solid var(--japp-color-primary);
+  outline-offset: 2px;
+}
+
+// Utility for content that should be available to assistive technology only
+// (e.g. skip links) until it receives focus.
+.japp-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+
+  &:focus,
+  &:active {
+    position: fixed;
+    top: var(--japp-spacing-sm);
+    left: var(--japp-spacing-sm);
+    width: auto;
+    height: auto;
+    padding: var(--japp-spacing-sm) var(--japp-spacing-md);
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    z-index: 1000;
+    background: var(--japp-surface);
+    color: var(--japp-text-primary);
+    border-radius: var(--japp-radius-sm);
+    box-shadow: var(--japp-shadow-md);
+  }
+}

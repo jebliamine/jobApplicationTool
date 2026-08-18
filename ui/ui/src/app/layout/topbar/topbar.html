@@ -1,0 +1,34 @@
+<mat-toolbar class="topbar">
+  @if (showMenuButton()) {
+    <button
+      mat-icon-button
+      type="button"
+      aria-label="Open navigation menu"
+      (click)="menuToggle.emit()"
+    >
+      <svg lucideMenu [size]="22" aria-hidden="true"></svg>
+    </button>
+  } @else {
+    <button
+      mat-icon-button
+      type="button"
+      [attr.aria-label]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
+      [matTooltip]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
+      (click)="collapseToggle.emit()"
+    >
+      @if (sidebarCollapsed()) {
+        <svg lucidePanelLeftOpen [size]="20" aria-hidden="true"></svg>
+      } @else {
+        <svg lucidePanelLeftClose [size]="20" aria-hidden="true"></svg>
+      }
+    </button>
+  }
+
+  <span class="topbar__title">JAPP</span>
+
+  <span class="topbar__spacer"></span>
+
+  <app-nav-search [compact]="showMenuButton()" />
+
+  <app-theme-toggle />
+</mat-toolbar>

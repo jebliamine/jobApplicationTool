@@ -1,0 +1,41 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.shell {
+  height: 100dvh;
+  background: var(--japp-background);
+}
+
+.shell__sidenav {
+  width: var(--japp-sidebar-width);
+  border-right: 1px solid var(--japp-border);
+  transition: width var(--japp-transition-base);
+
+  &.shell__sidenav--collapsed {
+    width: var(--japp-sidebar-width-collapsed);
+  }
+}
+
+.shell__content {
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__main {
+  flex: 1 1 auto;
+  padding: var(--japp-spacing-lg);
+  max-width: 100%;
+  overflow-x: hidden;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .shell__main {
+    padding: var(--japp-spacing-md);
+  }
+}

@@ -1,0 +1,20 @@
+:host {
+  display: block;
+}
+
+.dashboard__header {
+  max-width: 60ch;
+}
+
+.dashboard__title {
+  margin: 0 0 var(--japp-spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.dashboard__subtitle {
+  margin: 0;
+  color: var(--japp-text-secondary);
+}

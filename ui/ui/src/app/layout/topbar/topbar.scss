@@ -1,0 +1,20 @@
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--japp-topbar-height);
+  background: var(--japp-surface);
+  color: var(--japp-text-primary);
+  border-bottom: 1px solid var(--japp-border);
+  gap: var(--japp-spacing-sm);
+}
+
+.topbar__title {
+  font-weight: 600;
+  font-size: 1.0625rem;
+  letter-spacing: -0.01em;
+}
+
+.topbar__spacer {
+  flex: 1 1 auto;
+}
