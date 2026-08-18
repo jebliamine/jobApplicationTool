@@ -28,8 +28,7 @@ export const routes: Routes = [
       },
       {
         path: 'cv',
-        loadComponent: loadPlaceholder,
-        data: { title: 'CV', description: 'CV management is not implemented yet.' },
+        loadComponent: () => import('./features/cv/cv').then((m) => m.Cv),
       },
       {
         path: 'jobs',

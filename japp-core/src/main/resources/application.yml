@@ -18,6 +18,11 @@ spring:
       email: admin@japp.com
       password: ChangeMe123!
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
 logging:
   level:
     org.springframework.security: TRACE

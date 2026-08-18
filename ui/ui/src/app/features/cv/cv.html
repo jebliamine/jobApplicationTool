@@ -1,0 +1,23 @@
+<div class="cv-page">
+  <header class="cv-page__header">
+    <h1 class="cv-page__title">CVs</h1>
+    <p class="cv-page__subtitle">
+      @if (isAdmin()) {
+        Upload your own CV, or review CVs uploaded by every user.
+      } @else {
+        Upload and manage the CVs attached to your account.
+      }
+    </p>
+  </header>
+
+  <app-cv-upload (uploaded)="onUploaded($event)" />
+
+  <app-cv-list
+    [cvs]="cvs()"
+    [loading]="loading()"
+    [error]="error()"
+    [isAdmin]="isAdmin()"
+    (retry)="load()"
+    (deleted)="onDeleted($event)"
+  />
+</div>

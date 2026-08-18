@@ -1,0 +1,54 @@
+<mat-card appearance="outlined" class="cv-upload">
+  <mat-card-content>
+    <h2 class="cv-upload__title">Upload CV</h2>
+
+    @if (serverError()) {
+      <div class="cv-upload__error" role="alert">
+        <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+        <span>{{ serverError() }}</span>
+      </div>
+    }
+
+    <form class="cv-upload__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <mat-form-field appearance="outline" class="cv-upload__title-field" subscriptSizing="dynamic">
+        <mat-label>Title</mat-label>
+        <input matInput type="text" formControlName="title" required />
+        @if (form.controls.title.invalid && form.controls.title.touched) {
+          <mat-error>A title is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="cv-upload__file-row">
+        <input
+          #fileInput
+          type="file"
+          id="cv-file-input"
+          class="cv-upload__file-input"
+          accept=".pdf,.doc,.docx"
+          aria-label="CV file"
+          (change)="onFileSelected($event)"
+        />
+        <label for="cv-file-input" class="cv-upload__file-label">
+          <svg lucideUpload [size]="16" aria-hidden="true"></svg>
+          {{ selectedFile()?.name ?? 'Choose file (PDF, DOC, DOCX)…' }}
+        </label>
+      </div>
+      @if (fileError()) {
+        <p class="cv-upload__file-error" role="alert">{{ fileError() }}</p>
+      }
+
+      <div class="cv-upload__actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            Upload
+          }
+        </button>
+        <button mat-stroked-button type="button" [disabled]="submitting()" (click)="reset()">
+          Reset
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

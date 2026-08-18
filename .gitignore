@@ -33,3 +33,6 @@ build/
 .vscode/
 
 .playwright-mcp/
+
+### Uploaded files (local file storage) ###
+/storage/

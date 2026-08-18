@@ -1,0 +1,156 @@
+:host {
+  display: block;
+}
+
+.cv-list {
+  border-radius: var(--japp-radius-lg);
+}
+
+.cv-list__state {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-md);
+  padding: var(--japp-spacing-lg) var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+}
+
+.cv-list__state--error {
+  color: var(--japp-color-error);
+
+  svg {
+    flex: none;
+  }
+
+  button {
+    margin-left: auto;
+  }
+}
+
+.cv-list__state--empty {
+  flex-direction: column;
+  text-align: center;
+  padding: var(--japp-spacing-xl) var(--japp-spacing-md);
+
+  p {
+    margin: 0;
+  }
+}
+
+.cv-list__table-wrap {
+  overflow-x: auto;
+}
+
+.cv-list__table {
+  width: 100%;
+  background: transparent;
+
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell {
+    color: var(--japp-text-primary);
+  }
+
+  th.mat-mdc-header-cell {
+    color: var(--japp-text-secondary);
+    font-weight: 600;
+  }
+}
+
+.cv-list__table {
+  td.mat-mdc-cell:has(button) {
+    white-space: nowrap;
+  }
+}
+
+.cv-list__delete-button {
+  color: var(--japp-color-error);
+}
+
+.cv-list__card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--japp-spacing-xs);
+  margin-top: var(--japp-spacing-sm);
+  padding-top: var(--japp-spacing-sm);
+  border-top: 1px solid var(--japp-border);
+}
+
+.cv-list__owner {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.cv-list__owner-name {
+  font-weight: 500;
+}
+
+.cv-list__owner-email {
+  color: var(--japp-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.cv-list__cards {
+  display: none;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  flex-direction: column;
+  gap: var(--japp-spacing-md);
+}
+
+.cv-list__card {
+  padding: var(--japp-spacing-md);
+  border: 1px solid var(--japp-border);
+  border-radius: var(--japp-radius-md);
+}
+
+.cv-list__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  margin-bottom: var(--japp-spacing-sm);
+  color: var(--japp-text-primary);
+
+  svg {
+    flex: none;
+    color: var(--japp-color-primary);
+  }
+}
+
+.cv-list__card-title {
+  font-weight: 600;
+}
+
+.cv-list__card-details {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-xs);
+}
+
+.cv-list__card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--japp-spacing-md);
+  font-size: 0.875rem;
+
+  dt {
+    color: var(--japp-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    text-align: right;
+    color: var(--japp-text-primary);
+  }
+}
+
+@media (max-width: 599.98px) {
+  .cv-list__table-wrap {
+    display: none;
+  }
+
+  .cv-list__cards {
+    display: flex;
+  }
+}

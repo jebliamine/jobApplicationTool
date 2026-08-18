@@ -54,8 +54,16 @@ public class LocalFileStorageService implements FileStorageServiceInterface {
         Files.deleteIfExists(root.resolve(storageKey));
     }
 
+    /**
+     * Never trust the raw extension for filesystem paths — it comes from the
+     * user-supplied original filename and is concatenated straight into the
+     * storage key below, so an unsanitized value (e.g. containing "../")
+     * could escape {@code root}. Only a short alphanumeric extension is
+     * accepted; anything else falls back to "bin".
+     */
     private String getExtension(String name) {
         if (name == null || !name.contains(".")) return "bin";
-        return name.substring(name.lastIndexOf(".") + 1);
+        String ext = name.substring(name.lastIndexOf(".") + 1);
+        return ext.matches("[a-zA-Z0-9]{1,10}") ? ext.toLowerCase() : "bin";
     }
 }

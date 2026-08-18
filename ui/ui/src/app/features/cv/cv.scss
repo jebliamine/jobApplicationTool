@@ -1,0 +1,21 @@
+:host {
+  display: block;
+}
+
+.cv-page__header {
+  max-width: 60ch;
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.cv-page__title {
+  margin: 0 0 var(--japp-spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.cv-page__subtitle {
+  margin: 0;
+  color: var(--japp-text-secondary);
+}
