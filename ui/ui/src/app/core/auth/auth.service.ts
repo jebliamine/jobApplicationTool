@@ -3,6 +3,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.models';
+import { UserService } from '../user/user.service';
 
 const TOKEN_STORAGE_KEY = 'japp-auth-token';
 
@@ -13,14 +14,15 @@ interface JwtPayload {
 
 /**
  * Holds authentication state as Signals and talks to POST /auth/login and
- * /auth/register. The backend only ever returns `{ token }` — there is no
- * user profile endpoint yet, so `currentUserEmail` is read back out of the
- * JWT `sub` claim (the same claim JwtService.generateToken sets) purely for
- * display purposes; it is never trusted for authorization decisions.
+ * /auth/register, which only ever return `{ token }`. `currentUserEmail` is
+ * read back out of the JWT `sub` claim (the same claim JwtService sets)
+ * purely for display purposes; it is never trusted for authorization
+ * decisions. For the full profile (fullName, role), see UserService.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
+  private readonly userService = inject(UserService);
   private readonly baseUrl = `${environment.apiUrl}/auth`;
 
   private readonly token = signal<string | null>(this.readStoredToken());
@@ -50,6 +52,7 @@ export class AuthService {
   logout(): void {
     this.token.set(null);
     localStorage.removeItem(TOKEN_STORAGE_KEY);
+    this.userService.clear();
   }
 
   getToken(): string | null {

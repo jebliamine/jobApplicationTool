@@ -1,0 +1,21 @@
+:host {
+  display: contents;
+}
+
+.user-menu__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-color-primary);
+  color: var(--japp-color-on-primary);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.user-menu__item-icon {
+  margin-right: var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+}

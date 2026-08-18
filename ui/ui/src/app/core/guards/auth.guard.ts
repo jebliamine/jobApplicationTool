@@ -1,6 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { UserService } from '../user/user.service';
 
 /** Protects the application shell — unauthenticated users are sent to /login. */
 export const authGuard: CanActivateFn = (_route, state) => {
@@ -8,6 +9,7 @@ export const authGuard: CanActivateFn = (_route, state) => {
   const router = inject(Router);
 
   if (authService.isAuthenticated()) {
+    inject(UserService).ensureLoaded();
     return true;
   }
 

@@ -30,6 +30,10 @@ public class UserDao {
         return userRepository.save(user);
     }
 
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
+
     public void deleteUser(UUID id) {
         userRepository.deleteById(id);
     }

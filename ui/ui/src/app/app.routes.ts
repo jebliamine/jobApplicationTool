@@ -51,6 +51,10 @@ export const routes: Routes = [
         loadComponent: loadPlaceholder,
         data: { title: 'Settings', description: 'Application settings are not implemented yet.' },
       },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
+      },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },
