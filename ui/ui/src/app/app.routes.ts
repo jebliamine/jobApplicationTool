@@ -32,8 +32,20 @@ export const routes: Routes = [
       },
       {
         path: 'jobs',
-        loadComponent: loadPlaceholder,
-        data: { title: 'Jobs', description: 'Job tracking is not implemented yet.' },
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/jobs/job-list/job-list').then((m) => m.JobList),
+          },
+          {
+            path: 'new',
+            loadComponent: () => import('./features/jobs/job-form/job-form').then((m) => m.JobForm),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () => import('./features/jobs/job-form/job-form').then((m) => m.JobForm),
+          },
+        ],
       },
       {
         path: 'applications',

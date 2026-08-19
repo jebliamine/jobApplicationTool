@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>New company</h2>
+<mat-dialog-content>
+  @if (serverError()) {
+    <div class="company-create-dialog__error" role="alert">
+      <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+      <span>{{ serverError() }}</span>
+    </div>
+  }
+
+  <form class="company-create-dialog__form" [formGroup]="form" novalidate>
+    <mat-form-field appearance="outline" class="company-create-dialog__field">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" formControlName="name" required />
+      @if (form.controls.name.invalid && form.controls.name.touched) {
+        <mat-error>A company name is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="company-create-dialog__field">
+      <mat-label>Website</mat-label>
+      <input matInput type="text" formControlName="website" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="company-create-dialog__field">
+      <mat-label>Location</mat-label>
+      <input matInput type="text" formControlName="location" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="company-create-dialog__field">
+      <mat-label>Notes</mat-label>
+      <textarea matInput rows="2" formControlName="notes"></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="submitting()" (click)="submit()">
+    @if (submitting()) {
+      <mat-progress-spinner diameter="18" mode="indeterminate" />
+    } @else {
+      Create
+    }
+  </button>
+</mat-dialog-actions>

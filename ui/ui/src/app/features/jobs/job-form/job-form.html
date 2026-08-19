@@ -1,0 +1,120 @@
+<div class="job-form-page">
+  <header class="job-form-page__header">
+    <h1 class="job-form-page__title">{{ isEditMode ? 'Edit job' : 'Add job' }}</h1>
+    <p class="job-form-page__subtitle">
+      {{ isEditMode ? 'Update the details of this tracked job.' : 'Track a job posting you found elsewhere.' }}
+    </p>
+  </header>
+
+  <mat-card appearance="outlined" class="job-form-page__card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="job-form-page__loading">
+          <mat-progress-spinner diameter="28" mode="indeterminate" />
+          <span>Loading…</span>
+        </div>
+      } @else {
+        @if (serverError()) {
+          <div class="job-form-page__error" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>{{ serverError() }}</span>
+          </div>
+        }
+
+        <form class="job-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <div class="job-form-page__row">
+            <mat-form-field appearance="outline" class="job-form-page__company-field">
+              <mat-label>Company</mat-label>
+              <mat-select formControlName="companyId" required>
+                @for (company of companies(); track company.id) {
+                  <mat-option [value]="company.id">{{ company.name }}</mat-option>
+                }
+              </mat-select>
+              @if (form.controls.companyId.invalid && form.controls.companyId.touched) {
+                <mat-error>A company is required.</mat-error>
+              }
+            </mat-form-field>
+
+            <button
+              mat-stroked-button
+              type="button"
+              class="job-form-page__new-company"
+              (click)="openCreateCompanyDialog()"
+            >
+              <svg lucidePlus [size]="16" aria-hidden="true"></svg>
+              New company
+            </button>
+          </div>
+
+          <mat-form-field appearance="outline" class="job-form-page__field">
+            <mat-label>Job title</mat-label>
+            <input matInput type="text" formControlName="title" required />
+            @if (form.controls.title.invalid && form.controls.title.touched) {
+              <mat-error>A job title is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="job-form-page__field">
+            <mat-label>Description</mat-label>
+            <textarea matInput rows="6" formControlName="description" required></textarea>
+            @if (form.controls.description.invalid && form.controls.description.touched) {
+              <mat-error>A job description is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="job-form-page__row">
+            <mat-form-field appearance="outline" class="job-form-page__field">
+              <mat-label>Location</mat-label>
+              <input matInput type="text" formControlName="location" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="job-form-page__field">
+              <mat-label>Employment type</mat-label>
+              <mat-select formControlName="employmentType">
+                <mat-option [value]="null">Not specified</mat-option>
+                @for (type of employmentTypes; track type) {
+                  <mat-option [value]="type">{{ formatEmploymentType(type) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="job-form-page__field">
+              <mat-label>Work mode</mat-label>
+              <mat-select formControlName="workMode">
+                <mat-option [value]="null">Not specified</mat-option>
+                @for (mode of workModes; track mode) {
+                  <mat-option [value]="mode">{{ formatWorkMode(mode) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="job-form-page__row">
+            <mat-form-field appearance="outline" class="job-form-page__field">
+              <mat-label>Posting URL</mat-label>
+              <input matInput type="text" formControlName="url" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="job-form-page__field">
+              <mat-label>Source</mat-label>
+              <input matInput type="text" formControlName="source" placeholder="e.g. LinkedIn, referral" />
+            </mat-form-field>
+          </div>
+
+          <div class="job-form-page__actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+              @if (submitting()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                {{ isEditMode ? 'Save changes' : 'Add job' }}
+              }
+            </button>
+            <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>
