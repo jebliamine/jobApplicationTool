@@ -2,7 +2,6 @@ package de.jeb.japp.dashboard.service;
 
 import de.jeb.japp.application.service.ApplicationService;
 import de.jeb.japp.cv.service.CVServiceInterface;
-import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.generation.service.CoverLetterService;
 import de.jeb.japp.generation.service.GenerationRequestService;
 import de.jeb.japp.job.service.JobService;
@@ -10,6 +9,7 @@ import de.jeb.japp.model.dashboard.dto.DashboardResponse;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.user.service.UserServiceInterface;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -39,7 +39,7 @@ class DashboardServiceTest {
     @Mock
     private GenerationRequestService generationRequestService;
     @Mock
-    private UserDao userDao;
+    private UserServiceInterface userService;
 
     private DashboardService dashboardService;
 
@@ -49,7 +49,7 @@ class DashboardServiceTest {
     @BeforeEach
     void setUp() {
         dashboardService = new DashboardService(
-                jobService, applicationService, cvService, coverLetterService, generationRequestService, userDao);
+                jobService, applicationService, cvService, coverLetterService, generationRequestService, userService);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -97,12 +97,12 @@ class DashboardServiceTest {
         DashboardResponse response = dashboardService.getDashboard(owner);
 
         assertThat(response.getTotalUsers()).isNull();
-        verify(userDao, never()).countAll();
+        verify(userService, never()).countAllUsers();
     }
 
     @Test
     void adminReceivesTotalUsers() {
-        when(userDao.countAll()).thenReturn(42L);
+        when(userService.countAllUsers()).thenReturn(42L);
         when(generationRequestService.countByStatus(admin)).thenReturn(statusCounts(0, 0, 0, 0));
 
         DashboardResponse response = dashboardService.getDashboard(admin);

@@ -1,8 +1,10 @@
-package de.jeb.user.service.validator;
+package de.jeb.japp.user.service.validator;
 
 import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.model.user.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class UserValidator {
 
     private final UserDao userDao;

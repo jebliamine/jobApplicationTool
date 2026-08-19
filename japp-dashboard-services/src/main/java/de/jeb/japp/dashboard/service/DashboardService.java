@@ -2,13 +2,13 @@ package de.jeb.japp.dashboard.service;
 
 import de.jeb.japp.application.service.ApplicationService;
 import de.jeb.japp.cv.service.CVServiceInterface;
-import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.generation.service.CoverLetterService;
 import de.jeb.japp.generation.service.GenerationRequestService;
 import de.jeb.japp.job.service.JobService;
 import de.jeb.japp.model.dashboard.dto.DashboardResponse;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.user.service.UserServiceInterface;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,13 +16,8 @@ import org.springframework.stereotype.Service;
  * business rules of its own. Every count reuses the ADMIN-sees-everything /
  * USER-sees-own scoping each domain service already implements (see
  * JobService#count, ApplicationService#count, etc.), so authorization is
- * never duplicated here.
- *
- * totalUsers is sourced from UserDao directly rather than a "UserService",
- * because japp-user-Service is not wired into the application context
- * (JappApplication's scanBasePackages covers only de.jeb.japp; the module's
- * code lives under de.jeb.user) — the same reason UserProfileService in
- * japp-rest talks to UserDao directly instead of that module.
+ * never duplicated here. User-domain access goes through UserServiceInterface
+ * (japp-user-Service), never UserDao/UserRepository directly.
  */
 @Service
 public class DashboardService {
@@ -32,7 +27,7 @@ public class DashboardService {
     private final CVServiceInterface cvService;
     private final CoverLetterService coverLetterService;
     private final GenerationRequestService generationRequestService;
-    private final UserDao userDao;
+    private final UserServiceInterface userService;
 
     public DashboardService(
             JobService jobService,
@@ -40,14 +35,14 @@ public class DashboardService {
             CVServiceInterface cvService,
             CoverLetterService coverLetterService,
             GenerationRequestService generationRequestService,
-            UserDao userDao
+            UserServiceInterface userService
     ) {
         this.jobService = jobService;
         this.applicationService = applicationService;
         this.cvService = cvService;
         this.coverLetterService = coverLetterService;
         this.generationRequestService = generationRequestService;
-        this.userDao = userDao;
+        this.userService = userService;
     }
 
     public DashboardResponse getDashboard(User requester) {
@@ -61,7 +56,7 @@ public class DashboardService {
         response.setGenerationStatusCounts(generationRequestService.countByStatus(requester));
 
         if (requester.getRole() == UserRole.ADMIN) {
-            response.setTotalUsers(userDao.countAll());
+            response.setTotalUsers(userService.countAllUsers());
         }
 
         return response;

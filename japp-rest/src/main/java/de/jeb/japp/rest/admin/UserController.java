@@ -3,6 +3,7 @@ package de.jeb.japp.rest.admin;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.dto.UpdateUserRequest;
 import de.jeb.japp.model.user.dto.UserDto;
+import de.jeb.japp.user.service.UserProfileService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;

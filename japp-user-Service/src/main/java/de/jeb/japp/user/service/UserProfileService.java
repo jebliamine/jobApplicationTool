@@ -1,5 +1,7 @@
-package de.jeb.japp.rest.admin;
+package de.jeb.japp.user.service;
 
+import de.jeb.japp.commons.exceptions.user.DuplicateEmailException;
+import de.jeb.japp.commons.exceptions.user.InvalidProfileUpdateException;
 import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.dto.UpdateUserRequest;
@@ -8,11 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.regex.Pattern;
 
-/**
- * Business logic behind PUT /api/v1/users/me. Kept in japp-rest (rather than
- * the unwired japp-user-Service module — see JappApplication's
- * scanBasePackages, which only covers de.jeb.japp) so it's actually reachable.
- */
+/** Business logic behind PUT /api/v1/users/me. */
 @Service
 public class UserProfileService {
 

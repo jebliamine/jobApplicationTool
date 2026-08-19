@@ -1,5 +1,7 @@
 package de.jeb.japp.rest.admin;
 
+import de.jeb.japp.commons.exceptions.user.DuplicateEmailException;
+import de.jeb.japp.commons.exceptions.user.InvalidProfileUpdateException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;

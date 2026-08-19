@@ -1,13 +1,15 @@
-package de.jeb.user.service;
+package de.jeb.japp.user.service;
 
 import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.model.user.Credentials;
 import de.jeb.japp.model.user.User;
-import de.jeb.user.service.validator.UserValidator;
+import de.jeb.japp.user.service.validator.UserValidator;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class UserServiceImpl implements UserServiceInterface {
     private final UserValidator userValidator;
     private final UserDao userDao;
@@ -38,5 +40,10 @@ public class UserServiceImpl implements UserServiceInterface {
     @Override
     public List<User> getAllUsers() {
         return List.of();
+    }
+
+    @Override
+    public long countAllUsers() {
+        return userDao.countAll();
     }
 }

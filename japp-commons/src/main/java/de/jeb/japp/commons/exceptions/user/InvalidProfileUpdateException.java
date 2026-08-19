@@ -1,4 +1,4 @@
-package de.jeb.japp.rest.admin;
+package de.jeb.japp.commons.exceptions.user;
 
 /** Thrown when a PUT /api/v1/users/me request contains invalid fullName/email input. */
 public class InvalidProfileUpdateException extends RuntimeException {
