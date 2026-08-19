@@ -1,0 +1,98 @@
+<div class="application-form-page">
+  <header class="application-form-page__header">
+    <h1 class="application-form-page__title">{{ isEditMode ? 'Edit application' : 'Add application' }}</h1>
+    <p class="application-form-page__subtitle">
+      {{
+        isEditMode
+          ? 'Update the details of this application.'
+          : 'Track a new application to one of your jobs.'
+      }}
+    </p>
+  </header>
+
+  <mat-card appearance="outlined" class="application-form-page__card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="application-form-page__loading">
+          <mat-progress-spinner diameter="28" mode="indeterminate" />
+          <span>Loading…</span>
+        </div>
+      } @else {
+        @if (serverError()) {
+          <div class="application-form-page__error" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>{{ serverError() }}</span>
+          </div>
+        }
+
+        @if (jobs().length === 0) {
+          <div class="application-form-page__empty-jobs" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>You don't have any jobs to apply to yet. Add a job first.</span>
+          </div>
+        }
+
+        <form class="application-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <mat-form-field appearance="outline" class="application-form-page__field">
+            <mat-label>Job</mat-label>
+            <mat-select formControlName="jobId" required>
+              @for (job of jobs(); track job.id) {
+                <mat-option [value]="job.id">{{ job.title }} — {{ job.company.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.jobId.invalid && form.controls.jobId.touched) {
+              <mat-error>A job is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="application-form-page__field">
+            <mat-label>CV used</mat-label>
+            <mat-select formControlName="cvDocumentId">
+              <mat-option value="">None</mat-option>
+              @for (cv of cvs(); track cv.id) {
+                <mat-option [value]="cv.id">{{ cv.title }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <div class="application-form-page__row">
+            <mat-form-field appearance="outline" class="application-form-page__field">
+              <mat-label>Status</mat-label>
+              <mat-select formControlName="status" required>
+                @for (status of statuses; track status) {
+                  <mat-option [value]="status">{{ statusLabel(status) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="application-form-page__field">
+              <mat-label>Applied date</mat-label>
+              <input matInput type="date" formControlName="appliedAt" required />
+              @if (form.controls.appliedAt.invalid && form.controls.appliedAt.touched) {
+                <mat-error>An applied date is required.</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="application-form-page__field">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="5" formControlName="notes" placeholder="Interview notes, contacts, next steps…"></textarea>
+          </mat-form-field>
+
+          <div class="application-form-page__actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+              @if (submitting()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                {{ isEditMode ? 'Save changes' : 'Add application' }}
+              }
+            </button>
+            <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

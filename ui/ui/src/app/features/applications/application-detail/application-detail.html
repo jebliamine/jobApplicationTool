@@ -1,0 +1,107 @@
+<div class="application-detail-page">
+  <a routerLink="/applications" class="application-detail-page__back">
+    <svg lucideArrowLeft [size]="16" aria-hidden="true"></svg>
+    Back to applications
+  </a>
+
+  @if (loading()) {
+    <mat-card appearance="outlined" class="application-detail-page__card application-detail-page__loading">
+      <mat-card-content>
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+        <span>Loading application…</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error()) {
+    <mat-card appearance="outlined" class="application-detail-page__card application-detail-page__error">
+      <mat-card-content>
+        <div class="application-detail-page__error-message" role="alert">
+          <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+          <span>We could not load this application.</span>
+        </div>
+        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  } @else if (application(); as application) {
+    <header class="application-detail-page__header">
+      <div>
+        <h1 class="application-detail-page__title">{{ application.job.title }}</h1>
+        <a class="application-detail-page__company" [routerLink]="['/companies', application.job.company.id]">
+          <svg lucideBriefcase [size]="16" aria-hidden="true"></svg>
+          {{ application.job.company.name }}
+        </a>
+      </div>
+      <div class="application-detail-page__header-actions">
+        <a mat-stroked-button [routerLink]="['/applications', application.id, 'edit']">
+          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+          Edit
+        </a>
+        <button
+          mat-stroked-button
+          type="button"
+          class="application-detail-page__delete-button"
+          [disabled]="deleting()"
+          (click)="confirmDelete()"
+        >
+          @if (deleting()) {
+            <mat-progress-spinner diameter="16" mode="indeterminate" />
+          } @else {
+            <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+          }
+          Delete
+        </button>
+      </div>
+    </header>
+
+    <mat-card appearance="outlined" class="application-detail-page__card">
+      <mat-card-content>
+        <dl class="application-detail-page__details">
+          <div class="application-detail-page__row">
+            <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Status</dt>
+            <dd>
+              <span
+                class="application-detail-page__status-badge"
+                [class]="'application-detail-page__status-badge--' + statusSeverity(application.status)"
+              >
+                {{ statusLabel(application.status) }}
+              </span>
+            </dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Applied date</dt>
+            <dd>{{ application.appliedAt | date: 'mediumDate' }}</dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideFileText [size]="18" aria-hidden="true"></svg> CV used</dt>
+            <dd>
+              @if (application.cv) {
+                {{ application.cv.title }}
+              } @else {
+                None selected
+              }
+            </dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideBriefcase [size]="18" aria-hidden="true"></svg> Job details</dt>
+            <dd>
+              <a [routerLink]="['/jobs', application.job.id]">View job posting</a>
+            </dd>
+          </div>
+          @if (isAdmin()) {
+            <div class="application-detail-page__row">
+              <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Owner</dt>
+              <dd>{{ application.owner.fullName }} · {{ application.owner.email }}</dd>
+            </div>
+          }
+          <div class="application-detail-page__row">
+            <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Added</dt>
+            <dd>{{ application.createdAt | date: 'medium' }}</dd>
+          </div>
+          <div class="application-detail-page__row application-detail-page__row--notes">
+            <dt><svg lucideNotebookText [size]="18" aria-hidden="true"></svg> Notes</dt>
+            <dd>{{ application.notes || '—' }}</dd>
+          </div>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

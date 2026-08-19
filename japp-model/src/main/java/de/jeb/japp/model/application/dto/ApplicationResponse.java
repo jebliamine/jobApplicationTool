@@ -1,0 +1,81 @@
+package de.jeb.japp.model.application.dto;
+
+import de.jeb.japp.model.application.Application;
+import de.jeb.japp.model.application.ApplicationStatus;
+import de.jeb.japp.model.cv.dto.CVResponse;
+import de.jeb.japp.model.job.dto.JobResponse;
+import de.jeb.japp.model.user.dto.UserDto;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+/**
+ * Safe Application response DTO — Application must never be serialized
+ * directly (its user is a full User entity). Job and CVDocument are nested
+ * through their own response DTOs (JobResponse already carries company info).
+ */
+public class ApplicationResponse {
+    private UUID id;
+    private JobResponse job;
+    private CVResponse cv;
+    private ApplicationStatus status;
+    private LocalDate appliedAt;
+    private String notes;
+    private UserDto owner;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+
+    public ApplicationResponse() {
+    }
+
+    public static ApplicationResponse from(Application application) {
+        ApplicationResponse response = new ApplicationResponse();
+        response.id = application.getId();
+        response.job = JobResponse.from(application.getJob());
+        response.cv = application.getCvDocument() != null ? CVResponse.from(application.getCvDocument()) : null;
+        response.status = application.getStatus();
+        response.appliedAt = application.getAppliedAt();
+        response.notes = application.getNotes();
+        response.owner = UserDto.from(application.getUser());
+        response.createdAt = application.getCreatedAt();
+        response.updatedAt = application.getUpdatedAt();
+        return response;
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
+    public JobResponse getJob() {
+        return job;
+    }
+
+    public CVResponse getCv() {
+        return cv;
+    }
+
+    public ApplicationStatus getStatus() {
+        return status;
+    }
+
+    public LocalDate getAppliedAt() {
+        return appliedAt;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public UserDto getOwner() {
+        return owner;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+}

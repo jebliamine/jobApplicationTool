@@ -1,0 +1,14 @@
+<h2 mat-dialog-title class="application-delete-dialog__title">
+  <svg lucideTriangleAlert [size]="20" aria-hidden="true"></svg>
+  Delete application?
+</h2>
+<mat-dialog-content>
+  <p>
+    Are you sure you want to delete your application for
+    <strong>"{{ data.jobTitle }}"</strong>? This action cannot be undone.
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="warn" type="button" (click)="confirm()">Delete</button>
+</mat-dialog-actions>

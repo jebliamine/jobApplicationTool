@@ -19,7 +19,7 @@ import {
   LucideTrash2,
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
-import { describeJobError } from '../job-error';
+import { describeApiError } from '../../../core/http/describe-api-error';
 import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
 import { EmploymentType, JobResponse, WorkMode } from '../job.models';
 import { JobService } from '../job.service';
@@ -139,7 +139,7 @@ export class JobList {
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
-        this.snackBar.open(describeJobError(error), 'Dismiss', { duration: 5000 });
+        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
       },
     });
   }

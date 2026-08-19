@@ -36,6 +36,7 @@
         <module>japp-file-storage</module>
         <module>japp-job-service</module>
         <module>japp-commons</module>
+        <module>japp-application-services</module>
     </modules>
 
     <scm>

@@ -3,6 +3,7 @@ package de.jeb.japp.job.service;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
+import de.jeb.japp.dao.application.ApplicationDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
@@ -25,10 +26,12 @@ public class JobService {
 
     private final JobDao jobDao;
     private final CompanyService companyService;
+    private final ApplicationDao applicationDao;
 
-    public JobService(JobDao jobDao, CompanyService companyService) {
+    public JobService(JobDao jobDao, CompanyService companyService, ApplicationDao applicationDao) {
         this.jobDao = jobDao;
         this.companyService = companyService;
+        this.applicationDao = applicationDao;
     }
 
     public Job create(JobRequest request, User owner) {
@@ -73,6 +76,9 @@ public class JobService {
 
     public void delete(UUID id, User requester) {
         Job job = get(id, requester);
+        if (applicationDao.existsByJobId(job.getId())) {
+            throw new JobValidationException("Cannot delete a job that has applications. Delete those applications first.");
+        }
         jobDao.deleteJob(job.getId());
     }
 

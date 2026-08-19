@@ -78,8 +78,36 @@ export const routes: Routes = [
       },
       {
         path: 'applications',
-        loadComponent: loadPlaceholder,
-        data: { title: 'Applications', description: 'Application tracking is not implemented yet.' },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/applications/application-list/application-list').then(
+                (m) => m.ApplicationList,
+              ),
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./features/applications/application-form/application-form').then(
+                (m) => m.ApplicationForm,
+              ),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/applications/application-detail/application-detail').then(
+                (m) => m.ApplicationDetail,
+              ),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/applications/application-form/application-form').then(
+                (m) => m.ApplicationForm,
+              ),
+          },
+        ],
       },
       {
         path: 'cover-letters',

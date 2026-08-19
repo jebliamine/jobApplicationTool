@@ -10,39 +10,29 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import {
   LucideArrowLeft,
   LucideBriefcase,
+  LucideCalendar,
   LucideCircleAlert,
-  LucideLink,
-  LucideMapPin,
+  LucideFileText,
+  LucideNotebookText,
   LucidePencil,
-  LucideRadio,
   LucideShieldCheck,
   LucideTrash2,
   LucideUser,
 } from '@lucide/angular';
-import { UserService } from '../../../core/user/user.service';
-import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
 import { describeApiError } from '../../../core/http/describe-api-error';
-import { EmploymentType, JobResponse, WorkMode } from '../job.models';
-import { JobService } from '../job.service';
+import { UserService } from '../../../core/user/user.service';
+import {
+  ApplicationDeleteDialog,
+  ApplicationDeleteDialogData,
+} from '../application-delete-dialog/application-delete-dialog';
+import { ApplicationResponse, ApplicationStatus } from '../application.models';
+import { ApplicationService } from '../application.service';
+import { APPLICATION_STATUS_LABELS, APPLICATION_STATUS_SEVERITY } from '../application-status';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
-const EMPLOYMENT_TYPE_LABELS: Record<EmploymentType, string> = {
-  FULL_TIME: 'Full-time',
-  PART_TIME: 'Part-time',
-  CONTRACT: 'Contract',
-  INTERNSHIP: 'Internship',
-  FREELANCE: 'Freelance',
-};
-
-const WORK_MODE_LABELS: Record<WorkMode, string> = {
-  REMOTE: 'Remote',
-  HYBRID: 'Hybrid',
-  ONSITE: 'On-site',
-};
-
 @Component({
-  selector: 'app-job-detail',
+  selector: 'app-application-detail',
   imports: [
     DatePipe,
     RouterLink,
@@ -51,54 +41,54 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
     MatProgressSpinnerModule,
     LucideArrowLeft,
     LucideBriefcase,
+    LucideCalendar,
     LucideCircleAlert,
-    LucideLink,
-    LucideMapPin,
+    LucideFileText,
+    LucideNotebookText,
     LucidePencil,
-    LucideRadio,
     LucideShieldCheck,
     LucideTrash2,
     LucideUser,
   ],
-  templateUrl: './job-detail.html',
-  styleUrl: './job-detail.scss',
+  templateUrl: './application-detail.html',
+  styleUrl: './application-detail.scss',
 })
-export class JobDetail {
+export class ApplicationDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly jobService = inject(JobService);
+  private readonly applicationService = inject(ApplicationService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
-  private readonly jobId = this.route.snapshot.paramMap.get('id')!;
+  private readonly applicationId = this.route.snapshot.paramMap.get('id')!;
 
   private readonly state = signal<LoadState>('loading');
-  private readonly _job = signal<JobResponse | null>(null);
+  private readonly _application = signal<ApplicationResponse | null>(null);
   protected readonly deleting = signal(false);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
-  protected readonly job = this._job.asReadonly();
+  protected readonly application = this._application.asReadonly();
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   constructor() {
     this.load();
   }
 
-  protected formatEmploymentType(type: EmploymentType | null): string {
-    return type ? EMPLOYMENT_TYPE_LABELS[type] : '—';
+  protected statusLabel(status: ApplicationStatus): string {
+    return APPLICATION_STATUS_LABELS[status];
   }
 
-  protected formatWorkMode(mode: WorkMode | null): string {
-    return mode ? WORK_MODE_LABELS[mode] : '—';
+  protected statusSeverity(status: ApplicationStatus): string {
+    return APPLICATION_STATUS_SEVERITY[status];
   }
 
   protected load(): void {
     this.state.set('loading');
-    this.jobService.get(this.jobId).subscribe({
-      next: (job) => {
-        this._job.set(job);
+    this.applicationService.get(this.applicationId).subscribe({
+      next: (application) => {
+        this._application.set(application);
         this.state.set('loaded');
       },
       error: () => this.state.set('error'),
@@ -106,28 +96,31 @@ export class JobDetail {
   }
 
   protected confirmDelete(): void {
-    const job = this.job();
-    if (!job || this.deleting()) {
+    const application = this.application();
+    if (!application || this.deleting()) {
       return;
     }
-    const ref = this.dialog.open<JobDeleteDialog, JobDeleteDialogData, boolean>(JobDeleteDialog, {
-      data: { jobTitle: job.title },
-      width: '420px',
-    });
+    const ref = this.dialog.open<ApplicationDeleteDialog, ApplicationDeleteDialogData, boolean>(
+      ApplicationDeleteDialog,
+      {
+        data: { jobTitle: application.job.title },
+        width: '420px',
+      },
+    );
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.performDelete(job);
+        this.performDelete(application);
       }
     });
   }
 
-  private performDelete(job: JobResponse): void {
+  private performDelete(application: ApplicationResponse): void {
     this.deleting.set(true);
-    this.jobService.delete(job.id).subscribe({
+    this.applicationService.delete(application.id).subscribe({
       next: () => {
-        this.snackBar.open('Job deleted.', 'Dismiss', { duration: 4000 });
-        this.router.navigateByUrl('/jobs');
+        this.snackBar.open('Application deleted.', 'Dismiss', { duration: 4000 });
+        this.router.navigateByUrl('/applications');
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);

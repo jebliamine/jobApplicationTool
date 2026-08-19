@@ -15,7 +15,7 @@ import { finalize } from 'rxjs';
 import { CompanyCreateDialog } from '../../companies/company-create-dialog/company-create-dialog';
 import { CompanyResponse } from '../../companies/company.models';
 import { CompanyService } from '../../companies/company.service';
-import { describeJobError } from '../job-error';
+import { describeApiError } from '../../../core/http/describe-api-error';
 import {
   EMPLOYMENT_TYPES,
   EmploymentType,
@@ -157,7 +157,7 @@ export class JobForm {
         });
         this.router.navigateByUrl('/jobs');
       },
-      error: (error: HttpErrorResponse) => this.serverError.set(describeJobError(error)),
+      error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),
     });
   }
 

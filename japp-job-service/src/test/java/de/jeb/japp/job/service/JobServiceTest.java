@@ -4,6 +4,7 @@ import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
+import de.jeb.japp.dao.application.ApplicationDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
@@ -31,6 +32,8 @@ class JobServiceTest {
     private JobDao jobDao;
     @Mock
     private CompanyService companyService;
+    @Mock
+    private ApplicationDao applicationDao;
 
     private JobService jobService;
 
@@ -41,7 +44,7 @@ class JobServiceTest {
 
     @BeforeEach
     void setUp() {
-        jobService = new JobService(jobDao, companyService);
+        jobService = new JobService(jobDao, companyService, applicationDao);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -181,6 +184,31 @@ class JobServiceTest {
                 .isInstanceOf(JobAccessDeniedException.class);
 
         verify(jobDao, never()).deleteJob(any());
+    }
+
+    @Test
+    void deleteBlockedWhenJobHasApplications() {
+        UUID id = UUID.randomUUID();
+        Job job = jobOwnedBy(owner);
+        when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
+        when(applicationDao.existsByJobId(any())).thenReturn(true);
+
+        assertThatThrownBy(() -> jobService.delete(id, owner))
+                .isInstanceOf(JobValidationException.class);
+
+        verify(jobDao, never()).deleteJob(any());
+    }
+
+    @Test
+    void deleteSucceedsWhenNoApplicationsReferenceJob() {
+        UUID id = UUID.randomUUID();
+        Job job = jobOwnedBy(owner);
+        when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
+        when(applicationDao.existsByJobId(any())).thenReturn(false);
+
+        jobService.delete(id, owner);
+
+        verify(jobDao).deleteJob(job.getId());
     }
 
     @Test

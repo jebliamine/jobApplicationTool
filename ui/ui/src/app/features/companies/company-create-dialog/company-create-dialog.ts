@@ -10,7 +10,7 @@ import { LucideCircleAlert } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { CompanyResponse } from '../company.models';
 import { CompanyService } from '../company.service';
-import { describeJobError } from '../../jobs/job-error';
+import { describeApiError } from '../../../core/http/describe-api-error';
 
 interface CompanyForm {
   name: FormControl<string>;
@@ -71,7 +71,7 @@ export class CompanyCreateDialog {
       .pipe(finalize(() => this.submitting.set(false)))
       .subscribe({
         next: (company) => this.dialogRef.close(company),
-        error: (error: HttpErrorResponse) => this.serverError.set(describeJobError(error)),
+        error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),
       });
   }
 }

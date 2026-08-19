@@ -1,0 +1,186 @@
+:host {
+  display: block;
+}
+
+.application-detail-page__back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--japp-spacing-xs);
+  margin-bottom: var(--japp-spacing-md);
+  color: var(--japp-text-secondary);
+  font-size: 0.875rem;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--japp-text-primary);
+  }
+}
+
+.application-detail-page__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--japp-spacing-md);
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.application-detail-page__title {
+  margin: 0 0 var(--japp-spacing-xs);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.application-detail-page__company {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--japp-spacing-xs);
+  color: var(--japp-text-secondary);
+  font-size: 0.9375rem;
+  text-decoration: none;
+
+  &:hover {
+    color: var(--japp-color-primary);
+  }
+}
+
+.application-detail-page__header-actions {
+  display: flex;
+  flex: none;
+  gap: var(--japp-spacing-sm);
+
+  a,
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--japp-spacing-xs);
+  }
+}
+
+.application-detail-page__delete-button {
+  color: var(--japp-color-error);
+  border-color: var(--japp-color-error);
+}
+
+.application-detail-page__card {
+  max-width: 720px;
+  border-radius: var(--japp-radius-lg);
+}
+
+.application-detail-page__loading mat-card-content,
+.application-detail-page__error mat-card-content {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-md);
+  color: var(--japp-text-secondary);
+}
+
+.application-detail-page__error-message {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--japp-spacing-sm);
+  color: var(--japp-color-error);
+  font-size: 0.9375rem;
+
+  svg {
+    flex: none;
+    margin-top: 1px;
+  }
+}
+
+.application-detail-page__details {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-md);
+}
+
+.application-detail-page__row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--japp-spacing-md);
+  border-bottom: 1px solid var(--japp-border);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  dt {
+    display: flex;
+    align-items: center;
+    gap: var(--japp-spacing-sm);
+    color: var(--japp-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  dd {
+    margin: 0;
+    padding-left: calc(18px + var(--japp-spacing-sm));
+    color: var(--japp-text-primary);
+    font-size: 1rem;
+
+    a {
+      color: var(--japp-color-primary);
+    }
+  }
+}
+
+.application-detail-page__row--notes dd {
+  white-space: pre-wrap;
+}
+
+.application-detail-page__status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--japp-spacing-sm);
+  border-radius: var(--japp-radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.application-detail-page__status-badge--info {
+  background: color-mix(in srgb, var(--japp-color-info) 16%, transparent);
+  color: var(--japp-color-info);
+}
+
+.application-detail-page__status-badge--warning {
+  background: color-mix(in srgb, var(--japp-color-warning) 16%, transparent);
+  color: var(--japp-color-warning);
+}
+
+.application-detail-page__status-badge--success {
+  background: color-mix(in srgb, var(--japp-color-success) 16%, transparent);
+  color: var(--japp-color-success);
+}
+
+.application-detail-page__status-badge--error {
+  background: color-mix(in srgb, var(--japp-color-error) 16%, transparent);
+  color: var(--japp-color-error);
+}
+
+.application-detail-page__status-badge--neutral {
+  background: color-mix(in srgb, var(--japp-text-secondary) 16%, transparent);
+  color: var(--japp-text-secondary);
+}
+
+@media (max-width: 599.98px) {
+  .application-detail-page__header {
+    flex-direction: column;
+  }
+
+  .application-detail-page__header-actions {
+    align-self: stretch;
+
+    a,
+    button {
+      flex: 1 1 0;
+      justify-content: center;
+    }
+  }
+}

@@ -10,27 +10,28 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-  LucideBuilding2,
   LucideCircleAlert,
+  LucideClipboardList,
   LucideEye,
   LucideInbox,
   LucidePencil,
   LucidePlus,
   LucideTrash2,
 } from '@lucide/angular';
-import { UserService } from '../../../core/user/user.service';
 import { describeApiError } from '../../../core/http/describe-api-error';
+import { UserService } from '../../../core/user/user.service';
 import {
-  CompanyDeleteDialog,
-  CompanyDeleteDialogData,
-} from '../company-delete-dialog/company-delete-dialog';
-import { CompanyResponse } from '../company.models';
-import { CompanyService } from '../company.service';
+  ApplicationDeleteDialog,
+  ApplicationDeleteDialogData,
+} from '../application-delete-dialog/application-delete-dialog';
+import { ApplicationResponse, ApplicationStatus } from '../application.models';
+import { ApplicationService } from '../application.service';
+import { APPLICATION_STATUS_LABELS, APPLICATION_STATUS_SEVERITY } from '../application-status';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
 @Component({
-  selector: 'app-company-list',
+  selector: 'app-application-list',
   imports: [
     DatePipe,
     RouterLink,
@@ -39,35 +40,35 @@ type LoadState = 'loading' | 'loaded' | 'error';
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
-    LucideBuilding2,
     LucideCircleAlert,
+    LucideClipboardList,
     LucideEye,
     LucideInbox,
     LucidePencil,
     LucidePlus,
     LucideTrash2,
   ],
-  templateUrl: './company-list.html',
-  styleUrl: './company-list.scss',
+  templateUrl: './application-list.html',
+  styleUrl: './application-list.scss',
 })
-export class CompanyList {
-  private readonly companyService = inject(CompanyService);
+export class ApplicationList {
+  private readonly applicationService = inject(ApplicationService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   private readonly state = signal<LoadState>('loading');
-  private readonly _companies = signal<CompanyResponse[]>([]);
+  private readonly _applications = signal<ApplicationResponse[]>([]);
   protected readonly deletingId = signal<string | null>(null);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
-  protected readonly companies = this._companies.asReadonly();
+  protected readonly applications = this._applications.asReadonly();
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   protected readonly displayedColumns = computed(() => {
-    const base = ['name', 'website', 'location', 'createdAt'];
+    const base = ['job', 'company', 'status', 'appliedAt', 'cv'];
     return [...base, ...(this.isAdmin() ? ['owner'] : []), 'actions'];
   });
 
@@ -75,51 +76,59 @@ export class CompanyList {
     this.load();
   }
 
+  protected statusLabel(status: ApplicationStatus): string {
+    return APPLICATION_STATUS_LABELS[status];
+  }
+
+  protected statusSeverity(status: ApplicationStatus): string {
+    return APPLICATION_STATUS_SEVERITY[status];
+  }
+
   protected load(): void {
     this.state.set('loading');
-    this.companyService.list().subscribe({
-      next: (companies) => {
-        this._companies.set(companies);
+    this.applicationService.list().subscribe({
+      next: (applications) => {
+        this._applications.set(applications);
         this.state.set('loaded');
       },
       error: () => this.state.set('error'),
     });
   }
 
-  protected viewCompany(company: CompanyResponse): void {
-    this.router.navigateByUrl(`/companies/${company.id}`);
+  protected viewApplication(application: ApplicationResponse): void {
+    this.router.navigateByUrl(`/applications/${application.id}`);
   }
 
-  protected editCompany(company: CompanyResponse): void {
-    this.router.navigateByUrl(`/companies/${company.id}/edit`);
+  protected editApplication(application: ApplicationResponse): void {
+    this.router.navigateByUrl(`/applications/${application.id}/edit`);
   }
 
-  protected confirmDelete(company: CompanyResponse): void {
+  protected confirmDelete(application: ApplicationResponse): void {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<CompanyDeleteDialog, CompanyDeleteDialogData, boolean>(
-      CompanyDeleteDialog,
+    const ref = this.dialog.open<ApplicationDeleteDialog, ApplicationDeleteDialogData, boolean>(
+      ApplicationDeleteDialog,
       {
-        data: { companyName: company.name },
+        data: { jobTitle: application.job.title },
         width: '420px',
       },
     );
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.performDelete(company);
+        this.performDelete(application);
       }
     });
   }
 
-  private performDelete(company: CompanyResponse): void {
-    this.deletingId.set(company.id);
-    this.companyService.delete(company.id).subscribe({
+  private performDelete(application: ApplicationResponse): void {
+    this.deletingId.set(application.id);
+    this.applicationService.delete(application.id).subscribe({
       next: () => {
-        this._companies.update((current) => current.filter((c) => c.id !== company.id));
+        this._applications.update((current) => current.filter((a) => a.id !== application.id));
         this.deletingId.set(null);
-        this.snackBar.open('Company deleted.', 'Dismiss', { duration: 4000 });
+        this.snackBar.open('Application deleted.', 'Dismiss', { duration: 4000 });
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);

@@ -19,7 +19,7 @@ import {
   LucideUser,
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
-import { describeJobError } from '../../jobs/job-error';
+import { describeApiError } from '../../../core/http/describe-api-error';
 import {
   CompanyDeleteDialog,
   CompanyDeleteDialogData,
@@ -113,7 +113,7 @@ export class CompanyDetail {
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);
-        this.snackBar.open(describeJobError(error), 'Dismiss', { duration: 5000 });
+        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
       },
     });
   }

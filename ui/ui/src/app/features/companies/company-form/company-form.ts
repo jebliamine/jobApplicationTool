@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideCircleAlert } from '@lucide/angular';
 import { finalize } from 'rxjs';
-import { describeJobError } from '../../jobs/job-error';
+import { describeApiError } from '../../../core/http/describe-api-error';
 import { CompanyRequest } from '../company.models';
 import { CompanyService } from '../company.service';
 
@@ -93,7 +93,7 @@ export class CompanyForm {
         });
         this.router.navigateByUrl(this.isEditMode ? `/companies/${company.id}` : '/companies');
       },
-      error: (error: HttpErrorResponse) => this.serverError.set(describeJobError(error)),
+      error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),
     });
   }
 
