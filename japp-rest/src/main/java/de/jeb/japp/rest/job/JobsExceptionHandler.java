@@ -1,5 +1,11 @@
 package de.jeb.japp.rest.job;
 
+import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
+import de.jeb.japp.commons.exceptions.company.CompanyNotFoundException;
+import de.jeb.japp.commons.exceptions.company.CompanyValidationException;
+import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
+import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,18 +20,18 @@ import java.util.Map;
 @RestControllerAdvice(assignableTypes = {CompanyController.class, JobController.class})
 public class JobsExceptionHandler {
 
-    @ExceptionHandler(JobsValidationException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(JobsValidationException ex) {
+    @ExceptionHandler({JobValidationException.class, CompanyValidationException.class})
+    public ResponseEntity<Map<String, String>> handleValidation(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(JobsNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(JobsNotFoundException ex) {
+    @ExceptionHandler({JobNotFoundException.class, CompanyNotFoundException.class})
+    public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(JobsAccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDenied(JobsAccessDeniedException ex) {
+    @ExceptionHandler({JobAccessDeniedException.class, CompanyAccessDeniedException.class})
+    public ResponseEntity<Map<String, String>> handleAccessDenied(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
     }
 }

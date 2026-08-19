@@ -1,5 +1,9 @@
-package de.jeb.japp.rest.job;
+package de.jeb.japp.job.service;
 
+import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
+import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
+import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
@@ -93,7 +97,7 @@ class JobServiceTest {
         request.setTitle(" ");
 
         assertThatThrownBy(() -> jobService.create(request, owner))
-                .isInstanceOf(JobsValidationException.class);
+                .isInstanceOf(JobValidationException.class);
 
         verifyNoInteractions(jobDao);
     }
@@ -104,7 +108,7 @@ class JobServiceTest {
         request.setDescription(null);
 
         assertThatThrownBy(() -> jobService.create(request, owner))
-                .isInstanceOf(JobsValidationException.class);
+                .isInstanceOf(JobValidationException.class);
     }
 
     @Test
@@ -113,7 +117,7 @@ class JobServiceTest {
         request.setCompanyId(null);
 
         assertThatThrownBy(() -> jobService.create(request, owner))
-                .isInstanceOf(JobsValidationException.class);
+                .isInstanceOf(JobValidationException.class);
 
         verifyNoInteractions(jobDao);
     }
@@ -122,10 +126,10 @@ class JobServiceTest {
     void createRejectsCompanyOwnedBySomeoneElse() {
         JobRequest request = validRequest();
         when(companyService.getOwnedByExactly(request.getCompanyId(), owner))
-                .thenThrow(new JobsAccessDeniedException("You do not have access to this company."));
+                .thenThrow(new CompanyAccessDeniedException("You do not have access to this company."));
 
         assertThatThrownBy(() -> jobService.create(request, owner))
-                .isInstanceOf(JobsAccessDeniedException.class);
+                .isInstanceOf(CompanyAccessDeniedException.class);
 
         verify(jobDao, never()).saveJob(any());
     }
@@ -155,7 +159,7 @@ class JobServiceTest {
         when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
 
         assertThatThrownBy(() -> jobService.get(id, otherUser))
-                .isInstanceOf(JobsAccessDeniedException.class);
+                .isInstanceOf(JobAccessDeniedException.class);
     }
 
     @Test
@@ -164,7 +168,7 @@ class JobServiceTest {
         when(jobDao.getJobById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> jobService.get(id, owner))
-                .isInstanceOf(JobsNotFoundException.class);
+                .isInstanceOf(JobNotFoundException.class);
     }
 
     @Test
@@ -174,7 +178,7 @@ class JobServiceTest {
         when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
 
         assertThatThrownBy(() -> jobService.delete(id, otherUser))
-                .isInstanceOf(JobsAccessDeniedException.class);
+                .isInstanceOf(JobAccessDeniedException.class);
 
         verify(jobDao, never()).deleteJob(any());
     }

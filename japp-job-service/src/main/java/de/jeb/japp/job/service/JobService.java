@@ -1,5 +1,8 @@
-package de.jeb.japp.rest.job;
+package de.jeb.japp.job.service;
 
+import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
+import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
@@ -74,7 +77,7 @@ public class JobService {
     }
 
     private Job find(UUID id) {
-        return jobDao.getJobById(id).orElseThrow(() -> new JobsNotFoundException("Job not found."));
+        return jobDao.getJobById(id).orElseThrow(() -> new JobNotFoundException("Job not found."));
     }
 
     private void applyRequest(Job job, JobRequest request, Company company) {
@@ -90,13 +93,13 @@ public class JobService {
 
     private void validate(JobRequest request) {
         if (request.getCompanyId() == null) {
-            throw new JobsValidationException("A company is required.");
+            throw new JobValidationException("A company is required.");
         }
         if (request.getTitle() == null || request.getTitle().isBlank()) {
-            throw new JobsValidationException("A job title is required.");
+            throw new JobValidationException("A job title is required.");
         }
         if (request.getDescription() == null || request.getDescription().isBlank()) {
-            throw new JobsValidationException("A job description is required.");
+            throw new JobValidationException("A job description is required.");
         }
     }
 
@@ -104,7 +107,7 @@ public class JobService {
         boolean isOwner = owner != null && owner.getId().equals(requester.getId());
         boolean isAdmin = requester.getRole() == UserRole.ADMIN;
         if (!isOwner && !isAdmin) {
-            throw new JobsAccessDeniedException("You do not have access to this job.");
+            throw new JobAccessDeniedException("You do not have access to this job.");
         }
     }
 

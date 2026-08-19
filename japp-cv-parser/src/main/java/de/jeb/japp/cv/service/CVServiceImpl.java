@@ -1,5 +1,9 @@
 package de.jeb.japp.cv.service;
 
+import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
+import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
+import de.jeb.japp.commons.exceptions.cv.CVStorageException;
+import de.jeb.japp.commons.exceptions.cv.CVValidationException;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.file.storage.services.FileStorageServiceInterface;
@@ -42,31 +46,30 @@ public class CVServiceImpl implements CVServiceInterface {
     public CVDocument uploadCv(MultipartFile file, String title, User owner) {
         validateUpload(file, title);
 
+        StoredFile stored;
         try {
-            StoredFile stored = storageService.save(file, owner.getId());
-
-            CVDocument doc = new CVDocument();
-            doc.setTitle(title.trim());
-            doc.setFileName(stored.getOriginalFilename());
-            doc.setStorageKey(stored.getStorageKey());
-            doc.setContentType(stored.getContentType());
-            doc.setSize(stored.getSize());
-            LocalDateTime now = LocalDateTime.now();
-            doc.setCreatedAt(now);
-            doc.setUpdatedAt(now);
-            doc.setOwner(owner);
-
-            return cvDao.saveCV(doc);
-        } catch (CvValidationException e) {
-            throw e;
+            stored = storageService.save(file, owner.getId());
         } catch (Exception e) {
-            throw new RuntimeException("Upload failed", e);
+            throw new CVStorageException("Upload failed", e);
         }
+
+        CVDocument doc = new CVDocument();
+        doc.setTitle(title.trim());
+        doc.setFileName(stored.getOriginalFilename());
+        doc.setStorageKey(stored.getStorageKey());
+        doc.setContentType(stored.getContentType());
+        doc.setSize(stored.getSize());
+        LocalDateTime now = LocalDateTime.now();
+        doc.setCreatedAt(now);
+        doc.setUpdatedAt(now);
+        doc.setOwner(owner);
+
+        return cvDao.saveCV(doc);
     }
 
     @Override
     public CVDocument getCv(UUID id, User requester) {
-        CVDocument doc = cvDao.getCVById(id).orElseThrow(() -> new CvNotFoundException("CV not found."));
+        CVDocument doc = cvDao.getCVById(id).orElseThrow(() -> new CVNotFoundException("CV not found."));
         assertAccess(doc, requester);
         return doc;
     }
@@ -85,7 +88,7 @@ public class CVServiceImpl implements CVServiceInterface {
     public Resource loadResource(CVDocument document) {
         Resource resource = storageService.load(document.getStorageKey());
         if (!resource.exists() || !resource.isReadable()) {
-            throw new CvNotFoundException("CV file not found.");
+            throw new CVNotFoundException("CV file not found.");
         }
         return resource;
     }
@@ -97,7 +100,7 @@ public class CVServiceImpl implements CVServiceInterface {
         try {
             storageService.delete(doc.getStorageKey());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to delete CV file", e);
+            throw new CVStorageException("Failed to delete CV file", e);
         }
 
         cvDao.deleteCV(doc.getId());
@@ -108,19 +111,19 @@ public class CVServiceImpl implements CVServiceInterface {
         boolean isAdmin = requester.getRole() == UserRole.ADMIN;
 
         if (!isOwner && !isAdmin) {
-            throw new CvAccessDeniedException("You do not have access to this CV.");
+            throw new CVAccessDeniedException("You do not have access to this CV.");
         }
     }
 
     private void validateUpload(MultipartFile file, String title) {
         if (title == null || title.isBlank()) {
-            throw new CvValidationException("A title is required.");
+            throw new CVValidationException("A title is required.");
         }
         if (file == null || file.isEmpty()) {
-            throw new CvValidationException("A CV file is required.");
+            throw new CVValidationException("A CV file is required.");
         }
         if (file.getSize() > MAX_FILE_SIZE_BYTES) {
-            throw new CvValidationException("File exceeds the 10 MB limit.");
+            throw new CVValidationException("File exceeds the 10 MB limit.");
         }
 
         String extension = extractExtension(file.getOriginalFilename());
@@ -129,7 +132,7 @@ public class CVServiceImpl implements CVServiceInterface {
                 && ALLOWED_CONTENT_TYPES.contains(file.getContentType());
 
         if (!extensionOk || !contentTypeOk) {
-            throw new CvValidationException("Unsupported file type. Allowed formats: PDF, DOC, DOCX.");
+            throw new CVValidationException("Unsupported file type. Allowed formats: PDF, DOC, DOCX.");
         }
     }
 

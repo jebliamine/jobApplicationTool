@@ -1,5 +1,8 @@
-package de.jeb.japp.rest.job;
+package de.jeb.japp.job.service;
 
+import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
+import de.jeb.japp.commons.exceptions.company.CompanyNotFoundException;
+import de.jeb.japp.commons.exceptions.company.CompanyValidationException;
 import de.jeb.japp.dao.company.CompanyDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
@@ -79,7 +82,7 @@ class CompanyServiceTest {
         request.setName("   ");
 
         assertThatThrownBy(() -> companyService.create(request, owner))
-                .isInstanceOf(JobsValidationException.class);
+                .isInstanceOf(CompanyValidationException.class);
 
         verifyNoInteractions(companyDao);
     }
@@ -109,7 +112,7 @@ class CompanyServiceTest {
         when(companyDao.getCompanyById(id)).thenReturn(Optional.of(company));
 
         assertThatThrownBy(() -> companyService.get(id, otherUser))
-                .isInstanceOf(JobsAccessDeniedException.class);
+                .isInstanceOf(CompanyAccessDeniedException.class);
     }
 
     @Test
@@ -118,7 +121,7 @@ class CompanyServiceTest {
         when(companyDao.getCompanyById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> companyService.get(id, owner))
-                .isInstanceOf(JobsNotFoundException.class);
+                .isInstanceOf(CompanyNotFoundException.class);
     }
 
     @Test
@@ -143,7 +146,7 @@ class CompanyServiceTest {
         when(jobDao.existsByCompanyId(any())).thenReturn(true);
 
         assertThatThrownBy(() -> companyService.delete(id, owner))
-                .isInstanceOf(JobsValidationException.class);
+                .isInstanceOf(CompanyValidationException.class);
 
         verify(companyDao, never()).deleteCompany(any());
     }
@@ -169,7 +172,7 @@ class CompanyServiceTest {
         when(companyDao.getCompanyById(id)).thenReturn(Optional.of(company));
 
         assertThatThrownBy(() -> companyService.getOwnedByExactly(id, admin))
-                .isInstanceOf(JobsAccessDeniedException.class);
+                .isInstanceOf(CompanyAccessDeniedException.class);
     }
 
     @Test

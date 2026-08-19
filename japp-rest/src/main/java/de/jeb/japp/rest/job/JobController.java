@@ -1,5 +1,6 @@
 package de.jeb.japp.rest.job;
 
+import de.jeb.japp.job.service.JobService;
 import de.jeb.japp.model.job.dto.JobRequest;
 import de.jeb.japp.model.job.dto.JobResponse;
 import de.jeb.japp.model.user.User;

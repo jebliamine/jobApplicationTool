@@ -1,5 +1,8 @@
-package de.jeb.japp.rest.job;
+package de.jeb.japp.job.service;
 
+import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
+import de.jeb.japp.commons.exceptions.company.CompanyNotFoundException;
+import de.jeb.japp.commons.exceptions.company.CompanyValidationException;
 import de.jeb.japp.dao.company.CompanyDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
@@ -66,7 +69,7 @@ public class CompanyService {
     public void delete(UUID id, User requester) {
         Company company = get(id, requester);
         if (jobDao.existsByCompanyId(company.getId())) {
-            throw new JobsValidationException("Cannot delete a company that still has jobs. Delete or reassign those jobs first.");
+            throw new CompanyValidationException("Cannot delete a company that still has jobs. Delete or reassign those jobs first.");
         }
         companyDao.deleteCompany(company.getId());
     }
@@ -76,16 +79,16 @@ public class CompanyService {
      * a job may only reference a company owned by the same user as the job,
      * regardless of who (including an admin) is performing the request.
      */
-    Company getOwnedByExactly(UUID id, User owner) {
+    public Company getOwnedByExactly(UUID id, User owner) {
         Company company = find(id);
         if (company.getOwner() == null || !company.getOwner().getId().equals(owner.getId())) {
-            throw new JobsAccessDeniedException("You do not have access to this company.");
+            throw new CompanyAccessDeniedException("You do not have access to this company.");
         }
         return company;
     }
 
     private Company find(UUID id) {
-        return companyDao.getCompanyById(id).orElseThrow(() -> new JobsNotFoundException("Company not found."));
+        return companyDao.getCompanyById(id).orElseThrow(() -> new CompanyNotFoundException("Company not found."));
     }
 
     private void applyRequest(Company company, CompanyRequest request) {
@@ -97,7 +100,7 @@ public class CompanyService {
 
     private void validate(CompanyRequest request) {
         if (request.getName() == null || request.getName().isBlank()) {
-            throw new JobsValidationException("A company name is required.");
+            throw new CompanyValidationException("A company name is required.");
         }
     }
 
@@ -105,7 +108,7 @@ public class CompanyService {
         boolean isOwner = owner != null && owner.getId().equals(requester.getId());
         boolean isAdmin = requester.getRole() == UserRole.ADMIN;
         if (!isOwner && !isAdmin) {
-            throw new JobsAccessDeniedException("You do not have access to this company.");
+            throw new CompanyAccessDeniedException("You do not have access to this company.");
         }
     }
 
