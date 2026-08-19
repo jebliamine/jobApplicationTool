@@ -1,5 +1,5 @@
 import { UserProfile } from '../../core/models/user.models';
-import { CompanyResponse } from './company.models';
+import { CompanyResponse } from '../companies/company.models';
 
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | 'FREELANCE';
 export type WorkMode = 'REMOTE' | 'HYBRID' | 'ONSITE';

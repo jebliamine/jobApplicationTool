@@ -1,26 +1,27 @@
 import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import {
+  LucideArrowLeft,
   LucideBriefcase,
   LucideCircleAlert,
-  LucideEye,
-  LucideInbox,
+  LucideLink,
+  LucideMapPin,
   LucidePencil,
-  LucidePlus,
+  LucideRadio,
+  LucideShieldCheck,
   LucideTrash2,
+  LucideUser,
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
-import { describeJobError } from '../job-error';
 import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
+import { describeJobError } from '../job-error';
 import { EmploymentType, JobResponse, WorkMode } from '../job.models';
 import { JobService } from '../job.service';
 
@@ -41,60 +42,48 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
 };
 
 @Component({
-  selector: 'app-job-list',
+  selector: 'app-job-detail',
   imports: [
     DatePipe,
     RouterLink,
     MatButtonModule,
     MatCardModule,
     MatProgressSpinnerModule,
-    MatTableModule,
-    MatTooltipModule,
+    LucideArrowLeft,
     LucideBriefcase,
     LucideCircleAlert,
-    LucideEye,
-    LucideInbox,
+    LucideLink,
+    LucideMapPin,
     LucidePencil,
-    LucidePlus,
+    LucideRadio,
+    LucideShieldCheck,
     LucideTrash2,
+    LucideUser,
   ],
-  templateUrl: './job-list.html',
-  styleUrl: './job-list.scss',
+  templateUrl: './job-detail.html',
+  styleUrl: './job-detail.scss',
 })
-export class JobList {
+export class JobDetail {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly jobService = inject(JobService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
-  private readonly router = inject(Router);
+
+  private readonly jobId = this.route.snapshot.paramMap.get('id')!;
 
   private readonly state = signal<LoadState>('loading');
-  private readonly _jobs = signal<JobResponse[]>([]);
-  protected readonly deletingId = signal<string | null>(null);
+  private readonly _job = signal<JobResponse | null>(null);
+  protected readonly deleting = signal(false);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
-  protected readonly jobs = this._jobs.asReadonly();
+  protected readonly job = this._job.asReadonly();
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
-
-  protected readonly displayedColumns = computed(() => {
-    const base = ['title', 'company', 'location', 'employmentType', 'workMode', 'createdAt'];
-    return [...base, ...(this.isAdmin() ? ['owner'] : []), 'actions'];
-  });
 
   constructor() {
     this.load();
-  }
-
-  protected load(): void {
-    this.state.set('loading');
-    this.jobService.list().subscribe({
-      next: (jobs) => {
-        this._jobs.set(jobs);
-        this.state.set('loaded');
-      },
-      error: () => this.state.set('error'),
-    });
   }
 
   protected formatEmploymentType(type: EmploymentType | null): string {
@@ -105,16 +94,20 @@ export class JobList {
     return mode ? WORK_MODE_LABELS[mode] : '—';
   }
 
-  protected viewJob(job: JobResponse): void {
-    this.router.navigateByUrl(`/jobs/${job.id}`);
+  protected load(): void {
+    this.state.set('loading');
+    this.jobService.get(this.jobId).subscribe({
+      next: (job) => {
+        this._job.set(job);
+        this.state.set('loaded');
+      },
+      error: () => this.state.set('error'),
+    });
   }
 
-  protected editJob(job: JobResponse): void {
-    this.router.navigateByUrl(`/jobs/${job.id}/edit`);
-  }
-
-  protected confirmDelete(job: JobResponse): void {
-    if (this.deletingId()) {
+  protected confirmDelete(): void {
+    const job = this.job();
+    if (!job || this.deleting()) {
       return;
     }
     const ref = this.dialog.open<JobDeleteDialog, JobDeleteDialogData, boolean>(JobDeleteDialog, {
@@ -130,15 +123,14 @@ export class JobList {
   }
 
   private performDelete(job: JobResponse): void {
-    this.deletingId.set(job.id);
+    this.deleting.set(true);
     this.jobService.delete(job.id).subscribe({
       next: () => {
-        this._jobs.update((current) => current.filter((j) => j.id !== job.id));
-        this.deletingId.set(null);
         this.snackBar.open('Job deleted.', 'Dismiss', { duration: 4000 });
+        this.router.navigateByUrl('/jobs');
       },
       error: (error: HttpErrorResponse) => {
-        this.deletingId.set(null);
+        this.deleting.set(false);
         this.snackBar.open(describeJobError(error), 'Dismiss', { duration: 5000 });
       },
     });

@@ -31,6 +31,31 @@ export const routes: Routes = [
         loadComponent: () => import('./features/cv/cv').then((m) => m.Cv),
       },
       {
+        path: 'companies',
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/companies/company-list/company-list').then((m) => m.CompanyList),
+          },
+          {
+            path: 'new',
+            loadComponent: () =>
+              import('./features/companies/company-form/company-form').then((m) => m.CompanyForm),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/companies/company-detail/company-detail').then((m) => m.CompanyDetail),
+          },
+          {
+            path: ':id/edit',
+            loadComponent: () =>
+              import('./features/companies/company-form/company-form').then((m) => m.CompanyForm),
+          },
+        ],
+      },
+      {
         path: 'jobs',
         children: [
           {
@@ -40,6 +65,10 @@ export const routes: Routes = [
           {
             path: 'new',
             loadComponent: () => import('./features/jobs/job-form/job-form').then((m) => m.JobForm),
+          },
+          {
+            path: ':id',
+            loadComponent: () => import('./features/jobs/job-detail/job-detail').then((m) => m.JobDetail),
           },
           {
             path: ':id/edit',

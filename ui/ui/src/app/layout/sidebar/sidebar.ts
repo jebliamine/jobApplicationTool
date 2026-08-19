@@ -5,6 +5,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   LucideBriefcase,
+  LucideBuilding2,
   LucideClipboardList,
   LucideFileText,
   LucideLayoutDashboard,
@@ -23,6 +24,7 @@ import {
     LucideLayoutDashboard,
     LucideFileText,
     LucideBriefcase,
+    LucideBuilding2,
     LucideClipboardList,
     LucideMail,
     LucideSettings,

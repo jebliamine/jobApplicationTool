@@ -83,6 +83,15 @@
                 <button
                   mat-icon-button
                   type="button"
+                  matTooltip="View"
+                  [attr.aria-label]="'View ' + job.title"
+                  (click)="viewJob(job)"
+                >
+                  <svg lucideEye [size]="18" aria-hidden="true"></svg>
+                </button>
+                <button
+                  mat-icon-button
+                  type="button"
                   matTooltip="Edit"
                   [attr.aria-label]="'Edit ' + job.title"
                   (click)="editJob(job)"
@@ -148,6 +157,15 @@
                 }
               </dl>
               <div class="job-list__card-actions">
+                <button
+                  mat-icon-button
+                  type="button"
+                  matTooltip="View"
+                  [attr.aria-label]="'View ' + job.title"
+                  (click)="viewJob(job)"
+                >
+                  <svg lucideEye [size]="18" aria-hidden="true"></svg>
+                </button>
                 <button
                   mat-icon-button
                   type="button"

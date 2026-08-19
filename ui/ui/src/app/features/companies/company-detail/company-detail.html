@@ -1,0 +1,86 @@
+<div class="company-detail-page">
+  <a routerLink="/companies" class="company-detail-page__back">
+    <svg lucideArrowLeft [size]="16" aria-hidden="true"></svg>
+    Back to companies
+  </a>
+
+  @if (loading()) {
+    <mat-card appearance="outlined" class="company-detail-page__card company-detail-page__loading">
+      <mat-card-content>
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+        <span>Loading company…</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error()) {
+    <mat-card appearance="outlined" class="company-detail-page__card company-detail-page__error">
+      <mat-card-content>
+        <div class="company-detail-page__error-message" role="alert">
+          <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+          <span>We could not load this company.</span>
+        </div>
+        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  } @else if (company(); as company) {
+    <header class="company-detail-page__header">
+      <h1 class="company-detail-page__title">{{ company.name }}</h1>
+      <div class="company-detail-page__header-actions">
+        <a mat-stroked-button [routerLink]="['/companies', company.id, 'edit']">
+          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+          Edit
+        </a>
+        <button
+          mat-stroked-button
+          type="button"
+          class="company-detail-page__delete-button"
+          [disabled]="deleting()"
+          (click)="confirmDelete()"
+        >
+          @if (deleting()) {
+            <mat-progress-spinner diameter="16" mode="indeterminate" />
+          } @else {
+            <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+          }
+          Delete
+        </button>
+      </div>
+    </header>
+
+    <mat-card appearance="outlined" class="company-detail-page__card">
+      <mat-card-content>
+        <dl class="company-detail-page__details">
+          <div class="company-detail-page__row">
+            <dt><svg lucideGlobe [size]="18" aria-hidden="true"></svg> Website</dt>
+            <dd>
+              @if (company.website) {
+                <a [href]="company.website" target="_blank" rel="noopener noreferrer">{{
+                  company.website
+                }}</a>
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+          <div class="company-detail-page__row">
+            <dt><svg lucideMapPin [size]="18" aria-hidden="true"></svg> Location</dt>
+            <dd>{{ company.location || '—' }}</dd>
+          </div>
+          <div class="company-detail-page__row company-detail-page__row--notes">
+            <dt><svg lucideNotebookText [size]="18" aria-hidden="true"></svg> Notes</dt>
+            <dd>{{ company.notes || '—' }}</dd>
+          </div>
+          @if (isAdmin()) {
+            <div class="company-detail-page__row">
+              <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Owner</dt>
+              <dd>{{ company.owner.fullName }} · {{ company.owner.email }}</dd>
+            </div>
+          }
+          <div class="company-detail-page__row">
+            <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Added</dt>
+            <dd>{{ company.createdAt | date: 'medium' }}</dd>
+          </div>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

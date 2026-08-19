@@ -10,7 +10,7 @@ import { LucideCircleAlert } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { CompanyResponse } from '../company.models';
 import { CompanyService } from '../company.service';
-import { describeJobError } from '../job-error';
+import { describeJobError } from '../../jobs/job-error';
 
 interface CompanyForm {
   name: FormControl<string>;

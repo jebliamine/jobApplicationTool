@@ -1,0 +1,102 @@
+<div class="job-detail-page">
+  <a routerLink="/jobs" class="job-detail-page__back">
+    <svg lucideArrowLeft [size]="16" aria-hidden="true"></svg>
+    Back to jobs
+  </a>
+
+  @if (loading()) {
+    <mat-card appearance="outlined" class="job-detail-page__card job-detail-page__loading">
+      <mat-card-content>
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+        <span>Loading job…</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error()) {
+    <mat-card appearance="outlined" class="job-detail-page__card job-detail-page__error">
+      <mat-card-content>
+        <div class="job-detail-page__error-message" role="alert">
+          <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+          <span>We could not load this job.</span>
+        </div>
+        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  } @else if (job(); as job) {
+    <header class="job-detail-page__header">
+      <div>
+        <h1 class="job-detail-page__title">{{ job.title }}</h1>
+        <a class="job-detail-page__company" [routerLink]="['/companies', job.company.id]">
+          <svg lucideBriefcase [size]="16" aria-hidden="true"></svg>
+          {{ job.company.name }}
+        </a>
+      </div>
+      <div class="job-detail-page__header-actions">
+        <a mat-stroked-button [routerLink]="['/jobs', job.id, 'edit']">
+          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+          Edit
+        </a>
+        <button
+          mat-stroked-button
+          type="button"
+          class="job-detail-page__delete-button"
+          [disabled]="deleting()"
+          (click)="confirmDelete()"
+        >
+          @if (deleting()) {
+            <mat-progress-spinner diameter="16" mode="indeterminate" />
+          } @else {
+            <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+          }
+          Delete
+        </button>
+      </div>
+    </header>
+
+    <mat-card appearance="outlined" class="job-detail-page__card">
+      <mat-card-content>
+        <dl class="job-detail-page__details">
+          <div class="job-detail-page__row">
+            <dt><svg lucideMapPin [size]="18" aria-hidden="true"></svg> Location</dt>
+            <dd>{{ job.location || '—' }}</dd>
+          </div>
+          <div class="job-detail-page__row">
+            <dt><svg lucideBriefcase [size]="18" aria-hidden="true"></svg> Employment type</dt>
+            <dd>{{ formatEmploymentType(job.employmentType) }}</dd>
+          </div>
+          <div class="job-detail-page__row">
+            <dt><svg lucideRadio [size]="18" aria-hidden="true"></svg> Work mode</dt>
+            <dd>{{ formatWorkMode(job.workMode) }}</dd>
+          </div>
+          <div class="job-detail-page__row">
+            <dt><svg lucideLink [size]="18" aria-hidden="true"></svg> Posting URL</dt>
+            <dd>
+              @if (job.url) {
+                <a [href]="job.url" target="_blank" rel="noopener noreferrer">{{ job.url }}</a>
+              } @else {
+                —
+              }
+            </dd>
+          </div>
+          <div class="job-detail-page__row">
+            <dt><svg lucideRadio [size]="18" aria-hidden="true"></svg> Source</dt>
+            <dd>{{ job.source || '—' }}</dd>
+          </div>
+          @if (isAdmin()) {
+            <div class="job-detail-page__row">
+              <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Owner</dt>
+              <dd>{{ job.owner.fullName }} · {{ job.owner.email }}</dd>
+            </div>
+          }
+          <div class="job-detail-page__row">
+            <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Added</dt>
+            <dd>{{ job.createdAt | date: 'medium' }}</dd>
+          </div>
+          <div class="job-detail-page__row job-detail-page__row--description">
+            <dt>Description</dt>
+            <dd>{{ job.description }}</dd>
+          </div>
+        </dl>
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

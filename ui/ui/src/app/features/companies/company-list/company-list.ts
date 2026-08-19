@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
-  LucideBriefcase,
+  LucideBuilding2,
   LucideCircleAlert,
   LucideEye,
   LucideInbox,
@@ -19,29 +19,18 @@ import {
   LucideTrash2,
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
-import { describeJobError } from '../job-error';
-import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
-import { EmploymentType, JobResponse, WorkMode } from '../job.models';
-import { JobService } from '../job.service';
+import { describeJobError } from '../../jobs/job-error';
+import {
+  CompanyDeleteDialog,
+  CompanyDeleteDialogData,
+} from '../company-delete-dialog/company-delete-dialog';
+import { CompanyResponse } from '../company.models';
+import { CompanyService } from '../company.service';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
-const EMPLOYMENT_TYPE_LABELS: Record<EmploymentType, string> = {
-  FULL_TIME: 'Full-time',
-  PART_TIME: 'Part-time',
-  CONTRACT: 'Contract',
-  INTERNSHIP: 'Internship',
-  FREELANCE: 'Freelance',
-};
-
-const WORK_MODE_LABELS: Record<WorkMode, string> = {
-  REMOTE: 'Remote',
-  HYBRID: 'Hybrid',
-  ONSITE: 'On-site',
-};
-
 @Component({
-  selector: 'app-job-list',
+  selector: 'app-company-list',
   imports: [
     DatePipe,
     RouterLink,
@@ -50,7 +39,7 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
     MatProgressSpinnerModule,
     MatTableModule,
     MatTooltipModule,
-    LucideBriefcase,
+    LucideBuilding2,
     LucideCircleAlert,
     LucideEye,
     LucideInbox,
@@ -58,27 +47,27 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
     LucidePlus,
     LucideTrash2,
   ],
-  templateUrl: './job-list.html',
-  styleUrl: './job-list.scss',
+  templateUrl: './company-list.html',
+  styleUrl: './company-list.scss',
 })
-export class JobList {
-  private readonly jobService = inject(JobService);
+export class CompanyList {
+  private readonly companyService = inject(CompanyService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
 
   private readonly state = signal<LoadState>('loading');
-  private readonly _jobs = signal<JobResponse[]>([]);
+  private readonly _companies = signal<CompanyResponse[]>([]);
   protected readonly deletingId = signal<string | null>(null);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
-  protected readonly jobs = this._jobs.asReadonly();
+  protected readonly companies = this._companies.asReadonly();
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   protected readonly displayedColumns = computed(() => {
-    const base = ['title', 'company', 'location', 'employmentType', 'workMode', 'createdAt'];
+    const base = ['name', 'website', 'location', 'createdAt'];
     return [...base, ...(this.isAdmin() ? ['owner'] : []), 'actions'];
   });
 
@@ -88,54 +77,49 @@ export class JobList {
 
   protected load(): void {
     this.state.set('loading');
-    this.jobService.list().subscribe({
-      next: (jobs) => {
-        this._jobs.set(jobs);
+    this.companyService.list().subscribe({
+      next: (companies) => {
+        this._companies.set(companies);
         this.state.set('loaded');
       },
       error: () => this.state.set('error'),
     });
   }
 
-  protected formatEmploymentType(type: EmploymentType | null): string {
-    return type ? EMPLOYMENT_TYPE_LABELS[type] : '—';
+  protected viewCompany(company: CompanyResponse): void {
+    this.router.navigateByUrl(`/companies/${company.id}`);
   }
 
-  protected formatWorkMode(mode: WorkMode | null): string {
-    return mode ? WORK_MODE_LABELS[mode] : '—';
+  protected editCompany(company: CompanyResponse): void {
+    this.router.navigateByUrl(`/companies/${company.id}/edit`);
   }
 
-  protected viewJob(job: JobResponse): void {
-    this.router.navigateByUrl(`/jobs/${job.id}`);
-  }
-
-  protected editJob(job: JobResponse): void {
-    this.router.navigateByUrl(`/jobs/${job.id}/edit`);
-  }
-
-  protected confirmDelete(job: JobResponse): void {
+  protected confirmDelete(company: CompanyResponse): void {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<JobDeleteDialog, JobDeleteDialogData, boolean>(JobDeleteDialog, {
-      data: { jobTitle: job.title },
-      width: '420px',
-    });
+    const ref = this.dialog.open<CompanyDeleteDialog, CompanyDeleteDialogData, boolean>(
+      CompanyDeleteDialog,
+      {
+        data: { companyName: company.name },
+        width: '420px',
+      },
+    );
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-        this.performDelete(job);
+        this.performDelete(company);
       }
     });
   }
 
-  private performDelete(job: JobResponse): void {
-    this.deletingId.set(job.id);
-    this.jobService.delete(job.id).subscribe({
+  private performDelete(company: CompanyResponse): void {
+    this.deletingId.set(company.id);
+    this.companyService.delete(company.id).subscribe({
       next: () => {
-        this._jobs.update((current) => current.filter((j) => j.id !== job.id));
+        this._companies.update((current) => current.filter((c) => c.id !== company.id));
         this.deletingId.set(null);
-        this.snackBar.open('Job deleted.', 'Dismiss', { duration: 4000 });
+        this.snackBar.open('Company deleted.', 'Dismiss', { duration: 4000 });
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);

@@ -1,0 +1,68 @@
+<div class="company-form-page">
+  <header class="company-form-page__header">
+    <h1 class="company-form-page__title">{{ isEditMode ? 'Edit company' : 'Add company' }}</h1>
+    <p class="company-form-page__subtitle">
+      {{
+        isEditMode
+          ? 'Update the details of this company.'
+          : 'Add a company you want to track jobs for.'
+      }}
+    </p>
+  </header>
+
+  <mat-card appearance="outlined" class="company-form-page__card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="company-form-page__loading">
+          <mat-progress-spinner diameter="28" mode="indeterminate" />
+          <span>Loading…</span>
+        </div>
+      } @else {
+        @if (serverError()) {
+          <div class="company-form-page__error" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>{{ serverError() }}</span>
+          </div>
+        }
+
+        <form class="company-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <mat-form-field appearance="outline" class="company-form-page__field">
+            <mat-label>Company name</mat-label>
+            <input matInput type="text" formControlName="name" required />
+            @if (form.controls.name.invalid && form.controls.name.touched) {
+              <mat-error>A company name is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="company-form-page__field">
+            <mat-label>Website</mat-label>
+            <input matInput type="text" formControlName="website" placeholder="https://…" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="company-form-page__field">
+            <mat-label>Location</mat-label>
+            <input matInput type="text" formControlName="location" />
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="company-form-page__field">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="4" formControlName="notes"></textarea>
+          </mat-form-field>
+
+          <div class="company-form-page__actions">
+            <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+              @if (submitting()) {
+                <mat-progress-spinner diameter="18" mode="indeterminate" />
+              } @else {
+                {{ isEditMode ? 'Save changes' : 'Add company' }}
+              }
+            </button>
+            <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

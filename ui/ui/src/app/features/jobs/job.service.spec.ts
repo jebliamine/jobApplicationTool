@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { environment } from '../../../environments/environment';
-import { CompanyResponse } from './company.models';
+import { CompanyResponse } from '../companies/company.models';
 import { JobRequest, JobResponse } from './job.models';
 import { JobService } from './job.service';
 

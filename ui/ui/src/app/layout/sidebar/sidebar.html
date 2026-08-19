@@ -62,6 +62,22 @@
 
     <a
       mat-list-item
+      routerLink="/companies"
+      routerLinkActive="sidebar__item--active"
+      [matTooltip]="collapsed() ? 'Companies' : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideBuilding2 [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>Companies</span>
+      } @else {
+        <span class="japp-visually-hidden">Companies</span>
+      }
+    </a>
+
+    <a
+      mat-list-item
       routerLink="/applications"
       routerLinkActive="sidebar__item--active"
       [matTooltip]="collapsed() ? 'Applications' : ''"

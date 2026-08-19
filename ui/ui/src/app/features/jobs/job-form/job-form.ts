@@ -12,9 +12,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideCircleAlert, LucidePlus } from '@lucide/angular';
 import { finalize } from 'rxjs';
-import { CompanyCreateDialog } from '../company-create-dialog/company-create-dialog';
-import { CompanyResponse } from '../company.models';
-import { CompanyService } from '../company.service';
+import { CompanyCreateDialog } from '../../companies/company-create-dialog/company-create-dialog';
+import { CompanyResponse } from '../../companies/company.models';
+import { CompanyService } from '../../companies/company.service';
 import { describeJobError } from '../job-error';
 import {
   EMPLOYMENT_TYPES,
