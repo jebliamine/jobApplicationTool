@@ -26,5 +26,8 @@ public interface CVServiceInterface {
     /** Authorizes, deletes the physical file, then the database record. */
     public void deleteCv(UUID id, User requester);
 
+    /** ADMIN gets the global count, matching {@link #getAll}/{@link #getAllByOwner}'s ADMIN-sees-everything convention. */
+    public long count(User requester);
+
 }
 

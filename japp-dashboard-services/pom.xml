@@ -9,7 +9,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>japp-rest</artifactId>
+    <artifactId>japp-dashboard-services</artifactId>
 
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
@@ -32,25 +32,7 @@
 
         <dependency>
             <groupId>de.jeb</groupId>
-            <artifactId>japp-security-Service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.jeb</groupId>
-            <artifactId>japp-cv-parser</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.jeb</groupId>
             <artifactId>japp-job-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
-            <groupId>de.jeb</groupId>
-            <artifactId>japp-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
@@ -62,16 +44,14 @@
 
         <dependency>
             <groupId>de.jeb</groupId>
-            <artifactId>japp-generation-services</artifactId>
+            <artifactId>japp-cv-parser</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>de.jeb</groupId>
-            <artifactId>japp-dashboard-services</artifactId>
+            <artifactId>japp-generation-services</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
-
 </project>

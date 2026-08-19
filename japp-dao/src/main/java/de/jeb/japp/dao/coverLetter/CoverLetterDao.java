@@ -41,4 +41,12 @@ public class CoverLetterDao {
     public void deleteCoverLetter(UUID id) {
         coverLetterRepository.deleteById(id);
     }
+
+    public long countByArchived(boolean archived) {
+        return coverLetterRepository.countByArchived(archived);
+    }
+
+    public long countByOwnerAndArchived(User owner, boolean archived) {
+        return coverLetterRepository.countByOwnerAndArchived(owner, archived);
+    }
 }

@@ -41,4 +41,12 @@ public class JobDao {
     public boolean existsByCompanyId(UUID companyId) {
         return jobRepository.existsByCompanyId(companyId);
     }
+
+    public long countAll() {
+        return jobRepository.count();
+    }
+
+    public long countByOwner(User owner) {
+        return jobRepository.countByOwner(owner);
+    }
 }

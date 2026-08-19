@@ -1,0 +1,49 @@
+:host {
+  display: block;
+}
+
+.stat-card {
+  border-radius: var(--japp-radius-lg);
+  height: 100%;
+}
+
+.stat-card__content {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-md);
+}
+
+.stat-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--japp-radius-md);
+  background: var(--japp-surface-container-high);
+  color: var(--japp-color-primary);
+}
+
+.stat-card__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stat-card__value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--japp-text-primary);
+}
+
+.stat-card__label {
+  color: var(--japp-text-secondary);
+  font-size: 0.875rem;
+}
+
+.stat-card__hint {
+  color: var(--japp-text-secondary);
+  font-size: 0.75rem;
+}

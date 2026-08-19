@@ -16,4 +16,8 @@ public interface CoverLetterRepository extends JpaRepository<CoverLetter, UUID> 
     List<CoverLetter> findByArchived(boolean archived);
 
     Optional<CoverLetter> findByGenerationRequestId(UUID generationRequestId);
+
+    long countByOwnerAndArchived(User owner, boolean archived);
+
+    long countByArchived(boolean archived);
 }

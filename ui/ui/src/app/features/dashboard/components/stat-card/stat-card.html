@@ -1,0 +1,14 @@
+<mat-card appearance="outlined" class="stat-card">
+  <mat-card-content class="stat-card__content">
+    <div class="stat-card__icon">
+      <ng-content />
+    </div>
+    <div class="stat-card__text">
+      <span class="stat-card__value">{{ value() }}</span>
+      <span class="stat-card__label">{{ label() }}</span>
+      @if (hint()) {
+        <span class="stat-card__hint">{{ hint() }}</span>
+      }
+    </div>
+  </mat-card-content>
+</mat-card>

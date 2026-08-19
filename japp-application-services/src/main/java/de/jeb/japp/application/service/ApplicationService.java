@@ -79,6 +79,13 @@ public class ApplicationService {
                 : applicationDao.getAllApplicationsByOwner(requester);
     }
 
+    /** ADMIN gets the global count, matching {@link #list}'s ADMIN-sees-everything convention. */
+    public long count(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? applicationDao.countAll()
+                : applicationDao.countByOwner(requester);
+    }
+
     public Application update(UUID id, ApplicationRequest request, User requester) {
         Application application = get(id, requester);
         validate(request);

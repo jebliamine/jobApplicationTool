@@ -44,4 +44,12 @@ public class CVDao {
         cvRepository.deleteAll();
     }
 
+    public long countAll() {
+        return cvRepository.count();
+    }
+
+    public long countByOwner(User user) {
+        return cvRepository.countByOwner(user);
+    }
+
 }

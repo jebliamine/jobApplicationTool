@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -96,6 +97,20 @@ public class GenerationRequestService {
         return requester.getRole() == UserRole.ADMIN
                 ? generationRequestDao.getAllGenerationRequests()
                 : generationRequestDao.getAllGenerationRequestsByOwner(requester);
+    }
+
+    /** ADMIN gets the global count, matching {@link #list}'s ADMIN-sees-everything convention. */
+    public long count(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? generationRequestDao.countAll()
+                : generationRequestDao.countByOwner(requester);
+    }
+
+    /** Same ADMIN/owner scoping as {@link #count}, broken down by {@link GenerationStatus}. */
+    public Map<GenerationStatus, Long> countByStatus(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? generationRequestDao.countAllGroupByStatus()
+                : generationRequestDao.countByOwnerGroupByStatus(requester);
     }
 
     /** The CoverLetter this request produced, if it has reached COMPLETED. */

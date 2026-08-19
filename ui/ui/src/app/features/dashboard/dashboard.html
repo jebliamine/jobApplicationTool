@@ -1,7 +1,61 @@
-<header class="dashboard__header">
-  <h1 class="dashboard__title">Welcome to JAPP</h1>
-  <p class="dashboard__subtitle">
-    This is your dashboard. Use the sidebar or the search field above to get around — widgets and
-    summaries will appear here as backend-verified features are added.
-  </p>
-</header>
+<div class="dashboard">
+  <header class="dashboard__header">
+    <h1 class="dashboard__title">Welcome to JAPP</h1>
+    <p class="dashboard__subtitle">
+      @if (isAdmin()) {
+        An overview of activity across every user's account.
+      } @else {
+        An overview of your job search activity.
+      }
+    </p>
+  </header>
+
+  @if (loading()) {
+    <div class="dashboard__state">
+      <mat-progress-spinner diameter="28" mode="indeterminate" />
+      <span>Loading your dashboard…</span>
+    </div>
+  } @else if (error()) {
+    <div class="dashboard__state dashboard__state--error" role="alert">
+      <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+      <span>We could not load your dashboard.</span>
+      <button mat-stroked-button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (dashboard(); as data) {
+    <section class="dashboard__grid" aria-label="Statistics">
+      <app-stat-card label="CVs" [value]="data.cvCount">
+        <svg lucideFileText [size]="20" aria-hidden="true"></svg>
+      </app-stat-card>
+
+      <app-stat-card label="Jobs" [value]="data.jobCount">
+        <svg lucideBriefcase [size]="20" aria-hidden="true"></svg>
+      </app-stat-card>
+
+      <app-stat-card label="Applications" [value]="data.applicationCount">
+        <svg lucideSend [size]="20" aria-hidden="true"></svg>
+      </app-stat-card>
+
+      <app-stat-card
+        label="Cover Letters"
+        [value]="data.activeCoverLetterCount"
+        [hint]="data.archivedCoverLetterCount + ' archived'"
+      >
+        <svg lucideMail [size]="20" aria-hidden="true"></svg>
+      </app-stat-card>
+
+      <app-stat-card
+        label="Generation Requests"
+        [value]="data.generationRequestCount"
+        [hint]="data.generationStatusCounts.FAILED + ' failed'"
+      >
+        <svg lucideSparkles [size]="20" aria-hidden="true"></svg>
+      </app-stat-card>
+
+      @if (isAdmin() && data.totalUsers !== null) {
+        <app-stat-card label="Total Users" [value]="data.totalUsers">
+          <svg lucideUsers [size]="20" aria-hidden="true"></svg>
+        </app-stat-card>
+      }
+    </section>
+  }
+</div>

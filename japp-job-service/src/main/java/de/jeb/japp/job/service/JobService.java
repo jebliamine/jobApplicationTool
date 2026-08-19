@@ -70,6 +70,13 @@ public class JobService {
                 : jobDao.getAllJobsByOwner(requester);
     }
 
+    /** ADMIN gets the global count, matching {@link #list}'s ADMIN-sees-everything convention. */
+    public long count(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? jobDao.countAll()
+                : jobDao.countByOwner(requester);
+    }
+
     public Job update(UUID id, JobRequest request, User requester) {
         Job job = get(id, requester);
         validate(request);

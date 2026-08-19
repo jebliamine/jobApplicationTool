@@ -45,4 +45,8 @@ public class UserDao {
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findUserByEmail(email);
     }
+
+    public long countAll() {
+        return userRepository.count();
+    }
 }

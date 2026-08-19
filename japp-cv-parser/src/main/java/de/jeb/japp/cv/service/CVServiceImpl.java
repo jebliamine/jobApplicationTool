@@ -85,6 +85,13 @@ public class CVServiceImpl implements CVServiceInterface {
     }
 
     @Override
+    public long count(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? cvDao.countAll()
+                : cvDao.countByOwner(requester);
+    }
+
+    @Override
     public Resource loadResource(CVDocument document) {
         Resource resource = storageService.load(document.getStorageKey());
         if (!resource.exists() || !resource.isReadable()) {

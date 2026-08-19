@@ -42,6 +42,22 @@ public class CoverLetterService {
                 : coverLetterDao.getAllCoverLettersByOwner(requester, archived);
     }
 
+    /** Same ADMIN/owner scoping as {@link #list}, counting the active (non-archived) view. */
+    public long countActive(User requester) {
+        return count(requester, false);
+    }
+
+    /** Same ADMIN/owner scoping as {@link #list}, counting the archived view. */
+    public long countArchived(User requester) {
+        return count(requester, true);
+    }
+
+    private long count(User requester, boolean archived) {
+        return requester.getRole() == UserRole.ADMIN
+                ? coverLetterDao.countByArchived(archived)
+                : coverLetterDao.countByOwnerAndArchived(requester, archived);
+    }
+
     public CoverLetter update(UUID id, CoverLetterUpdateRequest request, User requester) {
         CoverLetter coverLetter = get(id, requester);
         validate(request);

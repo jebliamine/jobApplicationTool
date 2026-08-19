@@ -11,4 +11,6 @@ import java.util.UUID;
 @Repository
 public interface CVRepository extends JpaRepository<CVDocument, UUID> {
     public List<CVDocument> findByOwner(User user);
+
+    long countByOwner(User owner);
 }
