@@ -10,6 +10,7 @@ export interface CoverLetterResponse {
   job: JobResponse;
   cv: CvResponse | null;
   owner: UserProfile;
+  archived: boolean;
   createdAt: string;
   updatedAt: string;
 }

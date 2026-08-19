@@ -24,17 +24,59 @@
   } @else if (coverLetter(); as coverLetter) {
     <header class="cover-letter-detail-page__header">
       <div>
-        <h1 class="cover-letter-detail-page__title">Cover letter for {{ coverLetter.job.title }}</h1>
+        <h1 class="cover-letter-detail-page__title">
+          Cover letter for {{ coverLetter.job.title }}
+          @if (coverLetter.archived) {
+            <span class="cover-letter-detail-page__archived-badge">Archived</span>
+          }
+        </h1>
         <a class="cover-letter-detail-page__company" [routerLink]="['/jobs', coverLetter.job.id]">
           <svg lucideBriefcase [size]="16" aria-hidden="true"></svg>
           {{ coverLetter.job.company.name }}
         </a>
       </div>
       @if (!editing()) {
-        <button mat-stroked-button type="button" (click)="startEdit()">
-          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
-          Edit
-        </button>
+        <div class="cover-letter-detail-page__header-actions">
+          <button mat-stroked-button type="button" (click)="startEdit()">
+            <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+            Edit
+          </button>
+          @if (!coverLetter.archived) {
+            <button mat-stroked-button type="button" [disabled]="toggling()" (click)="archive()">
+              @if (toggling()) {
+                <mat-progress-spinner diameter="16" mode="indeterminate" />
+              } @else {
+                <svg lucideArchive [size]="16" aria-hidden="true"></svg>
+              }
+              Archive
+            </button>
+          } @else {
+            <button mat-stroked-button type="button" [disabled]="toggling()" (click)="unarchive()">
+              @if (toggling()) {
+                <mat-progress-spinner diameter="16" mode="indeterminate" />
+              } @else {
+                <svg lucideArchiveRestore [size]="16" aria-hidden="true"></svg>
+              }
+              Unarchive
+            </button>
+          }
+          @if (isAdmin()) {
+            <button
+              mat-stroked-button
+              type="button"
+              class="cover-letter-detail-page__delete-button"
+              [disabled]="deleting()"
+              (click)="confirmDelete()"
+            >
+              @if (deleting()) {
+                <mat-progress-spinner diameter="16" mode="indeterminate" />
+              } @else {
+                <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+              }
+              Delete permanently
+            </button>
+          }
+        </div>
       }
     </header>
 

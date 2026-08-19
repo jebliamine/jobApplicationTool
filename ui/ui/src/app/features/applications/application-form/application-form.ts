@@ -150,6 +150,15 @@ export class ApplicationForm {
   private loadApplication(): void {
     this.applicationService.get(this.applicationId!).subscribe({
       next: (application) => {
+        // The dropdown only lists active cover letters; if this application
+        // already references one that has since been archived, add it back
+        // in so the current selection still shows up (and stays valid) —
+        // archiving must never silently detach it from the application.
+        const attached = application.coverLetter;
+        if (attached && !this.coverLetters().some((letter) => letter.id === attached.id)) {
+          this.coverLetters.update((current) => [...current, attached]);
+        }
+
         this.form.setValue({
           jobId: application.job.id,
           cvDocumentId: application.cv?.id ?? '',

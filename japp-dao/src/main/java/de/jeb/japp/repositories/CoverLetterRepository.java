@@ -11,7 +11,9 @@ import java.util.UUID;
 
 @Repository
 public interface CoverLetterRepository extends JpaRepository<CoverLetter, UUID> {
-    List<CoverLetter> findByOwner(User owner);
+    List<CoverLetter> findByOwnerAndArchived(User owner, boolean archived);
+
+    List<CoverLetter> findByArchived(boolean archived);
 
     Optional<CoverLetter> findByGenerationRequestId(UUID generationRequestId);
 }

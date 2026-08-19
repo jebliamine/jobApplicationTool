@@ -22,6 +22,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -103,25 +104,31 @@ class CoverLetterServiceTest {
 
     @Test
     void listReturnsAllCoverLettersForAdmin() {
-        coverLetterService.list(admin);
-        verify(coverLetterDao).getAllCoverLetters();
-        verify(coverLetterDao, never()).getAllCoverLettersByOwner(any());
+        coverLetterService.list(admin, false);
+        verify(coverLetterDao).getAllCoverLetters(false);
+        verify(coverLetterDao, never()).getAllCoverLettersByOwner(any(), anyBoolean());
     }
 
     @Test
     void listReturnsOnlyOwnCoverLettersForRegularUser() {
-        coverLetterService.list(owner);
-        verify(coverLetterDao).getAllCoverLettersByOwner(owner);
-        verify(coverLetterDao, never()).getAllCoverLetters();
+        coverLetterService.list(owner, false);
+        verify(coverLetterDao).getAllCoverLettersByOwner(owner, false);
+        verify(coverLetterDao, never()).getAllCoverLetters(anyBoolean());
     }
 
     @Test
     void listReturnsWhatDaoProvides() {
-        when(coverLetterDao.getAllCoverLettersByOwner(owner)).thenReturn(List.of(coverLetterOwnedBy(owner)));
+        when(coverLetterDao.getAllCoverLettersByOwner(owner, false)).thenReturn(List.of(coverLetterOwnedBy(owner)));
 
-        List<CoverLetter> result = coverLetterService.list(owner);
+        List<CoverLetter> result = coverLetterService.list(owner, false);
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void listCanRequestTheArchivedView() {
+        coverLetterService.list(owner, true);
+        verify(coverLetterDao).getAllCoverLettersByOwner(owner, true);
     }
 
     @Test
@@ -168,5 +175,116 @@ class CoverLetterServiceTest {
                 .isInstanceOf(CoverLetterValidationException.class);
 
         verify(coverLetterDao, never()).saveCoverLetter(any());
+    }
+
+    @Test
+    void userCanArchiveTheirOwnCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+        when(coverLetterDao.saveCoverLetter(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CoverLetter archived = coverLetterService.archive(id, owner);
+
+        assertThat(archived.isArchived()).isTrue();
+        assertThat(archived.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    void userCannotArchiveAnotherUsersCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+
+        assertThatThrownBy(() -> coverLetterService.archive(id, otherUser))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(coverLetterDao, never()).saveCoverLetter(any());
+    }
+
+    @Test
+    void userCanUnarchiveTheirOwnCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        coverLetter.setArchived(true);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+        when(coverLetterDao.saveCoverLetter(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CoverLetter unarchived = coverLetterService.unarchive(id, owner);
+
+        assertThat(unarchived.isArchived()).isFalse();
+    }
+
+    @Test
+    void userCannotUnarchiveAnotherUsersCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        coverLetter.setArchived(true);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+
+        assertThatThrownBy(() -> coverLetterService.unarchive(id, otherUser))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(coverLetterDao, never()).saveCoverLetter(any());
+    }
+
+    @Test
+    void adminCanArchiveAnyCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+        when(coverLetterDao.saveCoverLetter(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CoverLetter archived = coverLetterService.archive(id, admin);
+
+        assertThat(archived.isArchived()).isTrue();
+    }
+
+    @Test
+    void adminCanUnarchiveAnyCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        coverLetter.setArchived(true);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+        when(coverLetterDao.saveCoverLetter(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        CoverLetter unarchived = coverLetterService.unarchive(id, admin);
+
+        assertThat(unarchived.isArchived()).isFalse();
+    }
+
+    @Test
+    void userCannotPermanentlyDeleteTheirOwnCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+
+        assertThatThrownBy(() -> coverLetterService.delete(id, owner))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(coverLetterDao, never()).deleteCoverLetter(any());
+    }
+
+    @Test
+    void userCannotPermanentlyDeleteAnotherUsersCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+
+        assertThatThrownBy(() -> coverLetterService.delete(id, otherUser))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(coverLetterDao, never()).deleteCoverLetter(any());
+    }
+
+    @Test
+    void adminCanPermanentlyDeleteAnyCoverLetter() {
+        UUID id = UUID.randomUUID();
+        CoverLetter coverLetter = coverLetterOwnedBy(owner);
+        when(coverLetterDao.getCoverLetterById(id)).thenReturn(Optional.of(coverLetter));
+
+        coverLetterService.delete(id, admin);
+
+        verify(coverLetterDao).deleteCoverLetter(coverLetter.getId());
     }
 }

@@ -21,6 +21,16 @@
     </a>
   </header>
 
+  <mat-button-toggle-group
+    class="cover-letter-list-page__view-toggle"
+    [value]="showArchived() ? 'archived' : 'active'"
+    (change)="onViewChange($event)"
+    aria-label="Filter by archive status"
+  >
+    <mat-button-toggle value="active">Active</mat-button-toggle>
+    <mat-button-toggle value="archived">Archived</mat-button-toggle>
+  </mat-button-toggle-group>
+
   <mat-card appearance="outlined" class="cover-letter-list">
     <mat-card-content>
       @if (loading()) {
@@ -37,7 +47,11 @@
       } @else if (coverLetters().length === 0) {
         <div class="cover-letter-list__state cover-letter-list__state--empty">
           <svg lucideInbox [size]="24" aria-hidden="true"></svg>
-          <p>No cover letters yet. Generate your first one from a job you're tracking.</p>
+          @if (showArchived()) {
+            <p>No archived cover letters.</p>
+          } @else {
+            <p>No cover letters yet. Generate your first one from a job you're tracking.</p>
+          }
         </div>
       } @else {
         <div class="cover-letter-list__table-wrap">
@@ -79,6 +93,54 @@
                 >
                   <svg lucideEye [size]="18" aria-hidden="true"></svg>
                 </button>
+                @if (!letter.archived) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Archive"
+                    [attr.aria-label]="'Archive cover letter for ' + letter.job.title"
+                    [disabled]="!!togglingId()"
+                    (click)="archiveCoverLetter(letter)"
+                  >
+                    @if (togglingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideArchive [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Unarchive"
+                    [attr.aria-label]="'Unarchive cover letter for ' + letter.job.title"
+                    [disabled]="!!togglingId()"
+                    (click)="unarchiveCoverLetter(letter)"
+                  >
+                    @if (togglingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideArchiveRestore [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                }
+                @if (isAdmin()) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Delete permanently"
+                    class="cover-letter-list__delete-button"
+                    [attr.aria-label]="'Permanently delete cover letter for ' + letter.job.title"
+                    [disabled]="!!deletingId()"
+                    (click)="confirmDelete(letter)"
+                  >
+                    @if (deletingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideTrash2 [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                }
               </td>
             </ng-container>
 
@@ -120,6 +182,54 @@
                 >
                   <svg lucideEye [size]="18" aria-hidden="true"></svg>
                 </button>
+                @if (!letter.archived) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Archive"
+                    [attr.aria-label]="'Archive cover letter for ' + letter.job.title"
+                    [disabled]="!!togglingId()"
+                    (click)="archiveCoverLetter(letter)"
+                  >
+                    @if (togglingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideArchive [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                } @else {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Unarchive"
+                    [attr.aria-label]="'Unarchive cover letter for ' + letter.job.title"
+                    [disabled]="!!togglingId()"
+                    (click)="unarchiveCoverLetter(letter)"
+                  >
+                    @if (togglingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideArchiveRestore [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                }
+                @if (isAdmin()) {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    matTooltip="Delete permanently"
+                    class="cover-letter-list__delete-button"
+                    [attr.aria-label]="'Permanently delete cover letter for ' + letter.job.title"
+                    [disabled]="!!deletingId()"
+                    (click)="confirmDelete(letter)"
+                  >
+                    @if (deletingId() === letter.id) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      <svg lucideTrash2 [size]="18" aria-hidden="true"></svg>
+                    }
+                  </button>
+                }
               </div>
             </li>
           }

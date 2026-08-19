@@ -18,12 +18,12 @@ public class CoverLetterDao {
         this.coverLetterRepository = coverLetterRepository;
     }
 
-    public List<CoverLetter> getAllCoverLetters() {
-        return coverLetterRepository.findAll();
+    public List<CoverLetter> getAllCoverLetters(boolean archived) {
+        return coverLetterRepository.findByArchived(archived);
     }
 
-    public List<CoverLetter> getAllCoverLettersByOwner(User owner) {
-        return coverLetterRepository.findByOwner(owner);
+    public List<CoverLetter> getAllCoverLettersByOwner(User owner, boolean archived) {
+        return coverLetterRepository.findByOwnerAndArchived(owner, archived);
     }
 
     public Optional<CoverLetter> getCoverLetterById(UUID id) {
@@ -36,5 +36,9 @@ public class CoverLetterDao {
 
     public CoverLetter saveCoverLetter(CoverLetter coverLetter) {
         return coverLetterRepository.save(coverLetter);
+    }
+
+    public void deleteCoverLetter(UUID id) {
+        coverLetterRepository.deleteById(id);
     }
 }

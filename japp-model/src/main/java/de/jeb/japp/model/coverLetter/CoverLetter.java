@@ -10,7 +10,8 @@ import java.util.UUID;
 @Entity
 @Table(name = "coverletter", indexes = {
         @Index(name = "idx_coverletter_owner", columnList = "owner_id"),
-        @Index(name = "idx_coverletter_generation_request", columnList = "generation_request_id")
+        @Index(name = "idx_coverletter_generation_request", columnList = "generation_request_id"),
+        @Index(name = "idx_coverletter_archived", columnList = "archived")
 })
 public class CoverLetter {
 
@@ -29,6 +30,15 @@ public class CoverLetter {
 
     @Column(length = 8000)
     private String resultText;
+
+    /**
+     * Archived CoverLetters are excluded from the default list but never
+     * deleted — a USER cannot permanently delete a CoverLetter, only archive
+     * it. Defaults to false; {@code columnDefinition} gives existing rows a
+     * safe backfill value when this column is first added to the table.
+     */
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean archived;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -59,6 +69,14 @@ public class CoverLetter {
 
     public void setResultText(String resultText) {
         this.resultText = resultText;
+    }
+
+    public boolean isArchived() {
+        return archived;
+    }
+
+    public void setArchived(boolean archived) {
+        this.archived = archived;
     }
 
     public LocalDateTime getCreatedAt() {

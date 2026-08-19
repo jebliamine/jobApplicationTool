@@ -35,10 +35,11 @@ public class CoverLetterService {
         return coverLetter;
     }
 
-    public List<CoverLetter> list(User requester) {
+    /** archived=false is the default/normal view; archived=true is the explicit archived view. */
+    public List<CoverLetter> list(User requester, boolean archived) {
         return requester.getRole() == UserRole.ADMIN
-                ? coverLetterDao.getAllCoverLetters()
-                : coverLetterDao.getAllCoverLettersByOwner(requester);
+                ? coverLetterDao.getAllCoverLetters(archived)
+                : coverLetterDao.getAllCoverLettersByOwner(requester, archived);
     }
 
     public CoverLetter update(UUID id, CoverLetterUpdateRequest request, User requester) {
@@ -47,6 +48,35 @@ public class CoverLetterService {
         coverLetter.setResultText(request.getResultText().trim());
         coverLetter.setUpdatedAt(LocalDateTime.now());
         return coverLetterDao.saveCoverLetter(coverLetter);
+    }
+
+    /** USER can archive their own CoverLetters; ADMIN can archive any. Preserves the GenerationRequest/Application relationship. */
+    public CoverLetter archive(UUID id, User requester) {
+        CoverLetter coverLetter = get(id, requester);
+        coverLetter.setArchived(true);
+        coverLetter.setUpdatedAt(LocalDateTime.now());
+        return coverLetterDao.saveCoverLetter(coverLetter);
+    }
+
+    public CoverLetter unarchive(UUID id, User requester) {
+        CoverLetter coverLetter = get(id, requester);
+        coverLetter.setArchived(false);
+        coverLetter.setUpdatedAt(LocalDateTime.now());
+        return coverLetterDao.saveCoverLetter(coverLetter);
+    }
+
+    /**
+     * Permanent deletion — ADMIN only, regardless of ownership. A USER can
+     * never permanently delete a CoverLetter, even their own (they can only
+     * archive it). The GenerationRequest is never touched; the Application
+     * FK is ON DELETE SET NULL at the database level.
+     */
+    public void delete(UUID id, User requester) {
+        CoverLetter coverLetter = get(id, requester);
+        if (requester.getRole() != UserRole.ADMIN) {
+            throw new CoverLetterAccessDeniedException("Only an administrator can permanently delete a cover letter.");
+        }
+        coverLetterDao.deleteCoverLetter(coverLetter.getId());
     }
 
     private CoverLetter find(UUID id) {

@@ -20,6 +20,7 @@ public class CoverLetterResponse {
     private JobResponse job;
     private CVResponse cv;
     private UserDto owner;
+    private boolean archived;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -36,6 +37,7 @@ public class CoverLetterResponse {
                 ? CVResponse.from(coverLetter.getGenerationRequest().getCvDocument())
                 : null;
         response.owner = UserDto.from(coverLetter.getOwner());
+        response.archived = coverLetter.isArchived();
         response.createdAt = coverLetter.getCreatedAt();
         response.updatedAt = coverLetter.getUpdatedAt();
         return response;
@@ -63,6 +65,10 @@ public class CoverLetterResponse {
 
     public UserDto getOwner() {
         return owner;
+    }
+
+    public boolean isArchived() {
+        return archived;
     }
 
     public LocalDateTime getCreatedAt() {

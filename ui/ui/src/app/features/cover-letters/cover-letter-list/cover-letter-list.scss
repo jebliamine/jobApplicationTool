@@ -31,8 +31,17 @@
   }
 }
 
+.cover-letter-list-page__view-toggle {
+  display: inline-flex;
+  margin-bottom: var(--japp-spacing-md);
+}
+
 .cover-letter-list {
   border-radius: var(--japp-radius-lg);
+}
+
+.cover-letter-list__delete-button {
+  color: var(--japp-color-error);
 }
 
 .cover-letter-list__state {

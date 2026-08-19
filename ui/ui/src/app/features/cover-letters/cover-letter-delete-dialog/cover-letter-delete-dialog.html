@@ -1,0 +1,14 @@
+<h2 mat-dialog-title class="cover-letter-delete-dialog__title">
+  <svg lucideTriangleAlert [size]="20" aria-hidden="true"></svg>
+  Delete this cover letter permanently?
+</h2>
+<mat-dialog-content>
+  <p>
+    This will permanently delete the cover letter for
+    <strong>"{{ data.jobTitle }}"</strong>. This action cannot be undone.
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="warn" type="button" (click)="confirm()">Delete permanently</button>
+</mat-dialog-actions>

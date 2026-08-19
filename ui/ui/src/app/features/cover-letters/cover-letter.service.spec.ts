@@ -42,6 +42,7 @@ const COVER_LETTER: CoverLetterResponse = {
   job: JOB,
   cv: null,
   owner: OWNER,
+  archived: false,
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
 };
@@ -62,9 +63,16 @@ describe('CoverLetterService', () => {
 
   afterEach(() => httpMock.verify());
 
-  it('list() GETs /cover-letters', () => {
+  it('list() GETs /cover-letters?archived=false by default', () => {
     service.list().subscribe((letters) => expect(letters).toEqual([COVER_LETTER]));
-    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters`);
+    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters?archived=false`);
+    expect(req.request.method).toBe('GET');
+    req.flush([COVER_LETTER]);
+  });
+
+  it('list(true) GETs /cover-letters?archived=true', () => {
+    service.list(true).subscribe((letters) => expect(letters).toEqual([COVER_LETTER]));
+    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters?archived=true`);
     expect(req.request.method).toBe('GET');
     req.flush([COVER_LETTER]);
   });
@@ -82,5 +90,27 @@ describe('CoverLetterService', () => {
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(UPDATE_REQUEST);
     req.flush(COVER_LETTER);
+  });
+
+  it('archive() PATCHes /cover-letters/{id}/archive', () => {
+    const archived = { ...COVER_LETTER, archived: true };
+    service.archive(COVER_LETTER.id).subscribe((letter) => expect(letter).toEqual(archived));
+    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters/${COVER_LETTER.id}/archive`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush(archived);
+  });
+
+  it('unarchive() PATCHes /cover-letters/{id}/unarchive', () => {
+    service.unarchive(COVER_LETTER.id).subscribe((letter) => expect(letter).toEqual(COVER_LETTER));
+    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters/${COVER_LETTER.id}/unarchive`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush(COVER_LETTER);
+  });
+
+  it('delete() DELETEs /cover-letters/{id}', () => {
+    service.delete(COVER_LETTER.id).subscribe();
+    const req = httpMock.expectOne(`${environment.apiUrl}/cover-letters/${COVER_LETTER.id}`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });

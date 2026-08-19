@@ -62,6 +62,9 @@
               @for (letter of coverLetters(); track letter.id) {
                 <mat-option [value]="letter.id">
                   {{ letter.job.title }} — {{ letter.createdAt | date: 'mediumDate' }}
+                  @if (letter.archived) {
+                    (Archived)
+                  }
                 </mat-option>
               }
             </mat-select>
