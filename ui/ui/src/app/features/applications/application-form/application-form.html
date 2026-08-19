@@ -55,6 +55,18 @@
             </mat-select>
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="application-form-page__field">
+            <mat-label>Cover letter</mat-label>
+            <mat-select formControlName="coverLetterId">
+              <mat-option value="">None</mat-option>
+              @for (letter of coverLetters(); track letter.id) {
+                <mat-option [value]="letter.id">
+                  {{ letter.job.title }} — {{ letter.createdAt | date: 'mediumDate' }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
           <div class="application-form-page__row">
             <mat-form-field appearance="outline" class="application-form-page__field">
               <mat-label>Status</mat-label>

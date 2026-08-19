@@ -9,6 +9,9 @@ import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
+import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
@@ -45,6 +48,8 @@ class GenerationRequestServiceTest {
     private JobDao jobDao;
     @Mock
     private CVDao cvDao;
+    @Mock
+    private CoverLetterGenerationProvider generationProvider;
 
     private GenerationRequestService generationRequestService;
 
@@ -57,7 +62,8 @@ class GenerationRequestServiceTest {
 
     @BeforeEach
     void setUp() {
-        generationRequestService = new GenerationRequestService(generationRequestDao, coverLetterDao, jobDao, cvDao);
+        generationRequestService =
+                new GenerationRequestService(generationRequestDao, coverLetterDao, jobDao, cvDao, generationProvider);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -89,6 +95,11 @@ class GenerationRequestServiceTest {
         // saveGenerationRequest is called repeatedly through process(); echo back whatever is passed in.
         lenient().when(generationRequestDao.saveGenerationRequest(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Default: the provider succeeds. Individual tests override this to exercise failure handling.
+        lenient().when(generationProvider.generate(any()))
+                .thenReturn(new GenerationResult(
+                        "Generated cover letter mentioning " + job.getTitle() + " at " + company.getName() + "."));
     }
 
     private GenerationRequestCreateRequest validRequest() {
@@ -121,13 +132,14 @@ class GenerationRequestServiceTest {
     }
 
     @Test
-    void generationRequestReachesCompletedWithThePlaceholderGenerator() {
+    void serviceCallsTheProviderAndReachesCompletedWhenItSucceeds() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
+        verify(generationProvider).generate(any());
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.COMPLETED);
         assertThat(result.getStartedAt()).isNotNull();
         assertThat(result.getCompletedAt()).isNotNull();
@@ -135,10 +147,11 @@ class GenerationRequestServiceTest {
     }
 
     @Test
-    void aCoverLetterIsCreatedFromASuccessfulGenerationRequest() {
+    void aCoverLetterIsCreatedFromTheProvidersResultOnSuccess() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(generationProvider.generate(any())).thenReturn(new GenerationResult("Text from the provider."));
 
         generationRequestService.create(request, owner);
 
@@ -148,22 +161,23 @@ class GenerationRequestServiceTest {
 
         assertThat(savedCoverLetter.getOwner()).isEqualTo(owner);
         assertThat(savedCoverLetter.getGenerationRequest()).isNotNull();
-        assertThat(savedCoverLetter.getResultText()).isNotBlank();
-        assertThat(savedCoverLetter.getResultText()).contains(job.getTitle());
-        assertThat(savedCoverLetter.getResultText()).contains(company.getName());
+        // The stored text must come straight from the provider's result — proves the
+        // service depends on the abstraction rather than generating content itself.
+        assertThat(savedCoverLetter.getResultText()).isEqualTo("Text from the provider.");
     }
 
     @Test
-    void failedGenerationIsRepresentedCorrectly() {
-        job.setDescription(" ");
+    void providerFailureResultsInFailedWithTheErrorMessageStored() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(generationProvider.generate(any()))
+                .thenThrow(new CoverLetterGenerationException("The provider could not generate a letter."));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.FAILED);
-        assertThat(result.getErrorMessage()).isNotBlank();
+        assertThat(result.getErrorMessage()).isEqualTo("The provider could not generate a letter.");
         assertThat(result.getCompletedAt()).isNotNull();
         verifyNoInteractions(coverLetterDao);
     }

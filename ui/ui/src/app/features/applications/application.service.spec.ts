@@ -51,6 +51,7 @@ const APPLICATION: ApplicationResponse = {
   id: '11111111-1111-1111-1111-111111111111',
   job: JOB,
   cv: CV,
+  coverLetter: null,
   status: 'APPLIED',
   appliedAt: '2026-01-01',
   notes: 'Applied via referral.',
@@ -62,6 +63,7 @@ const APPLICATION: ApplicationResponse = {
 const REQUEST: ApplicationRequest = {
   jobId: JOB.id,
   cvDocumentId: CV.id,
+  coverLetterId: null,
   status: 'APPLIED',
   appliedAt: '2026-01-01',
   notes: 'Applied via referral.',

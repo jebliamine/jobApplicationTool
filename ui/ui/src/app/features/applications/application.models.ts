@@ -1,4 +1,5 @@
 import { UserProfile } from '../../core/models/user.models';
+import { CoverLetterResponse } from '../cover-letters/cover-letter.models';
 import { CvResponse } from '../cv/cv.models';
 import { JobResponse } from '../jobs/job.models';
 
@@ -26,6 +27,7 @@ export interface ApplicationResponse {
   id: string;
   job: JobResponse;
   cv: CvResponse | null;
+  coverLetter: CoverLetterResponse | null;
   status: ApplicationStatus;
   appliedAt: string;
   notes: string | null;
@@ -38,6 +40,7 @@ export interface ApplicationResponse {
 export interface ApplicationRequest {
   jobId: string;
   cvDocumentId: string | null;
+  coverLetterId: string | null;
   status: ApplicationStatus;
   appliedAt: string;
   notes: string | null;

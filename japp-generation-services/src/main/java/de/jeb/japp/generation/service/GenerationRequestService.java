@@ -11,6 +11,10 @@ import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
+import de.jeb.japp.generation.service.provider.GenerationInput;
+import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.generation.GenerationRequest;
@@ -29,33 +33,36 @@ import java.util.UUID;
 /**
  * Runs the cover-letter generation workflow: validates ownership of the
  * selected Job/CV, creates the GenerationRequest, and drives it through
- * PENDING → IN_PROGRESS → COMPLETED/FAILED. The placeholder generator below
- * completes synchronously (no external AI call) but the domain model and API
- * are shaped to support a real async provider later without changes to
- * callers — see {@link #process}.
+ * PENDING → IN_PROGRESS → COMPLETED/FAILED. The actual content generation is
+ * delegated to a {@link CoverLetterGenerationProvider} — today that's
+ * {@code PlaceholderCoverLetterGenerationProvider} (no external AI call),
+ * but this service has no knowledge of that; a real provider can be swapped
+ * in later without changing this class, the REST API, or Angular.
  */
 @Service
 public class GenerationRequestService {
 
     private static final String PROVIDER = "placeholder";
     private static final String MODEL = "deterministic-v1";
-    private static final int DESCRIPTION_EXCERPT_LENGTH = 400;
 
     private final GenerationRequestDao generationRequestDao;
     private final CoverLetterDao coverLetterDao;
     private final JobDao jobDao;
     private final CVDao cvDao;
+    private final CoverLetterGenerationProvider generationProvider;
 
     public GenerationRequestService(
             GenerationRequestDao generationRequestDao,
             CoverLetterDao coverLetterDao,
             JobDao jobDao,
-            CVDao cvDao
+            CVDao cvDao,
+            CoverLetterGenerationProvider generationProvider
     ) {
         this.generationRequestDao = generationRequestDao;
         this.coverLetterDao = coverLetterDao;
         this.jobDao = jobDao;
         this.cvDao = cvDao;
+        this.generationProvider = generationProvider;
     }
 
     public GenerationRequest create(GenerationRequestCreateRequest request, User owner) {
@@ -102,12 +109,12 @@ public class GenerationRequestService {
         generationRequestDao.saveGenerationRequest(generationRequest);
 
         try {
-            String content = generatePlaceholderContent(job, cv, owner);
+            GenerationResult result = generationProvider.generate(buildInput(job, cv, owner));
 
             CoverLetter coverLetter = new CoverLetter();
             coverLetter.setOwner(owner);
             coverLetter.setGenerationRequest(generationRequest);
-            coverLetter.setResultText(content);
+            coverLetter.setResultText(result.content());
             LocalDateTime now = LocalDateTime.now();
             coverLetter.setCreatedAt(now);
             coverLetter.setUpdatedAt(now);
@@ -115,7 +122,7 @@ public class GenerationRequestService {
 
             generationRequest.setStatus(GenerationStatus.COMPLETED);
             generationRequest.setCompletedAt(LocalDateTime.now());
-        } catch (GenerationRequestValidationException e) {
+        } catch (CoverLetterGenerationException e) {
             generationRequest.setStatus(GenerationStatus.FAILED);
             generationRequest.setErrorMessage(e.getMessage());
             generationRequest.setCompletedAt(LocalDateTime.now());
@@ -124,33 +131,18 @@ public class GenerationRequestService {
         return generationRequestDao.saveGenerationRequest(generationRequest);
     }
 
-    /**
-     * Deterministic, no external AI call: template the Job/CV metadata into
-     * a cover letter body. Fails when the Job has no description, since a
-     * real generator would have nothing to generate from either.
-     */
-    private String generatePlaceholderContent(Job job, CVDocument cv, User owner) {
-        if (job.getDescription() == null || job.getDescription().isBlank()) {
-            throw new GenerationRequestValidationException("The selected job has no description to generate from.");
-        }
-
+    /** Translates the resolved Job/CV/User entities into the plain-value input the provider operates on. */
+    private GenerationInput buildInput(Job job, CVDocument cv, User owner) {
         String applicantName = (owner.getFullName() != null && !owner.getFullName().isBlank())
                 ? owner.getFullName()
                 : owner.getEmail();
-        String cvReference = cv != null ? " and my CV \"" + cv.getTitle() + "\"" : "";
-        String description = job.getDescription().trim();
-        String descriptionExcerpt = description.length() > DESCRIPTION_EXCERPT_LENGTH
-                ? description.substring(0, DESCRIPTION_EXCERPT_LENGTH).trim() + "…"
-                : description;
-
-        return "Dear Hiring Team at " + job.getCompany().getName() + ",\n\n"
-                + "I am writing to express my interest in the " + job.getTitle() + " position. "
-                + "Based on the role description" + cvReference
-                + ", I believe my background aligns well with what you are looking for:\n\n"
-                + "\"" + descriptionExcerpt + "\"\n\n"
-                + "I would welcome the opportunity to discuss how I can contribute to your team.\n\n"
-                + "Sincerely,\n" + applicantName
-                + "\n\n[This is a placeholder cover letter generated without an AI provider.]";
+        return new GenerationInput(
+                job.getTitle(),
+                job.getCompany().getName(),
+                job.getDescription(),
+                cv != null ? cv.getTitle() : null,
+                applicantName
+        );
     }
 
     private GenerationRequest find(UUID id) {

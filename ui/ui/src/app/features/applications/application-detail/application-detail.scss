@@ -131,6 +131,20 @@
   }
 }
 
+.application-detail-page__cover-letter {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+
+  span {
+    color: var(--japp-text-secondary);
+  }
+}
+
+.application-detail-page__cover-letter-action {
+  font-size: 0.875rem;
+}
+
 .application-detail-page__row--notes dd {
   white-space: pre-wrap;
 }

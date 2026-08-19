@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -12,6 +13,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideCircleAlert } from '@lucide/angular';
 import { finalize, forkJoin } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
+import { CoverLetterResponse } from '../../cover-letters/cover-letter.models';
+import { CoverLetterService } from '../../cover-letters/cover-letter.service';
 import { CvResponse } from '../../cv/cv.models';
 import { CvService } from '../../cv/cv.service';
 import { JobResponse } from '../../jobs/job.models';
@@ -23,6 +26,7 @@ import { APPLICATION_STATUS_LABELS } from '../application-status';
 interface ApplicationFormControls {
   jobId: FormControl<string>;
   cvDocumentId: FormControl<string>;
+  coverLetterId: FormControl<string>;
   status: FormControl<ApplicationStatus>;
   appliedAt: FormControl<string>;
   notes: FormControl<string>;
@@ -38,6 +42,7 @@ interface ApplicationFormControls {
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    DatePipe,
     LucideCircleAlert,
   ],
   templateUrl: './application-form.html',
@@ -49,6 +54,7 @@ export class ApplicationForm {
   private readonly applicationService = inject(ApplicationService);
   private readonly jobService = inject(JobService);
   private readonly cvService = inject(CvService);
+  private readonly coverLetterService = inject(CoverLetterService);
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly statuses = APPLICATION_STATUSES;
@@ -58,6 +64,7 @@ export class ApplicationForm {
 
   protected readonly jobs = signal<JobResponse[]>([]);
   protected readonly cvs = signal<CvResponse[]>([]);
+  protected readonly coverLetters = signal<CoverLetterResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly serverError = signal<string | null>(null);
@@ -65,6 +72,7 @@ export class ApplicationForm {
   protected readonly form = new FormGroup<ApplicationFormControls>({
     jobId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     cvDocumentId: new FormControl('', { nonNullable: true }),
+    coverLetterId: new FormControl('', { nonNullable: true }),
     status: new FormControl<ApplicationStatus>('APPLIED', { nonNullable: true, validators: [Validators.required] }),
     appliedAt: new FormControl(todayAsInputValue(), { nonNullable: true, validators: [Validators.required] }),
     notes: new FormControl('', { nonNullable: true }),
@@ -95,6 +103,7 @@ export class ApplicationForm {
     const request: ApplicationRequest = {
       jobId: raw.jobId,
       cvDocumentId: raw.cvDocumentId || null,
+      coverLetterId: raw.coverLetterId || null,
       status: raw.status,
       appliedAt: raw.appliedAt,
       notes: raw.notes || null,
@@ -116,10 +125,15 @@ export class ApplicationForm {
   }
 
   private loadOptions(): void {
-    forkJoin({ jobs: this.jobService.list(), cvs: this.cvService.list() }).subscribe({
-      next: ({ jobs, cvs }) => {
+    forkJoin({
+      jobs: this.jobService.list(),
+      cvs: this.cvService.list(),
+      coverLetters: this.coverLetterService.list(),
+    }).subscribe({
+      next: ({ jobs, cvs, coverLetters }) => {
         this.jobs.set(jobs);
         this.cvs.set(cvs);
+        this.coverLetters.set(coverLetters);
         if (this.isEditMode) {
           this.loadApplication();
         } else {
@@ -128,7 +142,7 @@ export class ApplicationForm {
       },
       error: () => {
         this.loading.set(false);
-        this.serverError.set('We could not load your jobs and CVs. Please try again.');
+        this.serverError.set('We could not load your jobs, CVs, and cover letters. Please try again.');
       },
     });
   }
@@ -139,6 +153,7 @@ export class ApplicationForm {
         this.form.setValue({
           jobId: application.job.id,
           cvDocumentId: application.cv?.id ?? '',
+          coverLetterId: application.coverLetter?.id ?? '',
           status: application.status,
           appliedAt: application.appliedAt,
           notes: application.notes ?? '',

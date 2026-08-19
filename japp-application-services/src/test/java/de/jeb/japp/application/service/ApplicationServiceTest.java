@@ -3,14 +3,17 @@ package de.jeb.japp.application.service;
 import de.jeb.japp.commons.exceptions.application.ApplicationAccessDeniedException;
 import de.jeb.japp.commons.exceptions.application.ApplicationNotFoundException;
 import de.jeb.japp.commons.exceptions.application.ApplicationValidationException;
+import de.jeb.japp.commons.exceptions.coverletter.CoverLetterAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.dao.application.ApplicationDao;
+import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.application.Application;
 import de.jeb.japp.model.application.ApplicationStatus;
 import de.jeb.japp.model.application.dto.ApplicationRequest;
+import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.user.User;
@@ -40,6 +43,8 @@ class ApplicationServiceTest {
     private JobDao jobDao;
     @Mock
     private CVDao cvDao;
+    @Mock
+    private CoverLetterDao coverLetterDao;
 
     private ApplicationService applicationService;
 
@@ -48,10 +53,12 @@ class ApplicationServiceTest {
     private User admin;
     private Job job;
     private CVDocument cv;
+    private CoverLetter coverLetter;
+    private CoverLetter otherCoverLetter;
 
     @BeforeEach
     void setUp() {
-        applicationService = new ApplicationService(applicationDao, jobDao, cvDao);
+        applicationService = new ApplicationService(applicationDao, jobDao, cvDao, coverLetterDao);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -72,6 +79,14 @@ class ApplicationServiceTest {
         cv = new CVDocument();
         cv.setOwner(owner);
         cv.setTitle("My Resume");
+
+        coverLetter = new CoverLetter();
+        coverLetter.setOwner(owner);
+        coverLetter.setResultText("Dear Hiring Team, ...");
+
+        otherCoverLetter = new CoverLetter();
+        otherCoverLetter.setOwner(otherUser);
+        otherCoverLetter.setResultText("Someone else's cover letter.");
     }
 
     private ApplicationRequest validRequest() {
@@ -158,6 +173,36 @@ class ApplicationServiceTest {
 
         assertThat(created.getCvDocument()).isNull();
         verifyNoInteractions(cvDao);
+    }
+
+    @Test
+    void createWithUsersCoverLetterSucceeds() {
+        ApplicationRequest request = validRequest();
+        UUID coverLetterId = UUID.randomUUID();
+        request.setCoverLetterId(coverLetterId);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(coverLetterId)).thenReturn(Optional.of(coverLetter));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application created = applicationService.create(request, owner);
+
+        assertThat(created.getCoverLetter()).isEqualTo(coverLetter);
+    }
+
+    @Test
+    void createRejectsCoverLetterOwnedBySomeoneElse() {
+        ApplicationRequest request = validRequest();
+        UUID coverLetterId = UUID.randomUUID();
+        request.setCoverLetterId(coverLetterId);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(coverLetterId)).thenReturn(Optional.of(otherCoverLetter));
+
+        assertThatThrownBy(() -> applicationService.create(request, owner))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(applicationDao, never()).saveApplication(any());
     }
 
     @Test
@@ -250,6 +295,116 @@ class ApplicationServiceTest {
         // The job/CV must be checked against the application's actual owner, not the admin performing the edit.
         verify(jobDao).getJobById(request.getJobId());
         assertThat(application.getJob()).isEqualTo(job);
+    }
+
+    @Test
+    void updateCanAttachACoverLetter() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        ApplicationRequest request = validRequest();
+        UUID coverLetterId = UUID.randomUUID();
+        request.setCoverLetterId(coverLetterId);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(coverLetterId)).thenReturn(Optional.of(coverLetter));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application updated = applicationService.update(id, request, owner);
+
+        assertThat(updated.getCoverLetter()).isEqualTo(coverLetter);
+    }
+
+    @Test
+    void updateCanChangeFromOneCoverLetterToAnother() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        application.setCoverLetter(coverLetter);
+        CoverLetter replacementCoverLetter = new CoverLetter();
+        replacementCoverLetter.setOwner(owner);
+        replacementCoverLetter.setResultText("A different cover letter.");
+        UUID replacementId = UUID.randomUUID();
+
+        ApplicationRequest request = validRequest();
+        request.setCoverLetterId(replacementId);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(replacementId)).thenReturn(Optional.of(replacementCoverLetter));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application updated = applicationService.update(id, request, owner);
+
+        assertThat(updated.getCoverLetter()).isEqualTo(replacementCoverLetter);
+    }
+
+    @Test
+    void updateCanRemoveItsCoverLetter() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        application.setCoverLetter(coverLetter);
+
+        ApplicationRequest request = validRequest();
+        request.setCoverLetterId(null);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application updated = applicationService.update(id, request, owner);
+
+        assertThat(updated.getCoverLetter()).isNull();
+        verifyNoInteractions(coverLetterDao);
+    }
+
+    @Test
+    void updateRejectsCoverLetterOwnedBySomeoneElse() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        ApplicationRequest request = validRequest();
+        UUID coverLetterId = UUID.randomUUID();
+        request.setCoverLetterId(coverLetterId);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(coverLetterId)).thenReturn(Optional.of(otherCoverLetter));
+
+        assertThatThrownBy(() -> applicationService.update(id, request, owner))
+                .isInstanceOf(CoverLetterAccessDeniedException.class);
+
+        verify(applicationDao, never()).saveApplication(any());
+    }
+
+    @Test
+    void updateByAdminResolvesCoverLetterAgainstApplicationOwnerNotAdmin() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        ApplicationRequest request = validRequest();
+        UUID coverLetterId = UUID.randomUUID();
+        request.setCoverLetterId(coverLetterId);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(coverLetterDao.getCoverLetterById(coverLetterId)).thenReturn(Optional.of(coverLetter));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        applicationService.update(id, request, admin);
+
+        // Must check the cover letter against the application's actual owner, not the admin performing the edit.
+        assertThat(application.getCoverLetter()).isEqualTo(coverLetter);
+    }
+
+    @Test
+    void otherUserCannotUpdateSomeoneElsesApplication() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        ApplicationRequest request = validRequest();
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> applicationService.update(id, request, otherUser))
+                .isInstanceOf(ApplicationAccessDeniedException.class);
+
+        verify(applicationDao, never()).saveApplication(any());
     }
 
     @Test

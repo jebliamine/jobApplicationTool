@@ -9,6 +9,7 @@ import java.util.UUID;
 public class ApplicationRequest {
     private UUID jobId;
     private UUID cvDocumentId;
+    private UUID coverLetterId;
     private ApplicationStatus status;
     private LocalDate appliedAt;
     private String notes;
@@ -30,6 +31,14 @@ public class ApplicationRequest {
 
     public void setCvDocumentId(UUID cvDocumentId) {
         this.cvDocumentId = cvDocumentId;
+    }
+
+    public UUID getCoverLetterId() {
+        return coverLetterId;
+    }
+
+    public void setCoverLetterId(UUID coverLetterId) {
+        this.coverLetterId = coverLetterId;
     }
 
     public ApplicationStatus getStatus() {

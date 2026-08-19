@@ -1,5 +1,6 @@
 package de.jeb.japp.model.application;
 
+import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.user.User;
@@ -16,6 +17,7 @@ import java.util.UUID;
         @Index(name = "idx_application_user", columnList = "user_id"),
         @Index(name = "idx_application_job", columnList = "job_id"),
         @Index(name = "idx_application_cv_document", columnList = "cv_document_id"),
+        @Index(name = "idx_application_cover_letter", columnList = "cover_letter_id"),
         @Index(name = "idx_application_status", columnList = "status")
 })
 public class Application {
@@ -41,6 +43,18 @@ public class Application {
     @JoinColumn(name = "cv_document_id", nullable = true)
     @OnDelete(action = OnDeleteAction.SET_NULL)
     private CVDocument cvDocument;
+
+    /**
+     * Nullable: a CoverLetter is independently owned by the User and remains
+     * usable in their CoverLetter library whether or not any Application
+     * references it — this is never the owning side of that relationship.
+     * ON DELETE SET NULL — deleting the CoverLetter must never delete the
+     * Application (application history is preserved with coverLetter = null).
+     */
+    @ManyToOne
+    @JoinColumn(name = "cover_letter_id", nullable = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private CoverLetter coverLetter;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -80,6 +94,14 @@ public class Application {
 
     public void setCvDocument(CVDocument cvDocument) {
         this.cvDocument = cvDocument;
+    }
+
+    public CoverLetter getCoverLetter() {
+        return coverLetter;
+    }
+
+    public void setCoverLetter(CoverLetter coverLetter) {
+        this.coverLetter = coverLetter;
     }
 
     public ApplicationStatus getStatus() {

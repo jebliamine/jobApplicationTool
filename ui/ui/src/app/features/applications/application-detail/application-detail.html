@@ -81,6 +81,28 @@
             </dd>
           </div>
           <div class="application-detail-page__row">
+            <dt><svg lucideMail [size]="18" aria-hidden="true"></svg> Cover letter</dt>
+            <dd class="application-detail-page__cover-letter">
+              @if (application.coverLetter) {
+                <a [routerLink]="['/cover-letters', application.coverLetter.id]">View cover letter</a>
+                <a
+                  class="application-detail-page__cover-letter-action"
+                  [routerLink]="['/applications', application.id, 'edit']"
+                >
+                  Change
+                </a>
+              } @else {
+                <span>No cover letter selected.</span>
+                <a
+                  class="application-detail-page__cover-letter-action"
+                  [routerLink]="['/applications', application.id, 'edit']"
+                >
+                  Attach
+                </a>
+              }
+            </dd>
+          </div>
+          <div class="application-detail-page__row">
             <dt><svg lucideBriefcase [size]="18" aria-hidden="true"></svg> Job details</dt>
             <dd>
               <a [routerLink]="['/jobs', application.job.id]">View job posting</a>
