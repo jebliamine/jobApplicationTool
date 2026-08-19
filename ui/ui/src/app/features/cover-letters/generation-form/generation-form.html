@@ -36,6 +36,11 @@
             <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
             <span>You don't have any CVs yet. Upload a CV first to generate a cover letter.</span>
           </div>
+        } @else if (providers().length === 0) {
+          <div class="generation-form-page__warning" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>No AI providers are currently available. Contact an administrator.</span>
+          </div>
         }
 
         <form class="generation-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -63,12 +68,24 @@
             }
           </mat-form-field>
 
+          <mat-form-field appearance="outline" class="generation-form-page__field">
+            <mat-label>Provider</mat-label>
+            <mat-select formControlName="provider" required>
+              @for (provider of providers(); track provider.id) {
+                <mat-option [value]="provider.id">{{ provider.displayName }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.provider.invalid && form.controls.provider.touched) {
+              <mat-error>A provider is required.</mat-error>
+            }
+          </mat-form-field>
+
           <div class="generation-form-page__actions">
             <button
               mat-flat-button
               color="primary"
               type="submit"
-              [disabled]="generating() || jobs().length === 0 || cvs().length === 0"
+              [disabled]="generating() || jobs().length === 0 || cvs().length === 0 || providers().length === 0"
             >
               <svg lucideSparkles [size]="16" aria-hidden="true"></svg>
               Generate

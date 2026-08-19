@@ -1,6 +1,8 @@
 export interface AppPage {
   readonly label: string;
   readonly path: string;
+  /** When true, only shown/searchable for ADMIN users — see nav-search.ts. */
+  readonly adminOnly?: boolean;
 }
 
 /**
@@ -14,5 +16,6 @@ export const APP_PAGES: readonly AppPage[] = [
   { label: 'Jobs', path: '/jobs' },
   { label: 'Applications', path: '/applications' },
   { label: 'Cover Letters', path: '/cover-letters' },
+  { label: 'AI Providers', path: '/admin/ai-providers', adminOnly: true },
   { label: 'Settings', path: '/settings' },
 ];

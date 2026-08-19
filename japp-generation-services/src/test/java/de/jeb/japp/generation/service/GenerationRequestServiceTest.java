@@ -11,10 +11,12 @@ import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationProviderRegistry;
 import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.generation.GenerationProvider;
 import de.jeb.japp.model.generation.GenerationRequest;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.generation.dto.GenerationRequestCreateRequest;
@@ -49,7 +51,11 @@ class GenerationRequestServiceTest {
     @Mock
     private CVDao cvDao;
     @Mock
-    private CoverLetterGenerationProvider generationProvider;
+    private CoverLetterGenerationProviderRegistry providerRegistry;
+    @Mock
+    private CoverLetterGenerationProvider placeholderProvider;
+    @Mock
+    private CoverLetterGenerationProvider geminiProvider;
 
     private GenerationRequestService generationRequestService;
 
@@ -63,7 +69,7 @@ class GenerationRequestServiceTest {
     @BeforeEach
     void setUp() {
         generationRequestService =
-                new GenerationRequestService(generationRequestDao, coverLetterDao, jobDao, cvDao, generationProvider);
+                new GenerationRequestService(generationRequestDao, coverLetterDao, jobDao, cvDao, providerRegistry);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -96,10 +102,21 @@ class GenerationRequestServiceTest {
         lenient().when(generationRequestDao.saveGenerationRequest(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Default: the provider succeeds. Individual tests override this to exercise failure handling.
-        lenient().when(generationProvider.generate(any()))
+        // Requests without an explicit provider default to PLACEHOLDER (see GenerationRequestService#create).
+        lenient().when(providerRegistry.resolve(GenerationProvider.PLACEHOLDER)).thenReturn(placeholderProvider);
+        lenient().when(providerRegistry.resolve(GenerationProvider.GEMINI)).thenReturn(geminiProvider);
+        lenient().when(placeholderProvider.id()).thenReturn(GenerationProvider.PLACEHOLDER);
+        lenient().when(placeholderProvider.model()).thenReturn("deterministic-v1");
+        lenient().when(geminiProvider.id()).thenReturn(GenerationProvider.GEMINI);
+        lenient().when(geminiProvider.model()).thenReturn("gemini-2.0-flash");
+
+        // Default: the resolved provider succeeds. Individual tests override this to exercise failure handling.
+        lenient().when(placeholderProvider.generate(any()))
                 .thenReturn(new GenerationResult(
                         "Generated cover letter mentioning " + job.getTitle() + " at " + company.getName() + "."));
+        lenient().when(geminiProvider.generate(any()))
+                .thenReturn(new GenerationResult(
+                        "Gemini cover letter mentioning " + job.getTitle() + " at " + company.getName() + "."));
     }
 
     private GenerationRequestCreateRequest validRequest() {
@@ -139,7 +156,7 @@ class GenerationRequestServiceTest {
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
-        verify(generationProvider).generate(any());
+        verify(placeholderProvider).generate(any());
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.COMPLETED);
         assertThat(result.getStartedAt()).isNotNull();
         assertThat(result.getCompletedAt()).isNotNull();
@@ -151,7 +168,7 @@ class GenerationRequestServiceTest {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-        when(generationProvider.generate(any())).thenReturn(new GenerationResult("Text from the provider."));
+        when(placeholderProvider.generate(any())).thenReturn(new GenerationResult("Text from the provider."));
 
         generationRequestService.create(request, owner);
 
@@ -171,7 +188,7 @@ class GenerationRequestServiceTest {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-        when(generationProvider.generate(any()))
+        when(placeholderProvider.generate(any()))
                 .thenThrow(new CoverLetterGenerationException("The provider could not generate a letter."));
 
         GenerationRequest result = generationRequestService.create(request, owner);
@@ -290,5 +307,68 @@ class GenerationRequestServiceTest {
         List<GenerationRequest> result = generationRequestService.list(owner);
 
         assertThat(result).hasSize(1);
+    }
+
+    @Test
+    void defaultsToPlaceholderWhenProviderIsOmitted() {
+        GenerationRequestCreateRequest request = validRequest();
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        verify(providerRegistry).resolve(GenerationProvider.PLACEHOLDER);
+        verify(placeholderProvider).generate(any());
+        verify(geminiProvider, never()).generate(any());
+        assertThat(result.getProvider()).isEqualTo("PLACEHOLDER");
+        assertThat(result.getModel()).isEqualTo("deterministic-v1");
+    }
+
+    @Test
+    void selectsPlaceholderWhenExplicitlyRequested() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setProvider(GenerationProvider.PLACEHOLDER);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        verify(providerRegistry).resolve(GenerationProvider.PLACEHOLDER);
+        assertThat(result.getProvider()).isEqualTo("PLACEHOLDER");
+    }
+
+    @Test
+    void selectsGeminiWhenRequested() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setProvider(GenerationProvider.GEMINI);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        verify(providerRegistry).resolve(GenerationProvider.GEMINI);
+        verify(geminiProvider).generate(any());
+        verify(placeholderProvider, never()).generate(any());
+        assertThat(result.getProvider()).isEqualTo("GEMINI");
+        assertThat(result.getModel()).isEqualTo("gemini-2.0-flash");
+        assertThat(result.getStatus()).isEqualTo(GenerationStatus.COMPLETED);
+    }
+
+    @Test
+    void geminiProviderFailureResultsInFailedGenerationRequest() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setProvider(GenerationProvider.GEMINI);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(geminiProvider.generate(any()))
+                .thenThrow(new CoverLetterGenerationException("Gemini is not configured."));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getStatus()).isEqualTo(GenerationStatus.FAILED);
+        assertThat(result.getErrorMessage()).isEqualTo("Gemini is not configured.");
+        // Provider/model metadata is still recorded even though generation failed.
+        assertThat(result.getProvider()).isEqualTo("GEMINI");
+        verifyNoInteractions(coverLetterDao);
     }
 }

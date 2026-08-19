@@ -107,6 +107,27 @@
         <span class="japp-visually-hidden">Cover Letters</span>
       }
     </a>
+
+    @if (isAdmin()) {
+      @if (!collapsed()) {
+        <h3 matSubheader class="sidebar__group-label">Admin</h3>
+      }
+      <a
+        mat-list-item
+        routerLink="/admin/ai-providers"
+        routerLinkActive="sidebar__item--active"
+        [matTooltip]="collapsed() ? 'AI Providers' : ''"
+        matTooltipPosition="right"
+        (click)="linkActivated.emit()"
+      >
+        <svg lucideShield [size]="20" matListItemIcon aria-hidden="true"></svg>
+        @if (!collapsed()) {
+          <span matListItemTitle>AI Providers</span>
+        } @else {
+          <span class="japp-visually-hidden">AI Providers</span>
+        }
+      </a>
+    }
   </mat-nav-list>
 
   <mat-divider class="sidebar__divider" />

@@ -8,6 +8,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideSearch, LucideX } from '@lucide/angular';
 import { APP_PAGES } from '../../core/navigation/app-pages';
+import { UserService } from '../../core/user/user.service';
 
 /**
  * Navigates between known application pages — not a backend/data search.
@@ -30,6 +31,7 @@ import { APP_PAGES } from '../../core/navigation/app-pages';
 })
 export class NavSearch {
   private readonly router = inject(Router);
+  private readonly userService = inject(UserService);
 
   readonly compact = input(false);
 
@@ -37,9 +39,14 @@ export class NavSearch {
   protected readonly control = new FormControl('', { nonNullable: true });
 
   private readonly query = toSignal(this.control.valueChanges, { initialValue: '' });
+  private readonly visiblePages = computed(() => {
+    const isAdmin = this.userService.currentUser()?.role === 'ADMIN';
+    return APP_PAGES.filter((page) => !page.adminOnly || isAdmin);
+  });
   protected readonly results = computed(() => {
     const term = this.query().trim().toLowerCase();
-    return term ? APP_PAGES.filter((page) => page.label.toLowerCase().includes(term)) : APP_PAGES;
+    const pages = this.visiblePages();
+    return term ? pages.filter((page) => page.label.toLowerCase().includes(term)) : pages;
   });
 
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');

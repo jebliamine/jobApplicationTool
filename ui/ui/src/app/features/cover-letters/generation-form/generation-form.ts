@@ -10,6 +10,8 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { LucideCircleAlert, LucideSparkles } from '@lucide/angular';
 import { finalize, forkJoin, timer } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
+import { AiProviderResponse } from '../ai-provider.models';
+import { AiProviderService } from '../ai-provider.service';
 import { CvResponse } from '../../cv/cv.models';
 import { CvService } from '../../cv/cv.service';
 import { JobResponse } from '../../jobs/job.models';
@@ -23,6 +25,7 @@ const MAX_POLL_ATTEMPTS = 15;
 interface GenerationFormControls {
   jobId: FormControl<string>;
   cvDocumentId: FormControl<string>;
+  provider: FormControl<string>;
 }
 
 @Component({
@@ -44,10 +47,12 @@ export class GenerationForm {
   private readonly generationService = inject(GenerationService);
   private readonly jobService = inject(JobService);
   private readonly cvService = inject(CvService);
+  private readonly aiProviderService = inject(AiProviderService);
   private readonly snackBar = inject(MatSnackBar);
 
   protected readonly jobs = signal<JobResponse[]>([]);
   protected readonly cvs = signal<CvResponse[]>([]);
+  protected readonly providers = signal<AiProviderResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly generating = signal(false);
   protected readonly generatingStatus = signal<string | null>(null);
@@ -56,15 +61,30 @@ export class GenerationForm {
   protected readonly form = new FormGroup<GenerationFormControls>({
     jobId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     cvDocumentId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    provider: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
   });
 
   constructor() {
-    forkJoin({ jobs: this.jobService.list(), cvs: this.cvService.list() })
+    forkJoin({
+      jobs: this.jobService.list(),
+      cvs: this.cvService.list(),
+      providers: this.aiProviderService.list(),
+    })
       .pipe(finalize(() => this.loading.set(false)))
       .subscribe({
-        next: ({ jobs, cvs }) => {
+        next: ({ jobs, cvs, providers }) => {
           this.jobs.set(jobs);
           this.cvs.set(cvs);
+
+          // The dropdown only ever offers providers the backend reports as available —
+          // a disabled/unconfigured provider is never selectable.
+          const available = providers.filter((provider) => provider.available);
+          this.providers.set(available);
+
+          const defaultProvider = available.find((provider) => provider.id === 'PLACEHOLDER') ?? available[0];
+          if (defaultProvider) {
+            this.form.controls.provider.setValue(defaultProvider.id);
+          }
         },
         error: () => this.serverError.set('We could not load your jobs and CVs. Please try again.'),
       });
@@ -85,14 +105,16 @@ export class GenerationForm {
     this.generatingStatus.set('Starting generation…');
 
     const raw = this.form.getRawValue();
-    this.generationService.create({ jobId: raw.jobId, cvDocumentId: raw.cvDocumentId }).subscribe({
-      next: (request) => this.handleGenerationUpdate(request, 0),
-      error: (error: HttpErrorResponse) => {
-        this.generating.set(false);
-        this.generatingStatus.set(null);
-        this.serverError.set(describeApiError(error));
-      },
-    });
+    this.generationService
+      .create({ jobId: raw.jobId, cvDocumentId: raw.cvDocumentId, provider: raw.provider })
+      .subscribe({
+        next: (request) => this.handleGenerationUpdate(request, 0),
+        error: (error: HttpErrorResponse) => {
+          this.generating.set(false);
+          this.generatingStatus.set(null);
+          this.serverError.set(describeApiError(error));
+        },
+      });
   }
 
   private handleGenerationUpdate(request: GenerationRequestResponse, attempt: number): void {

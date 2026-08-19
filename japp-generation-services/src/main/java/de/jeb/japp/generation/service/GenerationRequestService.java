@@ -13,10 +13,12 @@ import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationProviderRegistry;
 import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.generation.GenerationProvider;
 import de.jeb.japp.model.generation.GenerationRequest;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.generation.dto.GenerationRequestCreateRequest;
@@ -35,39 +37,42 @@ import java.util.UUID;
  * Runs the cover-letter generation workflow: validates ownership of the
  * selected Job/CV, creates the GenerationRequest, and drives it through
  * PENDING → IN_PROGRESS → COMPLETED/FAILED. The actual content generation is
- * delegated to a {@link CoverLetterGenerationProvider} — today that's
- * {@code PlaceholderCoverLetterGenerationProvider} (no external AI call),
- * but this service has no knowledge of that; a real provider can be swapped
- * in later without changing this class, the REST API, or Angular.
+ * delegated to whichever {@link CoverLetterGenerationProvider} the request
+ * selects (resolved through {@link CoverLetterGenerationProviderRegistry},
+ * defaulting to PLACEHOLDER) — this service has no knowledge of any
+ * provider's implementation, so a new provider can be added later without
+ * changing this class, the REST API, or Angular.
  */
 @Service
 public class GenerationRequestService {
-
-    private static final String PROVIDER = "placeholder";
-    private static final String MODEL = "deterministic-v1";
 
     private final GenerationRequestDao generationRequestDao;
     private final CoverLetterDao coverLetterDao;
     private final JobDao jobDao;
     private final CVDao cvDao;
-    private final CoverLetterGenerationProvider generationProvider;
+    private final CoverLetterGenerationProviderRegistry providerRegistry;
 
     public GenerationRequestService(
             GenerationRequestDao generationRequestDao,
             CoverLetterDao coverLetterDao,
             JobDao jobDao,
             CVDao cvDao,
-            CoverLetterGenerationProvider generationProvider
+            CoverLetterGenerationProviderRegistry providerRegistry
     ) {
         this.generationRequestDao = generationRequestDao;
         this.coverLetterDao = coverLetterDao;
         this.jobDao = jobDao;
         this.cvDao = cvDao;
-        this.generationProvider = generationProvider;
+        this.providerRegistry = providerRegistry;
     }
 
     public GenerationRequest create(GenerationRequestCreateRequest request, User owner) {
         validate(request);
+        GenerationProvider requestedProvider = request.getProvider() != null
+                ? request.getProvider()
+                : GenerationProvider.PLACEHOLDER;
+        CoverLetterGenerationProvider provider = providerRegistry.resolve(requestedProvider);
+
         // The generation request's owner is always the authenticated requester,
         // so the referenced job and CV must belong to that same requester.
         Job job = getOwnedJob(request.getJobId(), owner);
@@ -78,13 +83,13 @@ public class GenerationRequestService {
         generationRequest.setJob(job);
         generationRequest.setCvDocument(cv);
         generationRequest.setJobDescriptionSnapshot(job.getDescription());
-        generationRequest.setProvider(PROVIDER);
-        generationRequest.setModel(MODEL);
+        generationRequest.setProvider(provider.id().name());
+        generationRequest.setModel(provider.model());
         generationRequest.setStatus(GenerationStatus.PENDING);
         generationRequest.setCreatedAt(LocalDateTime.now());
         generationRequest = generationRequestDao.saveGenerationRequest(generationRequest);
 
-        return process(generationRequest, job, cv, owner);
+        return process(generationRequest, provider, job, cv, owner);
     }
 
     public GenerationRequest get(UUID id, User requester) {
@@ -118,13 +123,19 @@ public class GenerationRequestService {
         return coverLetterDao.getCoverLetterByGenerationRequestId(generationRequestId);
     }
 
-    private GenerationRequest process(GenerationRequest generationRequest, Job job, CVDocument cv, User owner) {
+    private GenerationRequest process(
+            GenerationRequest generationRequest,
+            CoverLetterGenerationProvider provider,
+            Job job,
+            CVDocument cv,
+            User owner
+    ) {
         generationRequest.setStatus(GenerationStatus.IN_PROGRESS);
         generationRequest.setStartedAt(LocalDateTime.now());
         generationRequestDao.saveGenerationRequest(generationRequest);
 
         try {
-            GenerationResult result = generationProvider.generate(buildInput(job, cv, owner));
+            GenerationResult result = provider.generate(buildInput(job, cv, owner));
 
             CoverLetter coverLetter = new CoverLetter();
             coverLetter.setOwner(owner);

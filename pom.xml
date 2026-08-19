@@ -39,6 +39,7 @@
         <module>japp-application-services</module>
         <module>japp-generation-services</module>
         <module>japp-dashboard-services</module>
+        <module>japp-ai-provider-services</module>
     </modules>
 
     <scm>

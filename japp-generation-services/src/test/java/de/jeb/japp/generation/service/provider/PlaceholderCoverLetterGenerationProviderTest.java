@@ -1,5 +1,6 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.model.generation.GenerationProvider;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,6 +9,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 class PlaceholderCoverLetterGenerationProviderTest {
 
     private final PlaceholderCoverLetterGenerationProvider provider = new PlaceholderCoverLetterGenerationProvider();
+
+    @Test
+    void isRegisteredUnderThePlaceholderId() {
+        assertThat(provider.id()).isEqualTo(GenerationProvider.PLACEHOLDER);
+        assertThat(provider.model()).isEqualTo("deterministic-v1");
+    }
 
     private GenerationInput validInput() {
         return new GenerationInput(

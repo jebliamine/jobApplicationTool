@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminGuard } from './core/guards/admin.guard';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { Shell } from './layout/shell/shell';
 
@@ -132,6 +133,12 @@ export const routes: Routes = [
               ),
           },
         ],
+      },
+      {
+        path: 'admin/ai-providers',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./features/admin/ai-providers/ai-provider-list/ai-provider-list').then((m) => m.AiProviderList),
       },
       {
         path: 'settings',

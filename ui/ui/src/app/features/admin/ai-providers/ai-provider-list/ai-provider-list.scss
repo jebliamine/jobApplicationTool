@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+.ai-provider-list__header {
+  max-width: 60ch;
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.ai-provider-list__title {
+  margin: 0 0 var(--japp-spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.ai-provider-list__subtitle {
+  margin: 0;
+  color: var(--japp-text-secondary);
+}
+
+.ai-provider-list__state {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-md);
+  padding: var(--japp-spacing-lg) var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+}
+
+.ai-provider-list__state--error {
+  color: var(--japp-color-error);
+
+  button {
+    margin-left: auto;
+  }
+}
+
+.ai-provider-list__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--japp-spacing-md);
+}
+
+.ai-provider-list__card {
+  border-radius: var(--japp-radius-lg);
+}
+
+.ai-provider-list__card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--japp-spacing-md);
+}
+
+.ai-provider-list__card-name {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--japp-text-primary);
+}
+
+.ai-provider-list__status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 2px var(--japp-spacing-sm);
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-surface-container-high);
+  color: var(--japp-text-secondary);
+}
+
+.ai-provider-list__status--enabled {
+  background: color-mix(in srgb, var(--japp-color-success) 16%, var(--japp-surface));
+  color: var(--japp-color-success);
+}
+
+.ai-provider-list__details {
+  margin: 0 0 var(--japp-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-xs);
+}
+
+.ai-provider-list__detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--japp-spacing-md);
+  font-size: 0.875rem;
+
+  dt {
+    color: var(--japp-text-secondary);
+  }
+
+  dd {
+    margin: 0;
+    color: var(--japp-text-primary);
+    text-align: right;
+    word-break: break-all;
+  }
+}
+
+.ai-provider-list__actions {
+  display: flex;
+  gap: var(--japp-spacing-sm);
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--japp-spacing-xs);
+  }
+}

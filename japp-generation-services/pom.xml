@@ -36,5 +36,11 @@
             <artifactId>japp-commons</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>de.jeb</groupId>
+            <artifactId>japp-ai-provider-services</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 </project>

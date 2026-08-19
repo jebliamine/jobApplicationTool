@@ -21,6 +21,16 @@
         "GITHUB_OAUTH_CALLBACK_PORT=8085",
         "ghcr.io/github/github-mcp-server"
       ]
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@microsoft/postgres-mcp",
+        "run"
+      ],
+      "env": {}
     }
   }
 }

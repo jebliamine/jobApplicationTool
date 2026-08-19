@@ -1,0 +1,70 @@
+<div class="ai-provider-list">
+  <header class="ai-provider-list__header">
+    <h1 class="ai-provider-list__title">AI Providers</h1>
+    <p class="ai-provider-list__subtitle">
+      Configure which AI providers are available for cover-letter generation. API keys are never shown once saved.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <div class="ai-provider-list__state">
+      <mat-progress-spinner diameter="28" mode="indeterminate" />
+      <span>Loading…</span>
+    </div>
+  } @else if (serverError()) {
+    <div class="ai-provider-list__state ai-provider-list__state--error" role="alert">
+      <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+      <span>{{ serverError() }}</span>
+      <button mat-stroked-button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else {
+    <div class="ai-provider-list__grid">
+      @for (provider of providers(); track provider.provider) {
+        <mat-card appearance="outlined" class="ai-provider-list__card">
+          <mat-card-content>
+            <div class="ai-provider-list__card-header">
+              <span class="ai-provider-list__card-name">{{ provider.displayName }}</span>
+              <span class="ai-provider-list__status" [class.ai-provider-list__status--enabled]="provider.enabled">
+                {{ provider.enabled ? 'Enabled' : 'Disabled' }}
+              </span>
+            </div>
+
+            <dl class="ai-provider-list__details">
+              <div class="ai-provider-list__detail-row">
+                <dt>API key</dt>
+                <dd>{{ provider.hasApiKey ? 'Configured' : 'Not configured' }}</dd>
+              </div>
+              <div class="ai-provider-list__detail-row">
+                <dt>Model</dt>
+                <dd>{{ provider.defaultModel || 'Default' }}</dd>
+              </div>
+              <div class="ai-provider-list__detail-row">
+                <dt>Base URL</dt>
+                <dd>{{ provider.baseUrl || 'Default' }}</dd>
+              </div>
+            </dl>
+
+            <div class="ai-provider-list__actions">
+              <button mat-stroked-button type="button" (click)="configure(provider)">
+                <svg lucideSettings [size]="16" aria-hidden="true"></svg>
+                Configure
+              </button>
+              <button
+                mat-stroked-button
+                type="button"
+                [disabled]="!provider.enabled || testingProvider() === provider.provider"
+                (click)="testConnection(provider)"
+              >
+                @if (testingProvider() === provider.provider) {
+                  <mat-progress-spinner diameter="16" mode="indeterminate" />
+                } @else {
+                  Test Connection
+                }
+              </button>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+  }
+</div>

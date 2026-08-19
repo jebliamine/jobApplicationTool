@@ -36,3 +36,7 @@ build/
 
 ### Uploaded files (local file storage) ###
 /storage/
+
+### Local secrets — never commit real API keys/credentials ###
+.env
+.env.*
