@@ -1,0 +1,84 @@
+<div class="generation-form-page">
+  <header class="generation-form-page__header">
+    <h1 class="generation-form-page__title">Generate a cover letter</h1>
+    <p class="generation-form-page__subtitle">
+      Select a job and a CV, and we'll draft a cover letter you can edit afterward.
+    </p>
+  </header>
+
+  <mat-card appearance="outlined" class="generation-form-page__card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="generation-form-page__loading">
+          <mat-progress-spinner diameter="28" mode="indeterminate" />
+          <span>Loading…</span>
+        </div>
+      } @else if (generating()) {
+        <div class="generation-form-page__generating">
+          <mat-progress-spinner diameter="32" mode="indeterminate" />
+          <span>{{ generatingStatus() }}</span>
+        </div>
+      } @else {
+        @if (serverError()) {
+          <div class="generation-form-page__error" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>{{ serverError() }}</span>
+          </div>
+        }
+
+        @if (jobs().length === 0) {
+          <div class="generation-form-page__warning" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>You don't have any jobs yet. Add a job first to generate a cover letter for it.</span>
+          </div>
+        } @else if (cvs().length === 0) {
+          <div class="generation-form-page__warning" role="alert">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>You don't have any CVs yet. Upload a CV first to generate a cover letter.</span>
+          </div>
+        }
+
+        <form class="generation-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          <mat-form-field appearance="outline" class="generation-form-page__field">
+            <mat-label>Job</mat-label>
+            <mat-select formControlName="jobId" required>
+              @for (job of jobs(); track job.id) {
+                <mat-option [value]="job.id">{{ job.title }} — {{ job.company.name }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.jobId.invalid && form.controls.jobId.touched) {
+              <mat-error>A job is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="generation-form-page__field">
+            <mat-label>CV</mat-label>
+            <mat-select formControlName="cvDocumentId" required>
+              @for (cv of cvs(); track cv.id) {
+                <mat-option [value]="cv.id">{{ cv.title }}</mat-option>
+              }
+            </mat-select>
+            @if (form.controls.cvDocumentId.invalid && form.controls.cvDocumentId.touched) {
+              <mat-error>A CV is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <div class="generation-form-page__actions">
+            <button
+              mat-flat-button
+              color="primary"
+              type="submit"
+              [disabled]="generating() || jobs().length === 0 || cvs().length === 0"
+            >
+              <svg lucideSparkles [size]="16" aria-hidden="true"></svg>
+              Generate
+            </button>
+            <button mat-stroked-button type="button" [disabled]="generating()" (click)="cancel()">
+              Cancel
+            </button>
+          </div>
+        </form>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

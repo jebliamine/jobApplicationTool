@@ -37,6 +37,7 @@
         <module>japp-job-service</module>
         <module>japp-commons</module>
         <module>japp-application-services</module>
+        <module>japp-generation-services</module>
     </modules>
 
     <scm>

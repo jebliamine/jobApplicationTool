@@ -111,8 +111,27 @@ export const routes: Routes = [
       },
       {
         path: 'cover-letters',
-        loadComponent: loadPlaceholder,
-        data: { title: 'Cover Letters', description: 'Cover letter generation is not implemented yet.' },
+        children: [
+          {
+            path: '',
+            loadComponent: () =>
+              import('./features/cover-letters/cover-letter-list/cover-letter-list').then(
+                (m) => m.CoverLetterList,
+              ),
+          },
+          {
+            path: 'generate',
+            loadComponent: () =>
+              import('./features/cover-letters/generation-form/generation-form').then((m) => m.GenerationForm),
+          },
+          {
+            path: ':id',
+            loadComponent: () =>
+              import('./features/cover-letters/cover-letter-detail/cover-letter-detail').then(
+                (m) => m.CoverLetterDetail,
+              ),
+          },
+        ],
       },
       {
         path: 'settings',

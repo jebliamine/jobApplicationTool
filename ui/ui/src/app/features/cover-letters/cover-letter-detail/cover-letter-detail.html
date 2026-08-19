@@ -1,0 +1,96 @@
+<div class="cover-letter-detail-page">
+  <a routerLink="/cover-letters" class="cover-letter-detail-page__back">
+    <svg lucideArrowLeft [size]="16" aria-hidden="true"></svg>
+    Back to cover letters
+  </a>
+
+  @if (loading()) {
+    <mat-card appearance="outlined" class="cover-letter-detail-page__card cover-letter-detail-page__loading">
+      <mat-card-content>
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+        <span>Loading cover letter…</span>
+      </mat-card-content>
+    </mat-card>
+  } @else if (error()) {
+    <mat-card appearance="outlined" class="cover-letter-detail-page__card cover-letter-detail-page__error">
+      <mat-card-content>
+        <div class="cover-letter-detail-page__error-message" role="alert">
+          <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+          <span>We could not load this cover letter.</span>
+        </div>
+        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      </mat-card-content>
+    </mat-card>
+  } @else if (coverLetter(); as coverLetter) {
+    <header class="cover-letter-detail-page__header">
+      <div>
+        <h1 class="cover-letter-detail-page__title">Cover letter for {{ coverLetter.job.title }}</h1>
+        <a class="cover-letter-detail-page__company" [routerLink]="['/jobs', coverLetter.job.id]">
+          <svg lucideBriefcase [size]="16" aria-hidden="true"></svg>
+          {{ coverLetter.job.company.name }}
+        </a>
+      </div>
+      @if (!editing()) {
+        <button mat-stroked-button type="button" (click)="startEdit()">
+          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+          Edit
+        </button>
+      }
+    </header>
+
+    <mat-card appearance="outlined" class="cover-letter-detail-page__card">
+      <mat-card-content>
+        <dl class="cover-letter-detail-page__meta">
+          <div class="cover-letter-detail-page__meta-row">
+            <dt><svg lucideFileText [size]="16" aria-hidden="true"></svg> CV used</dt>
+            <dd>{{ coverLetter.cv?.title || 'None' }}</dd>
+          </div>
+          @if (isAdmin()) {
+            <div class="cover-letter-detail-page__meta-row">
+              <dt><svg lucideUser [size]="16" aria-hidden="true"></svg> Owner</dt>
+              <dd>{{ coverLetter.owner.fullName }} · {{ coverLetter.owner.email }}</dd>
+            </div>
+          }
+          <div class="cover-letter-detail-page__meta-row">
+            <dt><svg lucideShieldCheck [size]="16" aria-hidden="true"></svg> Last updated</dt>
+            <dd>{{ coverLetter.updatedAt | date: 'medium' }}</dd>
+          </div>
+        </dl>
+
+        @if (!editing()) {
+          <div class="cover-letter-detail-page__text">{{ coverLetter.resultText }}</div>
+        } @else {
+          @if (saveError()) {
+            <div class="cover-letter-detail-page__error-message" role="alert">
+              <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+              <span>{{ saveError() }}</span>
+            </div>
+          }
+
+          <form class="cover-letter-detail-page__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            <mat-form-field appearance="outline" class="cover-letter-detail-page__field">
+              <mat-label>Cover letter</mat-label>
+              <textarea matInput rows="16" formControlName="resultText" required></textarea>
+              @if (form.controls.resultText.invalid && form.controls.resultText.touched) {
+                <mat-error>Cover letter content cannot be empty.</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="cover-letter-detail-page__actions">
+              <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+                @if (submitting()) {
+                  <mat-progress-spinner diameter="18" mode="indeterminate" />
+                } @else {
+                  Save
+                }
+              </button>
+              <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancelEdit()">
+                Cancel
+              </button>
+            </div>
+          </form>
+        }
+      </mat-card-content>
+    </mat-card>
+  }
+</div>

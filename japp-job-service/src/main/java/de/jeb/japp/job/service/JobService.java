@@ -4,6 +4,7 @@ import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.dao.application.ApplicationDao;
+import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
@@ -27,11 +28,18 @@ public class JobService {
     private final JobDao jobDao;
     private final CompanyService companyService;
     private final ApplicationDao applicationDao;
+    private final GenerationRequestDao generationRequestDao;
 
-    public JobService(JobDao jobDao, CompanyService companyService, ApplicationDao applicationDao) {
+    public JobService(
+            JobDao jobDao,
+            CompanyService companyService,
+            ApplicationDao applicationDao,
+            GenerationRequestDao generationRequestDao
+    ) {
         this.jobDao = jobDao;
         this.companyService = companyService;
         this.applicationDao = applicationDao;
+        this.generationRequestDao = generationRequestDao;
     }
 
     public Job create(JobRequest request, User owner) {
@@ -78,6 +86,9 @@ public class JobService {
         Job job = get(id, requester);
         if (applicationDao.existsByJobId(job.getId())) {
             throw new JobValidationException("Cannot delete a job that has applications. Delete those applications first.");
+        }
+        if (generationRequestDao.existsByJobId(job.getId())) {
+            throw new JobValidationException("Cannot delete a job that has cover letter generation history. Delete those generation requests first.");
         }
         jobDao.deleteJob(job.getId());
     }
