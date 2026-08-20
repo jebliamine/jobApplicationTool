@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../core/ui/toast.service';
 import {
   LucideCircleAlert,
   LucideMail,
@@ -43,7 +43,7 @@ interface ProfileForm {
 })
 export class Profile {
   protected readonly userService = inject(UserService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly editing = signal(false);
   protected readonly submitting = signal(false);
@@ -91,7 +91,7 @@ export class Profile {
       .subscribe({
         next: () => {
           this.editing.set(false);
-          this.snackBar.open('Profile updated.', 'Dismiss', { duration: 4000 });
+          this.toast.success('Profile updated.');
         },
         error: (error: HttpErrorResponse) => this.saveError.set(describeProfileUpdateError(error)),
       });

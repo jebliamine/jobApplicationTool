@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert } from '@lucide/angular';
 import { finalize, forkJoin } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
@@ -55,7 +55,7 @@ export class ApplicationForm {
   private readonly jobService = inject(JobService);
   private readonly cvService = inject(CvService);
   private readonly coverLetterService = inject(CoverLetterService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly statuses = APPLICATION_STATUSES;
 
@@ -115,9 +115,7 @@ export class ApplicationForm {
 
     action.pipe(finalize(() => this.submitting.set(false))).subscribe({
       next: (application) => {
-        this.snackBar.open(this.isEditMode ? 'Application updated.' : 'Application created.', 'Dismiss', {
-          duration: 4000,
-        });
+        this.toast.success(this.isEditMode ? 'Application updated.' : 'Application created.');
         this.router.navigateByUrl(this.isEditMode ? `/applications/${application.id}` : '/applications');
       },
       error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),

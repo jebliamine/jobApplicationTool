@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import {
   LucideArrowLeft,
   LucideBriefcase,
@@ -20,7 +20,10 @@ import {
   LucideUser,
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
-import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { describeApiError } from '../../../core/http/describe-api-error';
 import { EmploymentType, JobResponse, WorkMode } from '../job.models';
 import { JobService } from '../job.service';
@@ -69,7 +72,7 @@ export class JobDetail {
   private readonly jobService = inject(JobService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   private readonly jobId = this.route.snapshot.paramMap.get('id')!;
 
@@ -110,8 +113,11 @@ export class JobDetail {
     if (!job || this.deleting()) {
       return;
     }
-    const ref = this.dialog.open<JobDeleteDialog, JobDeleteDialogData, boolean>(JobDeleteDialog, {
-      data: { jobTitle: job.title },
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete job?',
+        message: `Are you sure you want to delete "${job.title}"? This action cannot be undone.`,
+      },
       width: '420px',
     });
 
@@ -126,12 +132,12 @@ export class JobDetail {
     this.deleting.set(true);
     this.jobService.delete(job.id).subscribe({
       next: () => {
-        this.snackBar.open('Job deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Job deleted.');
         this.router.navigateByUrl('/jobs');
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

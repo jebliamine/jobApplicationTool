@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import {
   LucideArrowLeft,
   LucideCircleAlert,
@@ -21,9 +21,9 @@ import {
 import { UserService } from '../../../core/user/user.service';
 import { describeApiError } from '../../../core/http/describe-api-error';
 import {
-  CompanyDeleteDialog,
-  CompanyDeleteDialogData,
-} from '../company-delete-dialog/company-delete-dialog';
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyResponse } from '../company.models';
 import { CompanyService } from '../company.service';
 
@@ -56,7 +56,7 @@ export class CompanyDetail {
   private readonly companyService = inject(CompanyService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   private readonly companyId = this.route.snapshot.paramMap.get('id')!;
 
@@ -89,13 +89,13 @@ export class CompanyDetail {
     if (!company || this.deleting()) {
       return;
     }
-    const ref = this.dialog.open<CompanyDeleteDialog, CompanyDeleteDialogData, boolean>(
-      CompanyDeleteDialog,
-      {
-        data: { companyName: company.name },
-        width: '420px',
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete company?',
+        message: `Are you sure you want to delete "${company.name}"? This action cannot be undone.`,
       },
-    );
+      width: '420px',
+    });
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
@@ -108,12 +108,12 @@ export class CompanyDetail {
     this.deleting.set(true);
     this.companyService.delete(company.id).subscribe({
       next: () => {
-        this.snackBar.open('Company deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Company deleted.');
         this.router.navigateByUrl('/companies');
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

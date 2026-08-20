@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert, LucideUpload } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { describeCvError } from '../cv-error';
@@ -37,7 +37,7 @@ interface UploadForm {
 })
 export class CvUpload {
   private readonly cvService = inject(CvService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   readonly uploaded = output<CvResponse>();
 
@@ -102,7 +102,7 @@ export class CvUpload {
         next: (cv) => {
           this.uploaded.emit(cv);
           this.reset();
-          this.snackBar.open('CV uploaded.', 'Dismiss', { duration: 4000 });
+          this.toast.success('CV uploaded.');
         },
         error: (error: HttpErrorResponse) => this.serverError.set(describeCvError(error)),
       });

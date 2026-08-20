@@ -103,41 +103,6 @@
   font-size: 0.8125rem;
 }
 
-.application-list__status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 2px var(--japp-spacing-sm);
-  border-radius: var(--japp-radius-sm);
-  font-size: 0.8125rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.application-list__status-badge--info {
-  background: color-mix(in srgb, var(--japp-color-info) 16%, transparent);
-  color: var(--japp-color-info);
-}
-
-.application-list__status-badge--warning {
-  background: color-mix(in srgb, var(--japp-color-warning) 16%, transparent);
-  color: var(--japp-color-warning);
-}
-
-.application-list__status-badge--success {
-  background: color-mix(in srgb, var(--japp-color-success) 16%, transparent);
-  color: var(--japp-color-success);
-}
-
-.application-list__status-badge--error {
-  background: color-mix(in srgb, var(--japp-color-error) 16%, transparent);
-  color: var(--japp-color-error);
-}
-
-.application-list__status-badge--neutral {
-  background: color-mix(in srgb, var(--japp-text-secondary) 16%, transparent);
-  color: var(--japp-text-secondary);
-}
-
 .application-list__cards {
   display: none;
   margin: 0;

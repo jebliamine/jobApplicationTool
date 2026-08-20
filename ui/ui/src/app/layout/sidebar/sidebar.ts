@@ -13,6 +13,7 @@ import {
   LucideSettings,
   LucideShield,
 } from '@lucide/angular';
+import { APP_PAGES, AppPage } from '../../core/navigation/app-pages';
 import { UserService } from '../../core/user/user.service';
 
 @Component({
@@ -42,4 +43,10 @@ export class Sidebar {
   readonly linkActivated = output<void>();
 
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
+
+  protected readonly workspacePages: readonly AppPage[] = APP_PAGES.filter(
+    (page) => !page.adminOnly && page.path !== '/settings',
+  );
+  protected readonly adminPages: readonly AppPage[] = APP_PAGES.filter((page) => page.adminOnly);
+  protected readonly settingsPage: AppPage = APP_PAGES.find((page) => page.path === '/settings')!;
 }

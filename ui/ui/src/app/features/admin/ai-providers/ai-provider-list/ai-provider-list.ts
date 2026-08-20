@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../../core/ui/toast.service';
 import { LucideCircleAlert, LucideSettings } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { describeApiError } from '../../../../core/http/describe-api-error';
@@ -21,7 +21,7 @@ import { AdminAiProviderService } from '../ai-provider.service';
 export class AiProviderList {
   private readonly adminAiProviderService = inject(AdminAiProviderService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly providers = signal<AdminAiProviderResponse[]>([]);
   protected readonly loading = signal(true);
@@ -57,9 +57,9 @@ export class AiProviderList {
       this.adminAiProviderService.update(provider.provider, request).subscribe({
         next: (updated) => {
           this.providers.update((current) => current.map((p) => (p.provider === updated.provider ? updated : p)));
-          this.snackBar.open(`${updated.displayName} updated.`, 'Dismiss', { duration: 4000 });
+          this.toast.success(`${updated.displayName} updated.`);
         },
-        error: (error: HttpErrorResponse) => this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 }),
+        error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
       });
     });
   }
@@ -75,9 +75,9 @@ export class AiProviderList {
       .subscribe({
         next: (result) => {
           const message = result.message ?? (result.success ? 'Connection successful.' : 'Connection failed.');
-          this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+          this.toast.error(message);
         },
-        error: (error: HttpErrorResponse) => this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 }),
+        error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
       });
   }
 }

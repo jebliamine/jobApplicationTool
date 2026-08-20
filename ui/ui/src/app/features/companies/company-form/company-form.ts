@@ -7,7 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
@@ -39,7 +39,7 @@ export class CompanyForm {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly companyService = inject(CompanyService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   private readonly companyId = this.route.snapshot.paramMap.get('id');
   protected readonly isEditMode = this.companyId !== null;
@@ -88,9 +88,7 @@ export class CompanyForm {
 
     action.pipe(finalize(() => this.submitting.set(false))).subscribe({
       next: (company) => {
-        this.snackBar.open(this.isEditMode ? 'Company updated.' : 'Company created.', 'Dismiss', {
-          duration: 4000,
-        });
+        this.toast.success(this.isEditMode ? 'Company updated.' : 'Company created.');
         this.router.navigateByUrl(this.isEditMode ? `/companies/${company.id}` : '/companies');
       },
       error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),

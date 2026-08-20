@@ -58,12 +58,10 @@
           <div class="application-detail-page__row">
             <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Status</dt>
             <dd>
-              <span
-                class="application-detail-page__status-badge"
-                [class]="'application-detail-page__status-badge--' + statusSeverity(application.status)"
-              >
-                {{ statusLabel(application.status) }}
-              </span>
+              <app-status-badge
+                [label]="statusLabel(application.status)"
+                [severity]="statusSeverity(application.status)"
+              />
             </dd>
           </div>
           <div class="application-detail-page__row">

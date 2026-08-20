@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -21,9 +21,9 @@ import {
 import { UserService } from '../../../core/user/user.service';
 import { describeApiError } from '../../../core/http/describe-api-error';
 import {
-  CompanyDeleteDialog,
-  CompanyDeleteDialogData,
-} from '../company-delete-dialog/company-delete-dialog';
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CompanyResponse } from '../company.models';
 import { CompanyService } from '../company.service';
 
@@ -54,7 +54,7 @@ export class CompanyList {
   private readonly companyService = inject(CompanyService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   private readonly state = signal<LoadState>('loading');
@@ -98,13 +98,13 @@ export class CompanyList {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<CompanyDeleteDialog, CompanyDeleteDialogData, boolean>(
-      CompanyDeleteDialog,
-      {
-        data: { companyName: company.name },
-        width: '420px',
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete company?',
+        message: `Are you sure you want to delete "${company.name}"? This action cannot be undone.`,
       },
-    );
+      width: '420px',
+    });
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
@@ -119,11 +119,11 @@ export class CompanyList {
       next: () => {
         this._companies.update((current) => current.filter((c) => c.id !== company.id));
         this.deletingId.set(null);
-        this.snackBar.open('Company deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Company deleted.');
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

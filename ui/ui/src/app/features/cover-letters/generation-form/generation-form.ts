@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert, LucideSparkles } from '@lucide/angular';
 import { finalize, forkJoin, timer } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
@@ -48,7 +48,7 @@ export class GenerationForm {
   private readonly jobService = inject(JobService);
   private readonly cvService = inject(CvService);
   private readonly aiProviderService = inject(AiProviderService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly jobs = signal<JobResponse[]>([]);
   protected readonly cvs = signal<CvResponse[]>([]);
@@ -121,7 +121,7 @@ export class GenerationForm {
     if (request.status === 'COMPLETED' && request.coverLetter) {
       this.generating.set(false);
       this.generatingStatus.set(null);
-      this.snackBar.open('Cover letter generated.', 'Dismiss', { duration: 4000 });
+      this.toast.success('Cover letter generated.');
       this.router.navigateByUrl(`/cover-letters/${request.coverLetter.id}`);
       return;
     }

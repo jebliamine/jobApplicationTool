@@ -9,7 +9,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import {
   LucideArchive,
   LucideArchiveRestore,
@@ -25,9 +25,9 @@ import {
 import { describeApiError } from '../../../core/http/describe-api-error';
 import { UserService } from '../../../core/user/user.service';
 import {
-  CoverLetterDeleteDialog,
-  CoverLetterDeleteDialogData,
-} from '../cover-letter-delete-dialog/cover-letter-delete-dialog';
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CoverLetterResponse } from '../cover-letter.models';
 import { CoverLetterService } from '../cover-letter.service';
 
@@ -68,7 +68,7 @@ export class CoverLetterDetail {
   private readonly coverLetterService = inject(CoverLetterService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   private readonly coverLetterId = this.route.snapshot.paramMap.get('id')!;
 
@@ -135,7 +135,7 @@ export class CoverLetterDetail {
           this._coverLetter.set(coverLetter);
           this.submitting.set(false);
           this.editing.set(false);
-          this.snackBar.open('Cover letter updated.', 'Dismiss', { duration: 4000 });
+          this.toast.success('Cover letter updated.');
         },
         error: (error: HttpErrorResponse) => {
           this.submitting.set(false);
@@ -153,11 +153,11 @@ export class CoverLetterDetail {
       next: (coverLetter) => {
         this._coverLetter.set(coverLetter);
         this.toggling.set(false);
-        this.snackBar.open('Cover letter archived.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter archived.');
       },
       error: (error: HttpErrorResponse) => {
         this.toggling.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }
@@ -171,11 +171,11 @@ export class CoverLetterDetail {
       next: (coverLetter) => {
         this._coverLetter.set(coverLetter);
         this.toggling.set(false);
-        this.snackBar.open('Cover letter restored.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter restored.');
       },
       error: (error: HttpErrorResponse) => {
         this.toggling.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }
@@ -185,13 +185,14 @@ export class CoverLetterDetail {
     if (!coverLetter || this.deleting()) {
       return;
     }
-    const ref = this.dialog.open<CoverLetterDeleteDialog, CoverLetterDeleteDialogData, boolean>(
-      CoverLetterDeleteDialog,
-      {
-        data: { jobTitle: coverLetter.job.title },
-        width: '420px',
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete this cover letter permanently?',
+        message: `This will permanently delete the cover letter for "${coverLetter.job.title}". This action cannot be undone.`,
+        confirmLabel: 'Delete permanently',
       },
-    );
+      width: '420px',
+    });
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
@@ -204,12 +205,12 @@ export class CoverLetterDetail {
     this.deleting.set(true);
     this.coverLetterService.delete(coverLetter.id).subscribe({
       next: () => {
-        this.snackBar.open('Cover letter permanently deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter permanently deleted.');
         this.router.navigateByUrl('/cover-letters');
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

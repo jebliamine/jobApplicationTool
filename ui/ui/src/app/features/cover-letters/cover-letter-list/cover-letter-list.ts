@@ -7,7 +7,7 @@ import { MatButtonToggleChange, MatButtonToggleModule } from '@angular/material/
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -23,9 +23,9 @@ import {
 import { describeApiError } from '../../../core/http/describe-api-error';
 import { UserService } from '../../../core/user/user.service';
 import {
-  CoverLetterDeleteDialog,
-  CoverLetterDeleteDialogData,
-} from '../cover-letter-delete-dialog/cover-letter-delete-dialog';
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CoverLetterResponse } from '../cover-letter.models';
 import { CoverLetterService } from '../cover-letter.service';
 
@@ -58,7 +58,7 @@ export class CoverLetterList {
   private readonly coverLetterService = inject(CoverLetterService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   private readonly state = signal<LoadState>('loading');
@@ -110,11 +110,11 @@ export class CoverLetterList {
       next: () => {
         this._coverLetters.update((current) => current.filter((c) => c.id !== coverLetter.id));
         this.togglingId.set(null);
-        this.snackBar.open('Cover letter archived.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter archived.');
       },
       error: (error: HttpErrorResponse) => {
         this.togglingId.set(null);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }
@@ -128,11 +128,11 @@ export class CoverLetterList {
       next: () => {
         this._coverLetters.update((current) => current.filter((c) => c.id !== coverLetter.id));
         this.togglingId.set(null);
-        this.snackBar.open('Cover letter restored.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter restored.');
       },
       error: (error: HttpErrorResponse) => {
         this.togglingId.set(null);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }
@@ -141,13 +141,14 @@ export class CoverLetterList {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<CoverLetterDeleteDialog, CoverLetterDeleteDialogData, boolean>(
-      CoverLetterDeleteDialog,
-      {
-        data: { jobTitle: coverLetter.job.title },
-        width: '420px',
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete this cover letter permanently?',
+        message: `This will permanently delete the cover letter for "${coverLetter.job.title}". This action cannot be undone.`,
+        confirmLabel: 'Delete permanently',
       },
-    );
+      width: '420px',
+    });
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
@@ -162,11 +163,11 @@ export class CoverLetterList {
       next: () => {
         this._coverLetters.update((current) => current.filter((c) => c.id !== coverLetter.id));
         this.deletingId.set(null);
-        this.snackBar.open('Cover letter permanently deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Cover letter permanently deleted.');
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

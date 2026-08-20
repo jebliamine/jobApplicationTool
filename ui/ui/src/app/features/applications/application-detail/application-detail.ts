@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import {
   LucideArrowLeft,
   LucideBriefcase,
@@ -23,12 +23,17 @@ import {
 import { describeApiError } from '../../../core/http/describe-api-error';
 import { UserService } from '../../../core/user/user.service';
 import {
-  ApplicationDeleteDialog,
-  ApplicationDeleteDialogData,
-} from '../application-delete-dialog/application-delete-dialog';
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
 import { ApplicationResponse, ApplicationStatus } from '../application.models';
 import { ApplicationService } from '../application.service';
-import { APPLICATION_STATUS_LABELS, APPLICATION_STATUS_SEVERITY } from '../application-status';
+import {
+  APPLICATION_STATUS_LABELS,
+  APPLICATION_STATUS_SEVERITY,
+  ApplicationStatusSeverity,
+} from '../application-status';
 
 type LoadState = 'loading' | 'loaded' | 'error';
 
@@ -51,6 +56,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
     LucideShieldCheck,
     LucideTrash2,
     LucideUser,
+    StatusBadge,
   ],
   templateUrl: './application-detail.html',
   styleUrl: './application-detail.scss',
@@ -61,7 +67,7 @@ export class ApplicationDetail {
   private readonly applicationService = inject(ApplicationService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   private readonly applicationId = this.route.snapshot.paramMap.get('id')!;
 
@@ -82,7 +88,7 @@ export class ApplicationDetail {
     return APPLICATION_STATUS_LABELS[status];
   }
 
-  protected statusSeverity(status: ApplicationStatus): string {
+  protected statusSeverity(status: ApplicationStatus): ApplicationStatusSeverity {
     return APPLICATION_STATUS_SEVERITY[status];
   }
 
@@ -102,13 +108,13 @@ export class ApplicationDetail {
     if (!application || this.deleting()) {
       return;
     }
-    const ref = this.dialog.open<ApplicationDeleteDialog, ApplicationDeleteDialogData, boolean>(
-      ApplicationDeleteDialog,
-      {
-        data: { jobTitle: application.job.title },
-        width: '420px',
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete application?',
+        message: `Are you sure you want to delete your application for "${application.job.title}"? This action cannot be undone.`,
       },
-    );
+      width: '420px',
+    });
 
     ref.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
@@ -121,12 +127,12 @@ export class ApplicationDetail {
     this.deleting.set(true);
     this.applicationService.delete(application.id).subscribe({
       next: () => {
-        this.snackBar.open('Application deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Application deleted.');
         this.router.navigateByUrl('/applications');
       },
       error: (error: HttpErrorResponse) => {
         this.deleting.set(false);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

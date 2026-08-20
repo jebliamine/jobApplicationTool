@@ -22,6 +22,7 @@ import java.net.SocketTimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,7 +37,10 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * Proves the provider resolves its configuration through ProviderSettingsResolver
  * on every call (never cached in this class) — the resolver is mocked, and
  * every HTTP expectation below asserts on the URI/header values the mocked
- * resolver's ResolvedProviderConfig supplied.
+ * resolver's ResolvedProviderConfig supplied. Also covers the retry-on-429/5xx
+ * behavior: tests that expect a retry register the same MockRestServiceServer
+ * expectation multiple times (one per real HTTP attempt) and let the real
+ * (short) backoff run — no sleep is mocked out, keeping this test dependency-free.
  */
 @ExtendWith(MockitoExtension.class)
 class GeminiCoverLetterGenerationProviderTest {
@@ -44,6 +48,7 @@ class GeminiCoverLetterGenerationProviderTest {
     private static final String BASE_URL = "https://gemini.test";
     private static final String MODEL = "gemini-2.0-flash";
     private static final String EXPECTED_URI = BASE_URL + "/v1beta/models/" + MODEL + ":generateContent";
+    private static final String API_KEY = "test-api-key";
 
     @Mock
     private ProviderSettingsResolver resolver;
@@ -71,6 +76,19 @@ class GeminiCoverLetterGenerationProviderTest {
                 "Backend Engineer", "Acme Corp", "Build and maintain backend services.", "My Resume", "Jane Doe");
     }
 
+    private void expectSuccess() {
+        mockServer.expect(requestTo(EXPECTED_URI))
+                .andExpect(method(HttpMethod.POST))
+                .andExpect(header("x-goog-api-key", API_KEY))
+                .andRespond(withSuccess(
+                        "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"Sehr geehrte Damen und Herren, ...\"}]}}]}",
+                        MediaType.APPLICATION_JSON));
+    }
+
+    private void expectStatus(HttpStatus status) {
+        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withStatus(status));
+    }
+
     @Test
     void isRegisteredUnderTheGeminiId() {
         assertThat(provider().id()).isEqualTo(GenerationProvider.GEMINI);
@@ -87,13 +105,8 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void successfulResponseProducesGenerationResult() {
-        stubAvailable("test-api-key");
-        mockServer.expect(requestTo(EXPECTED_URI))
-                .andExpect(method(HttpMethod.POST))
-                .andExpect(header("x-goog-api-key", "test-api-key"))
-                .andRespond(withSuccess(
-                        "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"Sehr geehrte Damen und Herren, ...\"}]}}]}",
-                        MediaType.APPLICATION_JSON));
+        stubAvailable(API_KEY);
+        expectSuccess();
 
         GenerationResult result = provider().generate(validInput());
 
@@ -103,7 +116,7 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void emptyCandidatesListFails() {
-        stubAvailable("test-api-key");
+        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess("{\"candidates\":[]}", MediaType.APPLICATION_JSON));
 
@@ -113,7 +126,7 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void blankTextFails() {
-        stubAvailable("test-api-key");
+        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess(
                         "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"   \"}]}}]}", MediaType.APPLICATION_JSON));
@@ -124,7 +137,7 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void malformedJsonResponseFails() {
-        stubAvailable("test-api-key");
+        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess("not json at all", MediaType.APPLICATION_JSON));
 
@@ -133,61 +146,162 @@ class GeminiCoverLetterGenerationProviderTest {
     }
 
     @Test
-    void unauthorizedIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
-        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withStatus(HttpStatus.UNAUTHORIZED));
+    void unauthorizedIsNotRetriedAndReportsTheStatusCode() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.UNAUTHORIZED);
 
         assertThatThrownBy(() -> provider().generate(validInput()))
-                .isInstanceOf(CoverLetterGenerationException.class);
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 401")
+                .hasMessageContaining("authentication");
+
+        // Only one expectation was registered — a second/third attempt would fail the mock server.
+        mockServer.verify();
     }
 
     @Test
-    void forbiddenIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
-        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withStatus(HttpStatus.FORBIDDEN));
+    void forbiddenIsNotRetried() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.FORBIDDEN);
 
         assertThatThrownBy(() -> provider().generate(validInput()))
-                .isInstanceOf(CoverLetterGenerationException.class);
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 403");
+
+        mockServer.verify();
     }
 
     @Test
-    void tooManyRequestsIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
-        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withStatus(HttpStatus.TOO_MANY_REQUESTS));
+    void badRequestIsNotRetried() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.BAD_REQUEST);
 
         assertThatThrownBy(() -> provider().generate(validInput()))
-                .isInstanceOf(CoverLetterGenerationException.class);
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 400");
+
+        mockServer.verify();
     }
 
     @Test
-    void serverErrorIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
-        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
+    void notFoundIsNotRetried() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.NOT_FOUND);
 
         assertThatThrownBy(() -> provider().generate(validInput()))
-                .isInstanceOf(CoverLetterGenerationException.class);
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 404");
+
+        mockServer.verify();
     }
 
     @Test
-    void connectionFailureIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
+    void connectionFailureIsNotRetried() {
+        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(request -> {
             throw new IOException("simulated connection failure");
         });
 
         assertThatThrownBy(() -> provider().generate(validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
+
+        mockServer.verify();
     }
 
     @Test
-    void timeoutIsConvertedToCoverLetterGenerationException() {
-        stubAvailable("test-api-key");
+    void timeoutIsNotRetried() {
+        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(request -> {
             throw new SocketTimeoutException("simulated read timeout");
         });
 
         assertThatThrownBy(() -> provider().generate(validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
+
+        mockServer.verify();
+    }
+
+    @Test
+    void serverErrorOnFirstAttemptIsRetriedAndSucceedsOnTheSecond() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        expectSuccess();
+
+        GenerationResult result = provider().generate(validInput());
+
+        assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
+        mockServer.verify();
+    }
+
+    @Test
+    void serverErrorOnFirstTwoAttemptsIsRetriedAndSucceedsOnTheThird() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        expectSuccess();
+
+        GenerationResult result = provider().generate(validInput());
+
+        assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
+        mockServer.verify();
+    }
+
+    @Test
+    void serverErrorOnAllAttemptsFailsWithTheStatusCodeAndNeverLeaksTheApiKey() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
+
+        Throwable thrown = catchThrowable(() -> provider().generate(validInput()));
+
+        assertThat(thrown).isInstanceOf(CoverLetterGenerationException.class);
+        assertThat(thrown.getMessage()).contains("HTTP 503").contains("unavailable");
+        assertThat(thrown.getMessage()).doesNotContain(API_KEY);
+        // Exactly MAX_ATTEMPTS (3) requests were made — no more, no fewer.
+        mockServer.verify();
+    }
+
+    @Test
+    void tooManyRequestsOnFirstTwoAttemptsIsRetriedAndSucceedsOnTheThird() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.TOO_MANY_REQUESTS);
+        expectStatus(HttpStatus.TOO_MANY_REQUESTS);
+        expectSuccess();
+
+        GenerationResult result = provider().generate(validInput());
+
+        assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
+        mockServer.verify();
+    }
+
+    @Test
+    void tooManyRequestsOnAllAttemptsFailsWithTheStatusCode() {
+        stubAvailable(API_KEY);
+        expectStatus(HttpStatus.TOO_MANY_REQUESTS);
+        expectStatus(HttpStatus.TOO_MANY_REQUESTS);
+        expectStatus(HttpStatus.TOO_MANY_REQUESTS);
+
+        assertThatThrownBy(() -> provider().generate(validInput()))
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 429")
+                .hasMessageContaining("rate limit");
+
+        mockServer.verify();
+    }
+
+    @Test
+    void genericServerErrorReportsTheStatusCode() {
+        stubAvailable(API_KEY);
+        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
+        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
+        mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
+
+        assertThatThrownBy(() -> provider().generate(validInput()))
+                .isInstanceOf(CoverLetterGenerationException.class)
+                .hasMessageContaining("HTTP 500");
+
+        mockServer.verify();
     }
 
     @Test
@@ -203,7 +317,7 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void blankJobDescriptionFailsCleanlyWithoutMakingARequest() {
-        stubAvailable("test-api-key");
+        stubAvailable(API_KEY);
         GenerationInput input = new GenerationInput("Backend Engineer", "Acme Corp", "  ", "My Resume", "Jane Doe");
 
         assertThatThrownBy(() -> provider().generate(input))

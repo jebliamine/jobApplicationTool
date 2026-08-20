@@ -9,7 +9,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert, LucidePlus } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { CompanyCreateDialog } from '../../companies/company-create-dialog/company-create-dialog';
@@ -72,7 +72,7 @@ export class JobForm {
   private readonly jobService = inject(JobService);
   private readonly companyService = inject(CompanyService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   protected readonly employmentTypes = EMPLOYMENT_TYPES;
   protected readonly workModes = WORK_MODES;
@@ -152,9 +152,7 @@ export class JobForm {
 
     action.pipe(finalize(() => this.submitting.set(false))).subscribe({
       next: () => {
-        this.snackBar.open(this.isEditMode ? 'Job updated.' : 'Job created.', 'Dismiss', {
-          duration: 4000,
-        });
+        this.toast.success(this.isEditMode ? 'Job updated.' : 'Job created.');
         this.router.navigateByUrl('/jobs');
       },
       error: (error: HttpErrorResponse) => this.serverError.set(describeApiError(error)),

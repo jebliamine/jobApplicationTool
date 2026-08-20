@@ -11,122 +11,65 @@
       <h3 matSubheader class="sidebar__group-label">Workspace</h3>
     }
 
-    <a
-      mat-list-item
-      routerLink="/dashboard"
-      routerLinkActive="sidebar__item--active"
-      [routerLinkActiveOptions]="{ exact: true }"
-      [matTooltip]="collapsed() ? 'Dashboard' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideLayoutDashboard [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>Dashboard</span>
-      } @else {
-        <span class="japp-visually-hidden">Dashboard</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLink="/cv"
-      routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'CV' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideFileText [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>CV</span>
-      } @else {
-        <span class="japp-visually-hidden">CV</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLink="/jobs"
-      routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'Jobs' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideBriefcase [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>Jobs</span>
-      } @else {
-        <span class="japp-visually-hidden">Jobs</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLink="/companies"
-      routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'Companies' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideBuilding2 [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>Companies</span>
-      } @else {
-        <span class="japp-visually-hidden">Companies</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLink="/applications"
-      routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'Applications' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideClipboardList [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>Applications</span>
-      } @else {
-        <span class="japp-visually-hidden">Applications</span>
-      }
-    </a>
-
-    <a
-      mat-list-item
-      routerLink="/cover-letters"
-      routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'Cover Letters' : ''"
-      matTooltipPosition="right"
-      (click)="linkActivated.emit()"
-    >
-      <svg lucideMail [size]="20" matListItemIcon aria-hidden="true"></svg>
-      @if (!collapsed()) {
-        <span matListItemTitle>Cover Letters</span>
-      } @else {
-        <span class="japp-visually-hidden">Cover Letters</span>
-      }
-    </a>
-
-    @if (isAdmin()) {
-      @if (!collapsed()) {
-        <h3 matSubheader class="sidebar__group-label">Admin</h3>
-      }
+    @for (page of workspacePages; track page.path) {
       <a
         mat-list-item
-        routerLink="/admin/ai-providers"
+        [routerLink]="page.path"
         routerLinkActive="sidebar__item--active"
-        [matTooltip]="collapsed() ? 'AI Providers' : ''"
+        [routerLinkActiveOptions]="{ exact: page.path === '/dashboard' }"
+        [matTooltip]="collapsed() ? page.label : ''"
         matTooltipPosition="right"
         (click)="linkActivated.emit()"
       >
-        <svg lucideShield [size]="20" matListItemIcon aria-hidden="true"></svg>
+        @switch (page.icon) {
+          @case ('dashboard') {
+            <svg lucideLayoutDashboard [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('cv') {
+            <svg lucideFileText [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('jobs') {
+            <svg lucideBriefcase [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('companies') {
+            <svg lucideBuilding2 [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('applications') {
+            <svg lucideClipboardList [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('cover-letters') {
+            <svg lucideMail [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+        }
         @if (!collapsed()) {
-          <span matListItemTitle>AI Providers</span>
+          <span matListItemTitle>{{ page.label }}</span>
         } @else {
-          <span class="japp-visually-hidden">AI Providers</span>
+          <span class="japp-visually-hidden">{{ page.label }}</span>
         }
       </a>
+    }
+
+    @if (isAdmin() && adminPages.length > 0) {
+      @if (!collapsed()) {
+        <h3 matSubheader class="sidebar__group-label">Admin</h3>
+      }
+      @for (page of adminPages; track page.path) {
+        <a
+          mat-list-item
+          [routerLink]="page.path"
+          routerLinkActive="sidebar__item--active"
+          [matTooltip]="collapsed() ? page.label : ''"
+          matTooltipPosition="right"
+          (click)="linkActivated.emit()"
+        >
+          <svg lucideShield [size]="20" matListItemIcon aria-hidden="true"></svg>
+          @if (!collapsed()) {
+            <span matListItemTitle>{{ page.label }}</span>
+          } @else {
+            <span class="japp-visually-hidden">{{ page.label }}</span>
+          }
+        </a>
+      }
     }
   </mat-nav-list>
 
@@ -135,17 +78,17 @@
   <mat-nav-list class="sidebar__list sidebar__list--bottom">
     <a
       mat-list-item
-      routerLink="/settings"
+      [routerLink]="settingsPage.path"
       routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? 'Settings' : ''"
+      [matTooltip]="collapsed() ? settingsPage.label : ''"
       matTooltipPosition="right"
       (click)="linkActivated.emit()"
     >
       <svg lucideSettings [size]="20" matListItemIcon aria-hidden="true"></svg>
       @if (!collapsed()) {
-        <span matListItemTitle>Settings</span>
+        <span matListItemTitle>{{ settingsPage.label }}</span>
       } @else {
-        <span class="japp-visually-hidden">Settings</span>
+        <span class="japp-visually-hidden">{{ settingsPage.label }}</span>
       }
     </a>
   </mat-nav-list>

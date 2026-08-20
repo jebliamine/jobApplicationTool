@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {
@@ -20,7 +20,10 @@ import {
 } from '@lucide/angular';
 import { UserService } from '../../../core/user/user.service';
 import { describeApiError } from '../../../core/http/describe-api-error';
-import { JobDeleteDialog, JobDeleteDialogData } from '../job-delete-dialog/job-delete-dialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { EmploymentType, JobResponse, WorkMode } from '../job.models';
 import { JobService } from '../job.service';
 
@@ -65,7 +68,7 @@ export class JobList {
   private readonly jobService = inject(JobService);
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
 
   private readonly state = signal<LoadState>('loading');
@@ -117,8 +120,11 @@ export class JobList {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<JobDeleteDialog, JobDeleteDialogData, boolean>(JobDeleteDialog, {
-      data: { jobTitle: job.title },
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete job?',
+        message: `Are you sure you want to delete "${job.title}"? This action cannot be undone.`,
+      },
       width: '420px',
     });
 
@@ -135,11 +141,11 @@ export class JobList {
       next: () => {
         this._jobs.update((current) => current.filter((j) => j.id !== job.id));
         this.deletingId.set(null);
-        this.snackBar.open('Job deleted.', 'Dismiss', { duration: 4000 });
+        this.toast.success('Job deleted.');
       },
       error: (error: HttpErrorResponse) => {
         this.deletingId.set(null);
-        this.snackBar.open(describeApiError(error), 'Dismiss', { duration: 5000 });
+        this.toast.error(describeApiError(error));
       },
     });
   }

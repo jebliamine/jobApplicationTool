@@ -17,6 +17,7 @@ import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
 
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,6 +45,13 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
     private static final Logger log = LoggerFactory.getLogger(GeminiCoverLetterGenerationProvider.class);
     private static final String GENERATE_CONTENT_PATH = "/v1beta/models/{model}:generateContent";
     private static final int MAX_LOGGED_ERROR_BODY_LENGTH = 300;
+
+    /** 1 initial attempt + up to 2 retries, only for HTTP 429/5xx — see callGemini(). */
+    private static final int MAX_ATTEMPTS = 3;
+    private static final long RETRY_1_BASE_DELAY_MILLIS = 500;
+    private static final long RETRY_1_JITTER_MILLIS = 250;
+    private static final long RETRY_2_BASE_DELAY_MILLIS = 1500;
+    private static final long RETRY_2_JITTER_MILLIS = 500;
     private static final Pattern ERROR_STATUS_PATTERN = Pattern.compile("\"status\"\\s*:\\s*\"([^\"]*)\"");
     private static final Pattern ERROR_MESSAGE_PATTERN = Pattern.compile("\"message\"\\s*:\\s*\"([^\"]*)\"");
 
@@ -87,37 +95,77 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
         return new GenerationResult(text.trim());
     }
 
-    /** The API key is sent as a header (never in the URL), so it can never end up in access/proxy logs. */
+    /**
+     * The API key is sent as a header (never in the URL), so it can never end
+     * up in access/proxy logs. Retries only HTTP 429/5xx (transient) up to
+     * {@link #MAX_ATTEMPTS} total attempts with short exponential backoff +
+     * jitter; every other failure (4xx, timeout/connection failure, malformed
+     * response) fails on the first attempt, unchanged.
+     */
     private GeminiGenerateContentResponse callGemini(ResolvedProviderConfig resolved, String prompt) {
-        try {
-            return restClient.post()
-                    .uri(resolved.getBaseUrl() + GENERATE_CONTENT_PATH, resolved.getModel())
-                    .header("x-goog-api-key", resolved.getApiKey())
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(GeminiGenerateContentRequest.ofPrompt(prompt))
-                    .retrieve()
-                    .body(GeminiGenerateContentResponse.class);
-        } catch (HttpClientErrorException.Unauthorized | HttpClientErrorException.Forbidden e) {
-            logGeminiFailure(resolved, e, "authentication");
-            throw new CoverLetterGenerationException("Gemini rejected the request due to an authentication problem.");
-        } catch (HttpClientErrorException.TooManyRequests e) {
-            logGeminiFailure(resolved, e, "rate limit");
-            throw new CoverLetterGenerationException("Gemini rate limit was exceeded. Please try again later.");
-        } catch (HttpServerErrorException e) {
-            logGeminiFailure(resolved, e, "server error");
-            throw new CoverLetterGenerationException("Gemini is currently unavailable. Please try again later.");
-        } catch (HttpClientErrorException e) {
-            logGeminiFailure(resolved, e, "client error");
-            throw new CoverLetterGenerationException("Gemini rejected the request.");
-        } catch (ResourceAccessException e) {
-            log.warn("Gemini call failed (timeout or connection failure): model={}, baseUrl={}",
-                    resolved.getModel(), resolved.getBaseUrl());
-            throw new CoverLetterGenerationException("Could not reach Gemini (timeout or connection failure).");
-        } catch (RestClientException e) {
-            log.warn("Gemini call failed (unexpected response): model={}, baseUrl={}",
-                    resolved.getModel(), resolved.getBaseUrl());
-            throw new CoverLetterGenerationException("Gemini returned an unexpected response.");
+        for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+            try {
+                return restClient.post()
+                        .uri(resolved.getBaseUrl() + GENERATE_CONTENT_PATH, resolved.getModel())
+                        .header("x-goog-api-key", resolved.getApiKey())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(GeminiGenerateContentRequest.ofPrompt(prompt))
+                        .retrieve()
+                        .body(GeminiGenerateContentResponse.class);
+            } catch (HttpClientErrorException.Unauthorized | HttpClientErrorException.Forbidden e) {
+                logGeminiFailure(resolved, e, "authentication");
+                throw new CoverLetterGenerationException(
+                        "Gemini rejected the request due to an authentication problem (HTTP " + e.getStatusCode().value() + ").");
+            } catch (HttpClientErrorException.TooManyRequests e) {
+                if (attempt >= MAX_ATTEMPTS) {
+                    logGeminiFailure(resolved, e, "rate limit");
+                    throw new CoverLetterGenerationException(
+                            "Gemini rate limit was exceeded (HTTP " + e.getStatusCode().value() + "). Please try again later.");
+                }
+                waitBeforeRetry(e, "rate limit", attempt);
+            } catch (HttpServerErrorException e) {
+                if (attempt >= MAX_ATTEMPTS) {
+                    logGeminiFailure(resolved, e, "server");
+                    throw new CoverLetterGenerationException(
+                            "Gemini is currently unavailable (HTTP " + e.getStatusCode().value() + "). Please try again later.");
+                }
+                waitBeforeRetry(e, "server", attempt);
+            } catch (HttpClientErrorException e) {
+                logGeminiFailure(resolved, e, "client");
+                throw new CoverLetterGenerationException("Gemini rejected the request (HTTP " + e.getStatusCode().value() + ").");
+            } catch (ResourceAccessException e) {
+                log.warn("Gemini call failed (timeout or connection failure): model={}, baseUrl={}",
+                        resolved.getModel(), resolved.getBaseUrl());
+                throw new CoverLetterGenerationException("Could not reach Gemini (timeout or connection failure).");
+            } catch (RestClientException e) {
+                log.warn("Gemini call failed (unexpected response): model={}, baseUrl={}",
+                        resolved.getModel(), resolved.getBaseUrl());
+                throw new CoverLetterGenerationException("Gemini returned an unexpected response.");
+            }
         }
+        // Unreachable: every loop iteration above either returns or throws — the final
+        // attempt (attempt == MAX_ATTEMPTS) always throws instead of retrying.
+        throw new CoverLetterGenerationException("Gemini returned an unexpected response.");
+    }
+
+    /** Logs the retry decision (provider, status, attempt, delay) — never the API key or response body — then sleeps. */
+    private void waitBeforeRetry(HttpStatusCodeException e, String category, int attempt) {
+        long delayMillis = retryDelayMillis(attempt);
+        log.warn("Gemini {} error (retrying): provider=GEMINI, status={}, attempt={}, retryDelayMs={}",
+                category, e.getStatusCode().value(), attempt, delayMillis);
+        try {
+            Thread.sleep(delayMillis);
+        } catch (InterruptedException interruptedException) {
+            Thread.currentThread().interrupt();
+            throw new CoverLetterGenerationException("Gemini call was interrupted while retrying.");
+        }
+    }
+
+    /** attempt 1 (about to become retry 1): ~500-750ms. attempt 2 (about to become retry 2): ~1500-2000ms. */
+    private long retryDelayMillis(int failedAttempt) {
+        long base = failedAttempt == 1 ? RETRY_1_BASE_DELAY_MILLIS : RETRY_2_BASE_DELAY_MILLIS;
+        long jitterRange = failedAttempt == 1 ? RETRY_1_JITTER_MILLIS : RETRY_2_JITTER_MILLIS;
+        return base + ThreadLocalRandom.current().nextLong(jitterRange + 1);
     }
 
     /**

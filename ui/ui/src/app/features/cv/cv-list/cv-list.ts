@@ -5,12 +5,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { ToastService } from '../../../core/ui/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideCircleAlert, LucideDownload, LucideEye, LucideFileText, LucideInbox, LucideTrash2 } from '@lucide/angular';
 import { finalize } from 'rxjs';
-import { CvDeleteDialog, CvDeleteDialogData } from '../cv-delete-dialog/cv-delete-dialog';
+import {
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { CvResponse } from '../cv.models';
 import { CvService } from '../cv.service';
 
@@ -42,7 +45,7 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
 export class CvList {
   private readonly cvService = inject(CvService);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   readonly cvs = input.required<CvResponse[]>();
   readonly loading = input(false);
@@ -117,8 +120,11 @@ export class CvList {
     if (this.deletingId()) {
       return;
     }
-    const ref = this.dialog.open<CvDeleteDialog, CvDeleteDialogData, boolean>(CvDeleteDialog, {
-      data: { fileName: cv.fileName },
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete CV?',
+        message: `Are you sure you want to delete "${cv.fileName}"? This action cannot be undone.`,
+      },
       width: '420px',
     });
 
@@ -137,13 +143,11 @@ export class CvList {
       .subscribe({
         next: () => {
           this.deleted.emit(cv.id);
-          this.snackBar.open('CV deleted.', 'Dismiss', { duration: 4000 });
+          this.toast.success('CV deleted.');
         },
         error: (error: HttpErrorResponse) => {
           const message = typeof error.error?.message === 'string' ? error.error.message : null;
-          this.snackBar.open(message ?? 'We could not delete this CV. Please try again.', 'Dismiss', {
-            duration: 5000,
-          });
+          this.toast.error(message ?? 'We could not delete this CV. Please try again.');
         },
       });
   }
@@ -153,6 +157,6 @@ export class CvList {
       action === 'open'
         ? 'We could not open this CV. Please try again.'
         : 'We could not download this CV. Please try again.';
-    this.snackBar.open(message, 'Dismiss', { duration: 5000 });
+    this.toast.error(message);
   }
 }

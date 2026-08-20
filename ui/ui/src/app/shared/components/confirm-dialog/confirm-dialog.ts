@@ -3,19 +3,22 @@ import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { LucideTriangleAlert } from '@lucide/angular';
 
-export interface CvDeleteDialogData {
-  fileName: string;
+export interface ConfirmDialogData {
+  title: string;
+  message: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
 }
 
 @Component({
-  selector: 'app-cv-delete-dialog',
+  selector: 'app-confirm-dialog',
   imports: [MatButtonModule, MatDialogModule, LucideTriangleAlert],
-  templateUrl: './cv-delete-dialog.html',
-  styleUrl: './cv-delete-dialog.scss',
+  templateUrl: './confirm-dialog.html',
+  styleUrl: './confirm-dialog.scss',
 })
-export class CvDeleteDialog {
-  protected readonly data = inject<CvDeleteDialogData>(MAT_DIALOG_DATA);
-  private readonly dialogRef = inject(MatDialogRef<CvDeleteDialog>);
+export class ConfirmDialog {
+  protected readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(MatDialogRef<ConfirmDialog>);
 
   protected cancel(): void {
     this.dialogRef.close(false);
