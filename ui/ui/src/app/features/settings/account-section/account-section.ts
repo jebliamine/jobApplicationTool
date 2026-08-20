@@ -6,7 +6,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { ToastService } from '../../core/ui/toast.service';
+import { ToastService } from '../../../core/ui/toast.service';
 import {
   LucideCircleAlert,
   LucideMail,
@@ -15,16 +15,16 @@ import {
   LucideUser,
 } from '@lucide/angular';
 import { finalize } from 'rxjs';
-import { describeProfileUpdateError } from '../../core/user/user-error';
-import { UserService } from '../../core/user/user.service';
+import { describeProfileUpdateError } from '../../../core/user/user-error';
+import { UserService } from '../../../core/user/user.service';
 
-interface ProfileForm {
+interface AccountForm {
   fullName: FormControl<string>;
   email: FormControl<string>;
 }
 
 @Component({
-  selector: 'app-profile',
+  selector: 'app-account-section',
   imports: [
     ReactiveFormsModule,
     MatButtonModule,
@@ -38,10 +38,10 @@ interface ProfileForm {
     LucideShieldCheck,
     LucideUser,
   ],
-  templateUrl: './profile.html',
-  styleUrl: './profile.scss',
+  templateUrl: './account-section.html',
+  styleUrl: './account-section.scss',
 })
-export class Profile {
+export class AccountSection {
   protected readonly userService = inject(UserService);
   private readonly toast = inject(ToastService);
 
@@ -49,7 +49,7 @@ export class Profile {
   protected readonly submitting = signal(false);
   protected readonly saveError = signal<string | null>(null);
 
-  protected readonly form = new FormGroup<ProfileForm>({
+  protected readonly form = new FormGroup<AccountForm>({
     fullName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     email: new FormControl('', {
       nonNullable: true,

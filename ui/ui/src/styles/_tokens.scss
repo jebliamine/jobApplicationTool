@@ -54,6 +54,13 @@
   --japp-sidebar-width: 264px;
   --japp-sidebar-width-collapsed: 72px;
   --japp-topbar-height: 64px;
+
+  // Typography — display face used for page-level H1 titles only; body
+  // text stays on Material's system-font stack (set via mat.theme() in
+  // styles.scss) for speed and to match Material's own chrome.
+  --japp-font-display:
+    'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
+    sans-serif;
 }
 
 // Dark theme overrides. Only tokens that Material does not already remap

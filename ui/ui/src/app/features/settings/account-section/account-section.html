@@ -1,20 +1,15 @@
-<div class="profile-page">
-  <header class="profile-page__header">
-    <h1 class="profile-page__title">Your profile</h1>
-    <p class="profile-page__subtitle">Account details associated with your JAPP login.</p>
-  </header>
-
+<div class="account-section">
   @if (userService.loading()) {
-    <mat-card appearance="outlined" class="profile-page__card profile-page__loading">
+    <mat-card appearance="outlined" class="account-section__card account-section__loading">
       <mat-card-content>
         <mat-progress-spinner diameter="28" mode="indeterminate" />
         <span>Loading your profile…</span>
       </mat-card-content>
     </mat-card>
   } @else if (userService.error()) {
-    <mat-card appearance="outlined" class="profile-page__card profile-page__error">
+    <mat-card appearance="outlined" class="account-section__card account-section__error">
       <mat-card-content>
-        <div class="profile-page__error-message" role="alert">
+        <div class="account-section__error-message" role="alert">
           <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
           <span>We could not load your profile. Please try again.</span>
         </div>
@@ -22,42 +17,42 @@
       </mat-card-content>
     </mat-card>
   } @else if (userService.currentUser(); as user) {
-    <mat-card appearance="outlined" class="profile-page__card">
+    <mat-card appearance="outlined" class="account-section__card">
       <mat-card-content>
-        <div class="profile-page__avatar" aria-hidden="true">
+        <div class="account-section__avatar" aria-hidden="true">
           {{ (user.fullName || '?').charAt(0).toUpperCase() }}
         </div>
 
         @if (!editing()) {
-          <dl class="profile-page__details">
-            <div class="profile-page__row">
+          <dl class="account-section__details">
+            <div class="account-section__row">
               <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Full name</dt>
               <dd>{{ user.fullName }}</dd>
             </div>
-            <div class="profile-page__row">
+            <div class="account-section__row">
               <dt><svg lucideMail [size]="18" aria-hidden="true"></svg> Email</dt>
               <dd>{{ user.email }}</dd>
             </div>
-            <div class="profile-page__row">
+            <div class="account-section__row">
               <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Role</dt>
               <dd>{{ user.role }}</dd>
             </div>
           </dl>
 
-          <button mat-stroked-button type="button" class="profile-page__edit-button" (click)="startEdit()">
+          <button mat-stroked-button type="button" class="account-section__edit-button" (click)="startEdit()">
             <svg lucidePencil [size]="16" aria-hidden="true"></svg>
             Edit profile
           </button>
         } @else {
           @if (saveError()) {
-            <div class="profile-page__error-message" role="alert">
+            <div class="account-section__error-message" role="alert">
               <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
               <span>{{ saveError() }}</span>
             </div>
           }
 
-          <form class="profile-page__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
-            <mat-form-field appearance="outline" class="profile-page__field">
+          <form class="account-section__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+            <mat-form-field appearance="outline" class="account-section__field">
               <mat-label>Full name</mat-label>
               <input matInput type="text" formControlName="fullName" autocomplete="name" required />
               @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
@@ -65,7 +60,7 @@
               }
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="profile-page__field">
+            <mat-form-field appearance="outline" class="account-section__field">
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email" autocomplete="email" required />
               @if (form.controls.email.invalid && form.controls.email.touched) {
@@ -79,7 +74,7 @@
               }
             </mat-form-field>
 
-            <div class="profile-page__actions">
+            <div class="account-section__actions">
               <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
                 @if (submitting()) {
                   <mat-progress-spinner diameter="18" mode="indeterminate" />

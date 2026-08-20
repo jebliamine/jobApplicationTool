@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.settings-page__header {
+  max-width: 60ch;
+  margin-bottom: var(--japp-spacing-xl);
+}
+
+.settings-page__title {
+  margin: 0 0 var(--japp-spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.settings-page__subtitle {
+  margin: 0;
+  color: var(--japp-text-secondary);
+}
+
+.settings-page__section {
+  margin-bottom: var(--japp-spacing-xl);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.settings-page__section-title {
+  margin: 0 0 var(--japp-spacing-md);
+  font-size: 1.0625rem;
+  font-weight: 600;
+  color: var(--japp-text-primary);
+}

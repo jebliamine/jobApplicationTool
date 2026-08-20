@@ -1,0 +1,46 @@
+<mat-card appearance="outlined" class="ai-section__card">
+  <mat-card-content>
+    @if (loading()) {
+      <div class="ai-section__state">
+        <mat-progress-spinner diameter="28" mode="indeterminate" />
+        <span>Loading AI providers…</span>
+      </div>
+    } @else if (error()) {
+      <div class="ai-section__state ai-section__state--error" role="alert">
+        <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+        <span>We could not load AI providers.</span>
+        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      </div>
+    } @else {
+      <ul class="ai-section__list">
+        @for (provider of providers(); track provider.id) {
+          <li class="ai-section__provider">
+            <div class="ai-section__provider-info">
+              <svg lucideSparkles [size]="18" aria-hidden="true"></svg>
+              <div>
+                <span class="ai-section__provider-name">{{ provider.displayName }}</span>
+                @if (provider.model) {
+                  <span class="ai-section__provider-model">{{ provider.model }}</span>
+                }
+              </div>
+            </div>
+            <app-status-badge
+              [label]="provider.available ? 'Available' : 'Unavailable'"
+              [severity]="provider.available ? 'success' : 'neutral'"
+            />
+          </li>
+        }
+      </ul>
+
+      <p class="ai-section__note">
+        Provider credentials (API keys, base URLs) are managed by an administrator, not per user.
+      </p>
+
+      @if (isAdmin()) {
+        <a mat-stroked-button routerLink="/admin/ai-providers" class="ai-section__manage-link">
+          Manage AI providers
+        </a>
+      }
+    }
+  </mat-card-content>
+</mat-card>

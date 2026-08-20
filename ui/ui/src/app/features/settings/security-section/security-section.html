@@ -1,0 +1,68 @@
+<mat-card appearance="outlined" class="security-section__card">
+  <mat-card-content>
+    @if (saveError()) {
+      <div class="security-section__error-message" role="alert">
+        <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+        <span>{{ saveError() }}</span>
+      </div>
+    }
+
+    <form class="security-section__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+      <mat-form-field appearance="outline" class="security-section__field">
+        <mat-label>Current password</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="currentPassword"
+          autocomplete="current-password"
+          required
+        />
+        @if (form.controls.currentPassword.invalid && form.controls.currentPassword.touched) {
+          <mat-error>Current password is required.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="security-section__field">
+        <mat-label>New password</mat-label>
+        <input matInput type="password" formControlName="newPassword" autocomplete="new-password" required />
+        @if (form.controls.newPassword.invalid && form.controls.newPassword.touched) {
+          <mat-error>
+            @if (form.controls.newPassword.hasError('required')) {
+              New password is required.
+            } @else {
+              New password must be at least 8 characters.
+            }
+          </mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="security-section__field">
+        <mat-label>Confirm new password</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="confirmNewPassword"
+          autocomplete="new-password"
+          required
+        />
+        @if (form.controls.confirmNewPassword.touched) {
+          @if (form.controls.confirmNewPassword.hasError('required')) {
+            <mat-error>Confirm your new password.</mat-error>
+          } @else if (form.hasError('passwordMismatch')) {
+            <mat-error>Passwords do not match.</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      <div class="security-section__actions">
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+          @if (submitting()) {
+            <mat-progress-spinner diameter="18" mode="indeterminate" />
+          } @else {
+            Change password
+          }
+        </button>
+      </div>
+    </form>
+  </mat-card-content>
+</mat-card>

@@ -3,9 +3,6 @@ import { adminGuard } from './core/guards/admin.guard';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 import { Shell } from './layout/shell/shell';
 
-const loadPlaceholder = () =>
-  import('./shared/components/placeholder-page/placeholder-page').then((m) => m.PlaceholderPage);
-
 export const routes: Routes = [
   {
     path: 'login',
@@ -142,13 +139,9 @@ export const routes: Routes = [
       },
       {
         path: 'settings',
-        loadComponent: loadPlaceholder,
-        data: { title: 'Settings', description: 'Application settings are not implemented yet.' },
+        loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
       },
-      {
-        path: 'profile',
-        loadComponent: () => import('./features/profile/profile').then((m) => m.Profile),
-      },
+      { path: 'profile', redirectTo: 'settings' },
       { path: '**', redirectTo: 'dashboard' },
     ],
   },

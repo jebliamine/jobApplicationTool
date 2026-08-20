@@ -1,5 +1,6 @@
 @use '@angular/material' as mat;
 @use './styles/tokens';
+@use './styles/theme-colors';
 
 @include mat.core();
 
@@ -7,8 +8,8 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$violet-palette,
-        tertiary: mat.$azure-palette,
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
         theme-type: light,
       ),
       typography: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif",
@@ -20,16 +21,32 @@ html {
   @include mat.theme(
     (
       color: (
-        primary: mat.$violet-palette,
-        tertiary: mat.$azure-palette,
+        primary: theme-colors.$primary-palette,
+        tertiary: theme-colors.$tertiary-palette,
         theme-type: dark,
       ),
     )
   );
 }
 
+:root {
+  // Give every outlined mat-card the app's own corner-radius scale and a
+  // touch of shadow instead of Material's default zero-elevation outline —
+  // these are the component-level custom properties Material's own
+  // _m2-card.scss/card styles read, so no selector-specificity overrides
+  // are needed against .mat-mdc-card-outlined.
+  --mat-card-outlined-container-shape: var(--japp-radius-lg);
+  --mat-card-outlined-container-elevation: var(--japp-shadow-sm);
+}
+
 * {
   box-sizing: border-box;
+}
+
+// Page-level titles only — dialog titles and the sidebar's group labels
+// intentionally stay on the body font (small, utilitarian text).
+h1 {
+  font-family: var(--japp-font-display);
 }
 
 html,

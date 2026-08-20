@@ -10,3 +10,9 @@ export interface UpdateUserRequest {
   fullName: string;
   email: string;
 }
+
+/** Mirrors the request body of PUT /api/v1/users/me/password. */
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}

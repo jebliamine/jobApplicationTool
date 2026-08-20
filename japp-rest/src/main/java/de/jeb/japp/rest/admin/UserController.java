@@ -1,9 +1,12 @@
 package de.jeb.japp.rest.admin;
 
 import de.jeb.japp.model.user.User;
+import de.jeb.japp.model.user.dto.ChangePasswordRequest;
 import de.jeb.japp.model.user.dto.UpdateUserRequest;
 import de.jeb.japp.model.user.dto.UserDto;
+import de.jeb.japp.user.service.UserPasswordService;
 import de.jeb.japp.user.service.UserProfileService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserProfileService userProfileService;
+    private final UserPasswordService userPasswordService;
 
-    public UserController(UserProfileService userProfileService) {
+    public UserController(UserProfileService userProfileService, UserPasswordService userPasswordService) {
         this.userProfileService = userProfileService;
+        this.userPasswordService = userPasswordService;
     }
 
     @GetMapping("/me")
@@ -29,5 +34,12 @@ public class UserController {
     @PutMapping("/me")
     public UserDto updateCurrentUser(@AuthenticationPrincipal User user, @RequestBody UpdateUserRequest request) {
         return userProfileService.updateProfile(user, request);
+    }
+
+    @PutMapping("/me/password")
+    public ResponseEntity<Void> changePassword(
+            @AuthenticationPrincipal User user, @RequestBody ChangePasswordRequest request) {
+        userPasswordService.changePassword(user, request);
+        return ResponseEntity.noContent().build();
     }
 }

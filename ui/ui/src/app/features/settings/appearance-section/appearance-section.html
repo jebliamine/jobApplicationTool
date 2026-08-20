@@ -1,0 +1,25 @@
+<mat-card appearance="outlined" class="appearance-section__card">
+  <mat-card-content>
+    <p class="appearance-section__label">Theme</p>
+    <mat-button-toggle-group
+      class="appearance-section__toggle"
+      [value]="theme.mode()"
+      (change)="onModeChange($event)"
+      aria-label="Theme"
+    >
+      <mat-button-toggle value="light">
+        <svg lucideSun [size]="16" aria-hidden="true"></svg>
+        Light
+      </mat-button-toggle>
+      <mat-button-toggle value="dark">
+        <svg lucideMoon [size]="16" aria-hidden="true"></svg>
+        Dark
+      </mat-button-toggle>
+      <mat-button-toggle value="system">
+        <svg lucideMonitor [size]="16" aria-hidden="true"></svg>
+        System
+      </mat-button-toggle>
+    </mat-button-toggle-group>
+    <p class="appearance-section__hint">"System" follows your operating system's light/dark setting.</p>
+  </mat-card-content>
+</mat-card>

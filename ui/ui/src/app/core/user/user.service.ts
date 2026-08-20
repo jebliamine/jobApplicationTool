@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, Subscription, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { UpdateUserRequest, UserProfile } from '../models/user.models';
+import { ChangePasswordRequest, UpdateUserRequest, UserProfile } from '../models/user.models';
 
 type LoadState = 'idle' | 'loading' | 'loaded' | 'error';
 
@@ -53,6 +53,11 @@ export class UserService {
         this.state.set('loaded');
       }),
     );
+  }
+
+  /** PUT /users/me/password — no response body; current-user state is unaffected. */
+  changePassword(request: ChangePasswordRequest): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/me/password`, request);
   }
 
   /** Resets state — called on logout so stale data doesn't leak into the next session. */
