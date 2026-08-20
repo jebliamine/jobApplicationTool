@@ -1,0 +1,108 @@
+{
+  "common": {
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save"
+  },
+  "nav": {
+    "primaryNavigation": "Primary",
+    "skipToMainContent": "Skip to main content",
+    "groupWorkspace": "Workspace",
+    "groupAdmin": "Admin",
+    "dashboard": "Dashboard",
+    "cv": "CV",
+    "jobs": "Jobs",
+    "companies": "Companies",
+    "applications": "Applications",
+    "coverLetters": "Cover Letters",
+    "aiProviders": "AI Providers",
+    "settings": "Settings"
+  },
+  "theme": {
+    "changeTheme": "Change theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System"
+  },
+  "topbar": {
+    "openMenu": "Open navigation menu",
+    "expandNavigation": "Expand navigation",
+    "collapseNavigation": "Collapse navigation",
+    "searchPages": "Search pages",
+    "searchApplicationPages": "Search application pages",
+    "searchPlaceholder": "Search pages…",
+    "closeSearch": "Close search",
+    "noMatchingPages": "No matching pages"
+  },
+  "userMenu": {
+    "account": "Account menu",
+    "profile": "Profile",
+    "logout": "Log out"
+  },
+  "dashboard": {
+    "title": "Welcome to JAPP",
+    "subtitleAdmin": "An overview of activity across every user's account.",
+    "subtitleUser": "An overview of your job search activity.",
+    "loading": "Loading your dashboard…",
+    "error": "We could not load your dashboard.",
+    "statisticsLabel": "Statistics",
+    "stats": {
+      "cvs": "CVs",
+      "jobs": "Jobs",
+      "applications": "Applications",
+      "coverLetters": "Cover Letters",
+      "generationRequests": "Generation Requests",
+      "totalUsers": "Total Users",
+      "archivedHint": "{{count}} archived",
+      "failedHint": "{{count}} failed"
+    }
+  },
+  "settings": {
+    "title": "Settings",
+    "subtitle": "Manage your account, appearance, AI providers, and security.",
+    "sections": {
+      "account": "Account",
+      "appearance": "Appearance",
+      "ai": "AI",
+      "security": "Security"
+    },
+    "account": {
+      "loading": "Loading your profile…",
+      "error": "We could not load your profile. Please try again.",
+      "fullName": "Full name",
+      "email": "Email",
+      "role": "Role",
+      "editProfile": "Edit profile",
+      "fullNameRequired": "Full name is required.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Enter a valid email address."
+    },
+    "appearance": {
+      "themeLabel": "Theme",
+      "themeHint": "\"System\" follows your operating system's light/dark setting.",
+      "languageLabel": "Language",
+      "languageHint": "Switches the app's language immediately — no reload needed.",
+      "languageEnglish": "English",
+      "languageGerman": "Deutsch"
+    },
+    "ai": {
+      "loading": "Loading AI providers…",
+      "error": "We could not load AI providers.",
+      "available": "Available",
+      "unavailable": "Unavailable",
+      "note": "Provider credentials (API keys, base URLs) are managed by an administrator, not per user.",
+      "manageLink": "Manage AI providers"
+    },
+    "security": {
+      "currentPassword": "Current password",
+      "newPassword": "New password",
+      "confirmNewPassword": "Confirm new password",
+      "currentPasswordRequired": "Current password is required.",
+      "newPasswordRequired": "New password is required.",
+      "newPasswordTooShort": "New password must be at least 8 characters.",
+      "confirmPasswordRequired": "Confirm your new password.",
+      "passwordMismatch": "Passwords do not match.",
+      "changePassword": "Change password"
+    }
+  }
+}

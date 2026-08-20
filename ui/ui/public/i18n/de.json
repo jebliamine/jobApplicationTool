@@ -1,0 +1,108 @@
+{
+  "common": {
+    "retry": "Erneut versuchen",
+    "cancel": "Abbrechen",
+    "save": "Speichern"
+  },
+  "nav": {
+    "primaryNavigation": "Hauptnavigation",
+    "skipToMainContent": "Zum Hauptinhalt springen",
+    "groupWorkspace": "Arbeitsbereich",
+    "groupAdmin": "Admin",
+    "dashboard": "Dashboard",
+    "cv": "Lebenslauf",
+    "jobs": "Stellen",
+    "companies": "Unternehmen",
+    "applications": "Bewerbungen",
+    "coverLetters": "Anschreiben",
+    "aiProviders": "KI-Anbieter",
+    "settings": "Einstellungen"
+  },
+  "theme": {
+    "changeTheme": "Design ändern",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "system": "System"
+  },
+  "topbar": {
+    "openMenu": "Navigationsmenü öffnen",
+    "expandNavigation": "Navigation erweitern",
+    "collapseNavigation": "Navigation einklappen",
+    "searchPages": "Seiten durchsuchen",
+    "searchApplicationPages": "Anwendungsseiten durchsuchen",
+    "searchPlaceholder": "Seiten durchsuchen…",
+    "closeSearch": "Suche schließen",
+    "noMatchingPages": "Keine passenden Seiten"
+  },
+  "userMenu": {
+    "account": "Kontomenü",
+    "profile": "Profil",
+    "logout": "Abmelden"
+  },
+  "dashboard": {
+    "title": "Willkommen bei JAPP",
+    "subtitleAdmin": "Ein Überblick über die Aktivität aller Benutzerkonten.",
+    "subtitleUser": "Ein Überblick über Ihre Jobsuche-Aktivität.",
+    "loading": "Ihr Dashboard wird geladen…",
+    "error": "Ihr Dashboard konnte nicht geladen werden.",
+    "statisticsLabel": "Statistiken",
+    "stats": {
+      "cvs": "Lebensläufe",
+      "jobs": "Stellen",
+      "applications": "Bewerbungen",
+      "coverLetters": "Anschreiben",
+      "generationRequests": "Generierungsanfragen",
+      "totalUsers": "Benutzer insgesamt",
+      "archivedHint": "{{count}} archiviert",
+      "failedHint": "{{count}} fehlgeschlagen"
+    }
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "subtitle": "Verwalten Sie Ihr Konto, das Erscheinungsbild, KI-Anbieter und die Sicherheit.",
+    "sections": {
+      "account": "Konto",
+      "appearance": "Erscheinungsbild",
+      "ai": "KI",
+      "security": "Sicherheit"
+    },
+    "account": {
+      "loading": "Ihr Profil wird geladen…",
+      "error": "Ihr Profil konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "fullName": "Vollständiger Name",
+      "email": "E-Mail",
+      "role": "Rolle",
+      "editProfile": "Profil bearbeiten",
+      "fullNameRequired": "Der vollständige Name ist erforderlich.",
+      "emailRequired": "Die E-Mail-Adresse ist erforderlich.",
+      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein."
+    },
+    "appearance": {
+      "themeLabel": "Design",
+      "themeHint": "„System“ folgt der Hell/Dunkel-Einstellung Ihres Betriebssystems.",
+      "languageLabel": "Sprache",
+      "languageHint": "Ändert die Sprache der App sofort — kein Neuladen erforderlich.",
+      "languageEnglish": "English",
+      "languageGerman": "Deutsch"
+    },
+    "ai": {
+      "loading": "KI-Anbieter werden geladen…",
+      "error": "KI-Anbieter konnten nicht geladen werden.",
+      "available": "Verfügbar",
+      "unavailable": "Nicht verfügbar",
+      "note": "Anbieter-Zugangsdaten (API-Schlüssel, Basis-URLs) werden von einem Administrator verwaltet, nicht pro Benutzer.",
+      "manageLink": "KI-Anbieter verwalten"
+    },
+    "security": {
+      "currentPassword": "Aktuelles Passwort",
+      "newPassword": "Neues Passwort",
+      "confirmNewPassword": "Neues Passwort bestätigen",
+      "currentPasswordRequired": "Das aktuelle Passwort ist erforderlich.",
+      "newPasswordRequired": "Ein neues Passwort ist erforderlich.",
+      "newPasswordTooShort": "Das neue Passwort muss mindestens 8 Zeichen lang sein.",
+      "confirmPasswordRequired": "Bestätigen Sie Ihr neues Passwort.",
+      "passwordMismatch": "Die Passwörter stimmen nicht überein.",
+      "changePassword": "Passwort ändern"
+    }
+  }
+}
