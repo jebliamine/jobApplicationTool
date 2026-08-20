@@ -81,6 +81,10 @@
             <dt><svg lucideRadio [size]="18" aria-hidden="true"></svg> Source</dt>
             <dd>{{ job.source || '—' }}</dd>
           </div>
+          <div class="job-detail-page__row">
+            <dt><svg lucideBriefcase [size]="18" aria-hidden="true"></svg> Salary range</dt>
+            <dd>{{ job.salaryRange || '—' }}</dd>
+          </div>
           @if (isAdmin()) {
             <div class="job-detail-page__row">
               <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Owner</dt>

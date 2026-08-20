@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideMenu, LucidePanelLeftClose, LucidePanelLeftOpen } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { NavSearch } from '../nav-search/nav-search';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { UserMenu } from '../user-menu/user-menu';
@@ -13,6 +14,7 @@ import { UserMenu } from '../user-menu/user-menu';
     MatToolbarModule,
     MatButtonModule,
     MatTooltipModule,
+    TranslatePipe,
     LucideMenu,
     LucidePanelLeftClose,
     LucidePanelLeftOpen,

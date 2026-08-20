@@ -10,6 +10,7 @@ import {
   LucideSparkles,
   LucideUsers,
 } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../core/user/user.service';
 import { StatCard } from './components/stat-card/stat-card';
 import { DashboardResponse } from './dashboard.models';
@@ -22,6 +23,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
   imports: [
     MatButtonModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
     StatCard,
     LucideBriefcase,
     LucideCircleAlert,

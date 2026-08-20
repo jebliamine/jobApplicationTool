@@ -14,6 +14,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LucideCircleAlert } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { describeChangePasswordError } from '../../../core/user/user-error';
 import { UserService } from '../../../core/user/user.service';
@@ -40,6 +41,7 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
     LucideCircleAlert,
   ],
   templateUrl: './security-section.html',

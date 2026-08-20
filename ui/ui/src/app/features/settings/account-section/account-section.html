@@ -3,7 +3,7 @@
     <mat-card appearance="outlined" class="account-section__card account-section__loading">
       <mat-card-content>
         <mat-progress-spinner diameter="28" mode="indeterminate" />
-        <span>Loading your profile…</span>
+        <span>{{ 'settings.account.loading' | translate }}</span>
       </mat-card-content>
     </mat-card>
   } @else if (userService.error()) {
@@ -11,9 +11,9 @@
       <mat-card-content>
         <div class="account-section__error-message" role="alert">
           <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
-          <span>We could not load your profile. Please try again.</span>
+          <span>{{ 'settings.account.error' | translate }}</span>
         </div>
-        <button mat-stroked-button type="button" (click)="retry()">Retry</button>
+        <button mat-stroked-button type="button" (click)="retry()">{{ 'common.retry' | translate }}</button>
       </mat-card-content>
     </mat-card>
   } @else if (userService.currentUser(); as user) {
@@ -26,22 +26,22 @@
         @if (!editing()) {
           <dl class="account-section__details">
             <div class="account-section__row">
-              <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Full name</dt>
+              <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> {{ 'settings.account.fullName' | translate }}</dt>
               <dd>{{ user.fullName }}</dd>
             </div>
             <div class="account-section__row">
-              <dt><svg lucideMail [size]="18" aria-hidden="true"></svg> Email</dt>
+              <dt><svg lucideMail [size]="18" aria-hidden="true"></svg> {{ 'settings.account.email' | translate }}</dt>
               <dd>{{ user.email }}</dd>
             </div>
             <div class="account-section__row">
-              <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Role</dt>
+              <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> {{ 'settings.account.role' | translate }}</dt>
               <dd>{{ user.role }}</dd>
             </div>
           </dl>
 
           <button mat-stroked-button type="button" class="account-section__edit-button" (click)="startEdit()">
             <svg lucidePencil [size]="16" aria-hidden="true"></svg>
-            Edit profile
+            {{ 'settings.account.editProfile' | translate }}
           </button>
         } @else {
           @if (saveError()) {
@@ -53,22 +53,22 @@
 
           <form class="account-section__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
             <mat-form-field appearance="outline" class="account-section__field">
-              <mat-label>Full name</mat-label>
+              <mat-label>{{ 'settings.account.fullName' | translate }}</mat-label>
               <input matInput type="text" formControlName="fullName" autocomplete="name" required />
               @if (form.controls.fullName.invalid && form.controls.fullName.touched) {
-                <mat-error>Full name is required.</mat-error>
+                <mat-error>{{ 'settings.account.fullNameRequired' | translate }}</mat-error>
               }
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="account-section__field">
-              <mat-label>Email</mat-label>
+              <mat-label>{{ 'settings.account.email' | translate }}</mat-label>
               <input matInput type="email" formControlName="email" autocomplete="email" required />
               @if (form.controls.email.invalid && form.controls.email.touched) {
                 <mat-error>
                   @if (form.controls.email.hasError('required')) {
-                    Email is required.
+                    {{ 'settings.account.emailRequired' | translate }}
                   } @else {
-                    Enter a valid email address.
+                    {{ 'settings.account.emailInvalid' | translate }}
                   }
                 </mat-error>
               }
@@ -79,11 +79,11 @@
                 @if (submitting()) {
                   <mat-progress-spinner diameter="18" mode="indeterminate" />
                 } @else {
-                  Save
+                  {{ 'common.save' | translate }}
                 }
               </button>
               <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancelEdit()">
-                Cancel
+                {{ 'common.cancel' | translate }}
               </button>
             </div>
           </form>

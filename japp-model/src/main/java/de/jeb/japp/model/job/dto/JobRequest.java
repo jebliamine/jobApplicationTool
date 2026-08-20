@@ -15,6 +15,7 @@ public class JobRequest {
     private WorkMode workMode;
     private String url;
     private String source;
+    private String salaryRange;
 
     public JobRequest() {
     }
@@ -81,5 +82,13 @@ public class JobRequest {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getSalaryRange() {
+        return salaryRange;
+    }
+
+    public void setSalaryRange(String salaryRange) {
+        this.salaryRange = salaryRange;
     }
 }

@@ -3,6 +3,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideCheck, LucideMonitor, LucideMoon, LucideSun } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { ThemeMode, ThemeService } from '../../core/theme/theme.service';
 
 @Component({
@@ -11,6 +12,7 @@ import { ThemeMode, ThemeService } from '../../core/theme/theme.service';
     MatButtonModule,
     MatMenuModule,
     MatTooltipModule,
+    TranslatePipe,
     LucideSun,
     LucideMoon,
     LucideMonitor,

@@ -89,6 +89,28 @@
             </mat-form-field>
           </div>
 
+          <div class="application-form-page__row">
+            <mat-form-field appearance="outline" class="application-form-page__field">
+              <mat-label>Deadline</mat-label>
+              <input matInput type="date" formControlName="deadline" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="application-form-page__field">
+              <mat-label>Follow-up date</mat-label>
+              <input matInput type="date" formControlName="followUpDate" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="application-form-page__field">
+              <mat-label>Interview date</mat-label>
+              <input matInput type="date" formControlName="interviewDate" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="application-form-page__field">
+            <mat-label>Contact person</mat-label>
+            <input matInput type="text" formControlName="contactPerson" placeholder="e.g. recruiter or hiring manager name" />
+          </mat-form-field>
+
           <mat-form-field appearance="outline" class="application-form-page__field">
             <mat-label>Notes</mat-label>
             <textarea matInput rows="5" formControlName="notes" placeholder="Interview notes, contacts, next steps…"></textarea>

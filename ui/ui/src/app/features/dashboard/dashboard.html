@@ -1,11 +1,11 @@
 <div class="dashboard">
   <header class="dashboard__header">
-    <h1 class="dashboard__title">Welcome to JAPP</h1>
+    <h1 class="dashboard__title">{{ 'dashboard.title' | translate }}</h1>
     <p class="dashboard__subtitle">
       @if (isAdmin()) {
-        An overview of activity across every user's account.
+        {{ 'dashboard.subtitleAdmin' | translate }}
       } @else {
-        An overview of your job search activity.
+        {{ 'dashboard.subtitleUser' | translate }}
       }
     </p>
   </header>
@@ -13,46 +13,46 @@
   @if (loading()) {
     <div class="dashboard__state">
       <mat-progress-spinner diameter="28" mode="indeterminate" />
-      <span>Loading your dashboard…</span>
+      <span>{{ 'dashboard.loading' | translate }}</span>
     </div>
   } @else if (error()) {
     <div class="dashboard__state dashboard__state--error" role="alert">
       <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
-      <span>We could not load your dashboard.</span>
-      <button mat-stroked-button type="button" (click)="load()">Retry</button>
+      <span>{{ 'dashboard.error' | translate }}</span>
+      <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
     </div>
   } @else if (dashboard(); as data) {
-    <section class="dashboard__grid" aria-label="Statistics">
-      <app-stat-card label="CVs" [value]="data.cvCount">
+    <section class="dashboard__grid" [attr.aria-label]="'dashboard.statisticsLabel' | translate">
+      <app-stat-card [label]="'dashboard.stats.cvs' | translate" [value]="data.cvCount">
         <svg lucideFileText [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
-      <app-stat-card label="Jobs" [value]="data.jobCount">
+      <app-stat-card [label]="'dashboard.stats.jobs' | translate" [value]="data.jobCount">
         <svg lucideBriefcase [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
-      <app-stat-card label="Applications" [value]="data.applicationCount">
+      <app-stat-card [label]="'dashboard.stats.applications' | translate" [value]="data.applicationCount">
         <svg lucideSend [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
       <app-stat-card
-        label="Cover Letters"
+        [label]="'dashboard.stats.coverLetters' | translate"
         [value]="data.activeCoverLetterCount"
-        [hint]="data.archivedCoverLetterCount + ' archived'"
+        [hint]="'dashboard.stats.archivedHint' | translate: { count: data.archivedCoverLetterCount }"
       >
         <svg lucideMail [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
       <app-stat-card
-        label="Generation Requests"
+        [label]="'dashboard.stats.generationRequests' | translate"
         [value]="data.generationRequestCount"
-        [hint]="data.generationStatusCounts.FAILED + ' failed'"
+        [hint]="'dashboard.stats.failedHint' | translate: { count: data.generationStatusCounts.FAILED }"
       >
         <svg lucideSparkles [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
       @if (isAdmin() && data.totalUsers !== null) {
-        <app-stat-card label="Total Users" [value]="data.totalUsers">
+        <app-stat-card [label]="'dashboard.stats.totalUsers' | translate" [value]="data.totalUsers">
           <svg lucideUsers [size]="20" aria-hidden="true"></svg>
         </app-stat-card>
       }

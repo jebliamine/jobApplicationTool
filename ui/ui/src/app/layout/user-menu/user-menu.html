@@ -2,8 +2,8 @@
   mat-icon-button
   type="button"
   [matMenuTriggerFor]="menu"
-  matTooltip="Account"
-  aria-label="Account menu"
+  [matTooltip]="'userMenu.account' | translate"
+  [attr.aria-label]="'userMenu.account' | translate"
 >
   <span class="user-menu__avatar" aria-hidden="true">{{ initial() }}</span>
 </button>
@@ -11,10 +11,10 @@
 <mat-menu #menu="matMenu" xPosition="before">
   <button mat-menu-item type="button" routerLink="/settings">
     <svg lucideUser [size]="18" class="user-menu__item-icon" aria-hidden="true"></svg>
-    <span>Profile</span>
+    <span>{{ 'userMenu.profile' | translate }}</span>
   </button>
   <button mat-menu-item type="button" (click)="logout()">
     <svg lucideLogOut [size]="18" class="user-menu__item-icon" aria-hidden="true"></svg>
-    <span>Log out</span>
+    <span>{{ 'userMenu.logout' | translate }}</span>
   </button>
 </mat-menu>

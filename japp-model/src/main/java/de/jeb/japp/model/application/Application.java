@@ -62,6 +62,14 @@ public class Application {
 
     private LocalDate appliedAt;
 
+    private LocalDate deadline;
+
+    private LocalDate followUpDate;
+
+    private LocalDate interviewDate;
+
+    private String contactPerson;
+
     @Column(length = 4000)
     private String notes;
 
@@ -118,6 +126,38 @@ public class Application {
 
     public void setAppliedAt(LocalDate appliedAt) {
         this.appliedAt = appliedAt;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+    public LocalDate getFollowUpDate() {
+        return followUpDate;
+    }
+
+    public void setFollowUpDate(LocalDate followUpDate) {
+        this.followUpDate = followUpDate;
+    }
+
+    public LocalDate getInterviewDate() {
+        return interviewDate;
+    }
+
+    public void setInterviewDate(LocalDate interviewDate) {
+        this.interviewDate = interviewDate;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
     }
 
     public String getNotes() {

@@ -34,6 +34,7 @@ interface JobFormControls {
   workMode: FormControl<WorkMode | null>;
   url: FormControl<string>;
   source: FormControl<string>;
+  salaryRange: FormControl<string>;
 }
 
 const EMPLOYMENT_TYPE_LABELS: Record<EmploymentType, string> = {
@@ -94,6 +95,7 @@ export class JobForm {
     workMode: new FormControl<WorkMode | null>(null),
     url: new FormControl('', { nonNullable: true }),
     source: new FormControl('', { nonNullable: true }),
+    salaryRange: new FormControl('', { nonNullable: true }),
   });
 
   constructor() {
@@ -144,6 +146,7 @@ export class JobForm {
       workMode: raw.workMode,
       url: raw.url || null,
       source: raw.source || null,
+      salaryRange: raw.salaryRange || null,
     };
 
     const action = this.isEditMode
@@ -188,6 +191,7 @@ export class JobForm {
           workMode: job.workMode,
           url: job.url ?? '',
           source: job.source ?? '',
+          salaryRange: job.salaryRange ?? '',
         });
         this.loading.set(false);
       },

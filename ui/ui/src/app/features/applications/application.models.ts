@@ -30,6 +30,10 @@ export interface ApplicationResponse {
   coverLetter: CoverLetterResponse | null;
   status: ApplicationStatus;
   appliedAt: string;
+  deadline: string | null;
+  followUpDate: string | null;
+  interviewDate: string | null;
+  contactPerson: string | null;
   notes: string | null;
   owner: UserProfile;
   createdAt: string;
@@ -43,5 +47,9 @@ export interface ApplicationRequest {
   coverLetterId: string | null;
   status: ApplicationStatus;
   appliedAt: string;
+  deadline: string | null;
+  followUpDate: string | null;
+  interviewDate: string | null;
+  contactPerson: string | null;
   notes: string | null;
 }

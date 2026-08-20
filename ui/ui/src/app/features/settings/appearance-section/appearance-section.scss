@@ -16,6 +16,10 @@
   letter-spacing: 0.04em;
 }
 
+.appearance-section__label--spaced {
+  margin-top: var(--japp-spacing-lg);
+}
+
 .appearance-section__toggle {
   display: flex;
 

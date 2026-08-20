@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideSearch, LucideX } from '@lucide/angular';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { APP_PAGES } from '../../core/navigation/app-pages';
 import { UserService } from '../../core/user/user.service';
 
@@ -23,6 +24,7 @@ import { UserService } from '../../core/user/user.service';
     MatButtonModule,
     MatFormFieldModule,
     MatInputModule,
+    TranslatePipe,
     LucideSearch,
     LucideX,
   ],
@@ -32,6 +34,7 @@ import { UserService } from '../../core/user/user.service';
 export class NavSearch {
   private readonly router = inject(Router);
   private readonly userService = inject(UserService);
+  private readonly translate = inject(TranslateService);
 
   readonly compact = input(false);
 
@@ -46,7 +49,13 @@ export class NavSearch {
   protected readonly results = computed(() => {
     const term = this.query().trim().toLowerCase();
     const pages = this.visiblePages();
-    return term ? pages.filter((page) => page.label.toLowerCase().includes(term)) : pages;
+    // page.label is a translation key (see app-pages.ts) — filter against the
+    // resolved display text so search works in whichever language is active.
+    return term
+      ? pages.filter((page) =>
+          (this.translate.instant(page.label) as string).toLowerCase().includes(term),
+        )
+      : pages;
   });
 
   private readonly searchInput = viewChild<ElementRef<HTMLInputElement>>('searchInput');

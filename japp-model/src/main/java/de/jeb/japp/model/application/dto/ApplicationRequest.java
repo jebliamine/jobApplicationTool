@@ -12,6 +12,10 @@ public class ApplicationRequest {
     private UUID coverLetterId;
     private ApplicationStatus status;
     private LocalDate appliedAt;
+    private LocalDate deadline;
+    private LocalDate followUpDate;
+    private LocalDate interviewDate;
+    private String contactPerson;
     private String notes;
 
     public ApplicationRequest() {
@@ -55,6 +59,38 @@ public class ApplicationRequest {
 
     public void setAppliedAt(LocalDate appliedAt) {
         this.appliedAt = appliedAt;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDate deadline) {
+        this.deadline = deadline;
+    }
+
+    public LocalDate getFollowUpDate() {
+        return followUpDate;
+    }
+
+    public void setFollowUpDate(LocalDate followUpDate) {
+        this.followUpDate = followUpDate;
+    }
+
+    public LocalDate getInterviewDate() {
+        return interviewDate;
+    }
+
+    public void setInterviewDate(LocalDate interviewDate) {
+        this.interviewDate = interviewDate;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
+    }
+
+    public void setContactPerson(String contactPerson) {
+        this.contactPerson = contactPerson;
     }
 
     public String getNotes() {

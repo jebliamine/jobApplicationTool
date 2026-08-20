@@ -26,6 +26,7 @@ const JOB: JobResponse = {
   workMode: 'REMOTE',
   url: null,
   source: null,
+  salaryRange: null,
   company: COMPANY,
   owner: { fullName: 'Jane Doe', email: 'jane@example.com', role: 'USER' },
   createdAt: '2026-01-01T00:00:00',
@@ -41,6 +42,7 @@ const REQUEST: JobRequest = {
   workMode: 'REMOTE',
   url: null,
   source: null,
+  salaryRange: null,
 };
 
 describe('JobService', () => {

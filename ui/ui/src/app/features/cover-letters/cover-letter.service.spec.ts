@@ -29,6 +29,7 @@ const JOB: JobResponse = {
   workMode: 'REMOTE',
   url: null,
   source: null,
+  salaryRange: null,
   company: COMPANY,
   owner: OWNER,
   createdAt: '2026-01-01T00:00:00',

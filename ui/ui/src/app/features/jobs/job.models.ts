@@ -24,6 +24,7 @@ export interface JobResponse {
   workMode: WorkMode | null;
   url: string | null;
   source: string | null;
+  salaryRange: string | null;
   company: CompanyResponse;
   owner: UserProfile;
   createdAt: string;
@@ -40,4 +41,5 @@ export interface JobRequest {
   workMode: WorkMode | null;
   url: string | null;
   source: string | null;
+  salaryRange: string | null;
 }

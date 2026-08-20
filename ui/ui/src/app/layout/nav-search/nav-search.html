@@ -1,5 +1,5 @@
 @if (compact() && !expanded()) {
-  <button mat-icon-button type="button" aria-label="Search pages" (click)="expand()">
+  <button mat-icon-button type="button" [attr.aria-label]="'topbar.searchPages' | translate" (click)="expand()">
     <svg lucideSearch [size]="20" aria-hidden="true"></svg>
   </button>
 } @else {
@@ -10,23 +10,29 @@
         #searchInput
         matInput
         type="text"
-        placeholder="Search pages…"
-        aria-label="Search application pages"
+        [placeholder]="'topbar.searchPlaceholder' | translate"
+        [attr.aria-label]="'topbar.searchApplicationPages' | translate"
         [formControl]="control"
         [matAutocomplete]="auto"
         (keydown.enter)="onEnter()"
       />
       @if (compact()) {
-        <button matIconSuffix mat-icon-button type="button" aria-label="Close search" (click)="collapse()">
+        <button
+          matIconSuffix
+          mat-icon-button
+          type="button"
+          [attr.aria-label]="'topbar.closeSearch' | translate"
+          (click)="collapse()"
+        >
           <svg lucideX [size]="16" aria-hidden="true"></svg>
         </button>
       }
     </mat-form-field>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
       @for (page of results(); track page.path) {
-        <mat-option [value]="page.label">{{ page.label }}</mat-option>
+        <mat-option [value]="page.label">{{ page.label | translate }}</mat-option>
       } @empty {
-        <mat-option disabled>No matching pages</mat-option>
+        <mat-option disabled>{{ 'topbar.noMatchingPages' | translate }}</mat-option>
       }
     </mat-autocomplete>
   </div>

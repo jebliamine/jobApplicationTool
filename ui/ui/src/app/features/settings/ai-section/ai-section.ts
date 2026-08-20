@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { LucideCircleAlert, LucideSparkles } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { AiProviderService } from '../../cover-letters/ai-provider.service';
 import { AiProviderResponse } from '../../cover-letters/ai-provider.models';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
@@ -18,6 +19,7 @@ type LoadState = 'loading' | 'loaded' | 'error';
     MatButtonModule,
     MatCardModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
     LucideCircleAlert,
     LucideSparkles,
     StatusBadge,

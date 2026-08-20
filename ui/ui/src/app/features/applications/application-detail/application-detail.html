@@ -69,6 +69,22 @@
             <dd>{{ application.appliedAt | date: 'mediumDate' }}</dd>
           </div>
           <div class="application-detail-page__row">
+            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Deadline</dt>
+            <dd>{{ application.deadline ? (application.deadline | date: 'mediumDate') : '—' }}</dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Follow-up date</dt>
+            <dd>{{ application.followUpDate ? (application.followUpDate | date: 'mediumDate') : '—' }}</dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Interview date</dt>
+            <dd>{{ application.interviewDate ? (application.interviewDate | date: 'mediumDate') : '—' }}</dd>
+          </div>
+          <div class="application-detail-page__row">
+            <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Contact person</dt>
+            <dd>{{ application.contactPerson || '—' }}</dd>
+          </div>
+          <div class="application-detail-page__row">
             <dt><svg lucideFileText [size]="18" aria-hidden="true"></svg> CV used</dt>
             <dd>
               @if (application.cv) {

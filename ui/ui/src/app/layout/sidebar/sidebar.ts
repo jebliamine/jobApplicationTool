@@ -3,6 +3,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe } from '@ngx-translate/core';
 import {
   LucideBriefcase,
   LucideBuilding2,
@@ -24,6 +25,7 @@ import { UserService } from '../../core/user/user.service';
     MatDividerModule,
     MatListModule,
     MatTooltipModule,
+    TranslatePipe,
     LucideLayoutDashboard,
     LucideFileText,
     LucideBriefcase,

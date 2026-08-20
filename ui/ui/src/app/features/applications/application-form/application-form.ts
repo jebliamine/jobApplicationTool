@@ -29,6 +29,10 @@ interface ApplicationFormControls {
   coverLetterId: FormControl<string>;
   status: FormControl<ApplicationStatus>;
   appliedAt: FormControl<string>;
+  deadline: FormControl<string>;
+  followUpDate: FormControl<string>;
+  interviewDate: FormControl<string>;
+  contactPerson: FormControl<string>;
   notes: FormControl<string>;
 }
 
@@ -75,6 +79,10 @@ export class ApplicationForm {
     coverLetterId: new FormControl('', { nonNullable: true }),
     status: new FormControl<ApplicationStatus>('APPLIED', { nonNullable: true, validators: [Validators.required] }),
     appliedAt: new FormControl(todayAsInputValue(), { nonNullable: true, validators: [Validators.required] }),
+    deadline: new FormControl('', { nonNullable: true }),
+    followUpDate: new FormControl('', { nonNullable: true }),
+    interviewDate: new FormControl('', { nonNullable: true }),
+    contactPerson: new FormControl('', { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),
   });
 
@@ -106,6 +114,10 @@ export class ApplicationForm {
       coverLetterId: raw.coverLetterId || null,
       status: raw.status,
       appliedAt: raw.appliedAt,
+      deadline: raw.deadline || null,
+      followUpDate: raw.followUpDate || null,
+      interviewDate: raw.interviewDate || null,
+      contactPerson: raw.contactPerson || null,
       notes: raw.notes || null,
     };
 
@@ -163,6 +175,10 @@ export class ApplicationForm {
           coverLetterId: application.coverLetter?.id ?? '',
           status: application.status,
           appliedAt: application.appliedAt,
+          deadline: application.deadline ?? '',
+          followUpDate: application.followUpDate ?? '',
+          interviewDate: application.interviewDate ?? '',
+          contactPerson: application.contactPerson ?? '',
           notes: application.notes ?? '',
         });
         this.loading.set(false);

@@ -3,13 +3,13 @@
     @if (loading()) {
       <div class="ai-section__state">
         <mat-progress-spinner diameter="28" mode="indeterminate" />
-        <span>Loading AI providers…</span>
+        <span>{{ 'settings.ai.loading' | translate }}</span>
       </div>
     } @else if (error()) {
       <div class="ai-section__state ai-section__state--error" role="alert">
         <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
-        <span>We could not load AI providers.</span>
-        <button mat-stroked-button type="button" (click)="load()">Retry</button>
+        <span>{{ 'settings.ai.error' | translate }}</span>
+        <button mat-stroked-button type="button" (click)="load()">{{ 'common.retry' | translate }}</button>
       </div>
     } @else {
       <ul class="ai-section__list">
@@ -25,20 +25,18 @@
               </div>
             </div>
             <app-status-badge
-              [label]="provider.available ? 'Available' : 'Unavailable'"
+              [label]="(provider.available ? 'settings.ai.available' : 'settings.ai.unavailable') | translate"
               [severity]="provider.available ? 'success' : 'neutral'"
             />
           </li>
         }
       </ul>
 
-      <p class="ai-section__note">
-        Provider credentials (API keys, base URLs) are managed by an administrator, not per user.
-      </p>
+      <p class="ai-section__note">{{ 'settings.ai.note' | translate }}</p>
 
       @if (isAdmin()) {
         <a mat-stroked-button routerLink="/admin/ai-providers" class="ai-section__manage-link">
-          Manage AI providers
+          {{ 'settings.ai.manageLink' | translate }}
         </a>
       }
     }

@@ -1,25 +1,39 @@
 <mat-card appearance="outlined" class="appearance-section__card">
   <mat-card-content>
-    <p class="appearance-section__label">Theme</p>
+    <p class="appearance-section__label">{{ 'settings.appearance.themeLabel' | translate }}</p>
     <mat-button-toggle-group
       class="appearance-section__toggle"
       [value]="theme.mode()"
       (change)="onModeChange($event)"
-      aria-label="Theme"
+      [attr.aria-label]="'settings.appearance.themeLabel' | translate"
     >
       <mat-button-toggle value="light">
         <svg lucideSun [size]="16" aria-hidden="true"></svg>
-        Light
+        {{ 'theme.light' | translate }}
       </mat-button-toggle>
       <mat-button-toggle value="dark">
         <svg lucideMoon [size]="16" aria-hidden="true"></svg>
-        Dark
+        {{ 'theme.dark' | translate }}
       </mat-button-toggle>
       <mat-button-toggle value="system">
         <svg lucideMonitor [size]="16" aria-hidden="true"></svg>
-        System
+        {{ 'theme.system' | translate }}
       </mat-button-toggle>
     </mat-button-toggle-group>
-    <p class="appearance-section__hint">"System" follows your operating system's light/dark setting.</p>
+    <p class="appearance-section__hint">{{ 'settings.appearance.themeHint' | translate }}</p>
+
+    <p class="appearance-section__label appearance-section__label--spaced">
+      {{ 'settings.appearance.languageLabel' | translate }}
+    </p>
+    <mat-button-toggle-group
+      class="appearance-section__toggle"
+      [value]="language.language()"
+      (change)="onLanguageChange($event)"
+      [attr.aria-label]="'settings.appearance.languageLabel' | translate"
+    >
+      <mat-button-toggle value="en">{{ 'settings.appearance.languageEnglish' | translate }}</mat-button-toggle>
+      <mat-button-toggle value="de">{{ 'settings.appearance.languageGerman' | translate }}</mat-button-toggle>
+    </mat-button-toggle-group>
+    <p class="appearance-section__hint">{{ 'settings.appearance.languageHint' | translate }}</p>
   </mat-card-content>
 </mat-card>

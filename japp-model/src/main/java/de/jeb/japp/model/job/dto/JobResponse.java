@@ -19,6 +19,7 @@ public class JobResponse {
     private WorkMode workMode;
     private String url;
     private String source;
+    private String salaryRange;
     private CompanyResponse company;
     private UserDto owner;
     private LocalDateTime createdAt;
@@ -37,6 +38,7 @@ public class JobResponse {
         response.workMode = job.getWorkMode();
         response.url = job.getUrl();
         response.source = job.getSource();
+        response.salaryRange = job.getSalaryRange();
         response.company = CompanyResponse.from(job.getCompany());
         response.owner = UserDto.from(job.getOwner());
         response.createdAt = job.getCreatedAt();
@@ -74,6 +76,10 @@ public class JobResponse {
 
     public String getSource() {
         return source;
+    }
+
+    public String getSalaryRange() {
+        return salaryRange;
     }
 
     public CompanyResponse getCompany() {

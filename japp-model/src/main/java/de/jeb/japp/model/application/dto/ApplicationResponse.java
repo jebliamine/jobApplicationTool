@@ -25,6 +25,10 @@ public class ApplicationResponse {
     private CoverLetterResponse coverLetter;
     private ApplicationStatus status;
     private LocalDate appliedAt;
+    private LocalDate deadline;
+    private LocalDate followUpDate;
+    private LocalDate interviewDate;
+    private String contactPerson;
     private String notes;
     private UserDto owner;
     private LocalDateTime createdAt;
@@ -43,6 +47,10 @@ public class ApplicationResponse {
                 : null;
         response.status = application.getStatus();
         response.appliedAt = application.getAppliedAt();
+        response.deadline = application.getDeadline();
+        response.followUpDate = application.getFollowUpDate();
+        response.interviewDate = application.getInterviewDate();
+        response.contactPerson = application.getContactPerson();
         response.notes = application.getNotes();
         response.owner = UserDto.from(application.getUser());
         response.createdAt = application.getCreatedAt();
@@ -72,6 +80,22 @@ public class ApplicationResponse {
 
     public LocalDate getAppliedAt() {
         return appliedAt;
+    }
+
+    public LocalDate getDeadline() {
+        return deadline;
+    }
+
+    public LocalDate getFollowUpDate() {
+        return followUpDate;
+    }
+
+    public LocalDate getInterviewDate() {
+        return interviewDate;
+    }
+
+    public String getContactPerson() {
+        return contactPerson;
     }
 
     public String getNotes() {

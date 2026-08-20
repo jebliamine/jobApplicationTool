@@ -9,7 +9,7 @@
 
     <form class="security-section__form" [formGroup]="form" (ngSubmit)="save()" novalidate>
       <mat-form-field appearance="outline" class="security-section__field">
-        <mat-label>Current password</mat-label>
+        <mat-label>{{ 'settings.security.currentPassword' | translate }}</mat-label>
         <input
           matInput
           type="password"
@@ -18,26 +18,26 @@
           required
         />
         @if (form.controls.currentPassword.invalid && form.controls.currentPassword.touched) {
-          <mat-error>Current password is required.</mat-error>
+          <mat-error>{{ 'settings.security.currentPasswordRequired' | translate }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="security-section__field">
-        <mat-label>New password</mat-label>
+        <mat-label>{{ 'settings.security.newPassword' | translate }}</mat-label>
         <input matInput type="password" formControlName="newPassword" autocomplete="new-password" required />
         @if (form.controls.newPassword.invalid && form.controls.newPassword.touched) {
           <mat-error>
             @if (form.controls.newPassword.hasError('required')) {
-              New password is required.
+              {{ 'settings.security.newPasswordRequired' | translate }}
             } @else {
-              New password must be at least 8 characters.
+              {{ 'settings.security.newPasswordTooShort' | translate }}
             }
           </mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="security-section__field">
-        <mat-label>Confirm new password</mat-label>
+        <mat-label>{{ 'settings.security.confirmNewPassword' | translate }}</mat-label>
         <input
           matInput
           type="password"
@@ -47,9 +47,9 @@
         />
         @if (form.controls.confirmNewPassword.touched) {
           @if (form.controls.confirmNewPassword.hasError('required')) {
-            <mat-error>Confirm your new password.</mat-error>
+            <mat-error>{{ 'settings.security.confirmPasswordRequired' | translate }}</mat-error>
           } @else if (form.hasError('passwordMismatch')) {
-            <mat-error>Passwords do not match.</mat-error>
+            <mat-error>{{ 'settings.security.passwordMismatch' | translate }}</mat-error>
           }
         }
       </mat-form-field>
@@ -59,7 +59,7 @@
           @if (submitting()) {
             <mat-progress-spinner diameter="18" mode="indeterminate" />
           } @else {
-            Change password
+            {{ 'settings.security.changePassword' | translate }}
           }
         </button>
       </div>

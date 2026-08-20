@@ -148,6 +148,10 @@ public class ApplicationService {
         application.setCoverLetter(coverLetter);
         application.setStatus(request.getStatus() != null ? request.getStatus() : ApplicationStatus.APPLIED);
         application.setAppliedAt(request.getAppliedAt() != null ? request.getAppliedAt() : LocalDate.now());
+        application.setDeadline(request.getDeadline());
+        application.setFollowUpDate(request.getFollowUpDate());
+        application.setInterviewDate(request.getInterviewDate());
+        application.setContactPerson(blankToNull(request.getContactPerson()));
         application.setNotes(blankToNull(request.getNotes()));
     }
 

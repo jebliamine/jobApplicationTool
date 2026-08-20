@@ -9,6 +9,7 @@ export type AppPageIcon =
   | 'settings';
 
 export interface AppPage {
+  /** A translation key (see public/i18n/*.json under `nav.*`), not display text — render via `| translate`. */
   readonly label: string;
   readonly path: string;
   readonly icon: AppPageIcon;
@@ -22,12 +23,12 @@ export interface AppPage {
  * navigate to, and render available pages.
  */
 export const APP_PAGES: readonly AppPage[] = [
-  { label: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-  { label: 'CV', path: '/cv', icon: 'cv' },
-  { label: 'Jobs', path: '/jobs', icon: 'jobs' },
-  { label: 'Companies', path: '/companies', icon: 'companies' },
-  { label: 'Applications', path: '/applications', icon: 'applications' },
-  { label: 'Cover Letters', path: '/cover-letters', icon: 'cover-letters' },
-  { label: 'AI Providers', path: '/admin/ai-providers', icon: 'ai-providers', adminOnly: true },
-  { label: 'Settings', path: '/settings', icon: 'settings' },
+  { label: 'nav.dashboard', path: '/dashboard', icon: 'dashboard' },
+  { label: 'nav.cv', path: '/cv', icon: 'cv' },
+  { label: 'nav.jobs', path: '/jobs', icon: 'jobs' },
+  { label: 'nav.companies', path: '/companies', icon: 'companies' },
+  { label: 'nav.applications', path: '/applications', icon: 'applications' },
+  { label: 'nav.coverLetters', path: '/cover-letters', icon: 'cover-letters' },
+  { label: 'nav.aiProviders', path: '/admin/ai-providers', icon: 'ai-providers', adminOnly: true },
+  { label: 'nav.settings', path: '/settings', icon: 'settings' },
 ];

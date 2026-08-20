@@ -14,6 +14,7 @@ import {
   LucideShieldCheck,
   LucideUser,
 } from '@lucide/angular';
+import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
 import { describeProfileUpdateError } from '../../../core/user/user-error';
 import { UserService } from '../../../core/user/user.service';
@@ -32,6 +33,7 @@ interface AccountForm {
     MatFormFieldModule,
     MatInputModule,
     MatProgressSpinnerModule,
+    TranslatePipe,
     LucideCircleAlert,
     LucideMail,
     LucidePencil,

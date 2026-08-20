@@ -101,6 +101,11 @@
             </mat-form-field>
           </div>
 
+          <mat-form-field appearance="outline" class="job-form-page__field">
+            <mat-label>Salary range</mat-label>
+            <input matInput type="text" formControlName="salaryRange" placeholder="e.g. $120k–140k" />
+          </mat-form-field>
+
           <div class="job-form-page__actions">
             <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
               @if (submitting()) {

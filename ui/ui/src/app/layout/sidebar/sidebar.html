@@ -1,4 +1,4 @@
-<nav class="sidebar" aria-label="Primary">
+<nav class="sidebar" [attr.aria-label]="'nav.primaryNavigation' | translate">
   <a class="sidebar__brand" routerLink="/dashboard" (click)="linkActivated.emit()">
     <span class="sidebar__brand-mark" aria-hidden="true">J</span>
     @if (!collapsed()) {
@@ -8,7 +8,7 @@
 
   <mat-nav-list class="sidebar__list">
     @if (!collapsed()) {
-      <h3 matSubheader class="sidebar__group-label">Workspace</h3>
+      <h3 matSubheader class="sidebar__group-label">{{ 'nav.groupWorkspace' | translate }}</h3>
     }
 
     @for (page of workspacePages; track page.path) {
@@ -17,7 +17,7 @@
         [routerLink]="page.path"
         routerLinkActive="sidebar__item--active"
         [routerLinkActiveOptions]="{ exact: page.path === '/dashboard' }"
-        [matTooltip]="collapsed() ? page.label : ''"
+        [matTooltip]="collapsed() ? (page.label | translate) : ''"
         matTooltipPosition="right"
         (click)="linkActivated.emit()"
       >
@@ -42,31 +42,31 @@
           }
         }
         @if (!collapsed()) {
-          <span matListItemTitle>{{ page.label }}</span>
+          <span matListItemTitle>{{ page.label | translate }}</span>
         } @else {
-          <span class="japp-visually-hidden">{{ page.label }}</span>
+          <span class="japp-visually-hidden">{{ page.label | translate }}</span>
         }
       </a>
     }
 
     @if (isAdmin() && adminPages.length > 0) {
       @if (!collapsed()) {
-        <h3 matSubheader class="sidebar__group-label">Admin</h3>
+        <h3 matSubheader class="sidebar__group-label">{{ 'nav.groupAdmin' | translate }}</h3>
       }
       @for (page of adminPages; track page.path) {
         <a
           mat-list-item
           [routerLink]="page.path"
           routerLinkActive="sidebar__item--active"
-          [matTooltip]="collapsed() ? page.label : ''"
+          [matTooltip]="collapsed() ? (page.label | translate) : ''"
           matTooltipPosition="right"
           (click)="linkActivated.emit()"
         >
           <svg lucideShield [size]="20" matListItemIcon aria-hidden="true"></svg>
           @if (!collapsed()) {
-            <span matListItemTitle>{{ page.label }}</span>
+            <span matListItemTitle>{{ page.label | translate }}</span>
           } @else {
-            <span class="japp-visually-hidden">{{ page.label }}</span>
+            <span class="japp-visually-hidden">{{ page.label | translate }}</span>
           }
         </a>
       }
@@ -80,15 +80,15 @@
       mat-list-item
       [routerLink]="settingsPage.path"
       routerLinkActive="sidebar__item--active"
-      [matTooltip]="collapsed() ? settingsPage.label : ''"
+      [matTooltip]="collapsed() ? (settingsPage.label | translate) : ''"
       matTooltipPosition="right"
       (click)="linkActivated.emit()"
     >
       <svg lucideSettings [size]="20" matListItemIcon aria-hidden="true"></svg>
       @if (!collapsed()) {
-        <span matListItemTitle>{{ settingsPage.label }}</span>
+        <span matListItemTitle>{{ settingsPage.label | translate }}</span>
       } @else {
-        <span class="japp-visually-hidden">{{ settingsPage.label }}</span>
+        <span class="japp-visually-hidden">{{ settingsPage.label | translate }}</span>
       }
     </a>
   </mat-nav-list>

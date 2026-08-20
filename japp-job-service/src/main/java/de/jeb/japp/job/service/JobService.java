@@ -113,6 +113,7 @@ public class JobService {
         job.setWorkMode(request.getWorkMode());
         job.setUrl(blankToNull(request.getUrl()));
         job.setSource(blankToNull(request.getSource()));
+        job.setSalaryRange(blankToNull(request.getSalaryRange()));
     }
 
     private void validate(JobRequest request) {

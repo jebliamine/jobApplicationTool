@@ -3,7 +3,7 @@
     <button
       mat-icon-button
       type="button"
-      aria-label="Open navigation menu"
+      [attr.aria-label]="'topbar.openMenu' | translate"
       (click)="menuToggle.emit()"
     >
       <svg lucideMenu [size]="22" aria-hidden="true"></svg>
@@ -12,8 +12,8 @@
     <button
       mat-icon-button
       type="button"
-      [attr.aria-label]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
-      [matTooltip]="sidebarCollapsed() ? 'Expand navigation' : 'Collapse navigation'"
+      [attr.aria-label]="(sidebarCollapsed() ? 'topbar.expandNavigation' : 'topbar.collapseNavigation') | translate"
+      [matTooltip]="(sidebarCollapsed() ? 'topbar.expandNavigation' : 'topbar.collapseNavigation') | translate"
       (click)="collapseToggle.emit()"
     >
       @if (sidebarCollapsed()) {

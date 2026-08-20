@@ -44,6 +44,8 @@ public class Job {
 
     private String source;
 
+    private String salaryRange;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -121,6 +123,14 @@ public class Job {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public String getSalaryRange() {
+        return salaryRange;
+    }
+
+    public void setSalaryRange(String salaryRange) {
+        this.salaryRange = salaryRange;
     }
 
     public LocalDateTime getCreatedAt() {
