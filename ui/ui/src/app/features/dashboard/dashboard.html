@@ -23,15 +23,19 @@
     </div>
   } @else if (dashboard(); as data) {
     <section class="dashboard__grid" [attr.aria-label]="'dashboard.statisticsLabel' | translate">
-      <app-stat-card [label]="'dashboard.stats.cvs' | translate" [value]="data.cvCount">
+      <app-stat-card [label]="'dashboard.stats.cvs' | translate" [value]="data.cvCount" link="/cv">
         <svg lucideFileText [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
-      <app-stat-card [label]="'dashboard.stats.jobs' | translate" [value]="data.jobCount">
+      <app-stat-card [label]="'dashboard.stats.jobs' | translate" [value]="data.jobCount" link="/jobs">
         <svg lucideBriefcase [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
-      <app-stat-card [label]="'dashboard.stats.applications' | translate" [value]="data.applicationCount">
+      <app-stat-card
+        [label]="'dashboard.stats.applications' | translate"
+        [value]="data.applicationCount"
+        link="/applications"
+      >
         <svg lucideSend [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
 
@@ -39,6 +43,7 @@
         [label]="'dashboard.stats.coverLetters' | translate"
         [value]="data.activeCoverLetterCount"
         [hint]="'dashboard.stats.archivedHint' | translate: { count: data.archivedCoverLetterCount }"
+        link="/cover-letters"
       >
         <svg lucideMail [size]="20" aria-hidden="true"></svg>
       </app-stat-card>
@@ -57,5 +62,18 @@
         </app-stat-card>
       }
     </section>
+
+    @if (data.applicationCount > 0) {
+      <section class="dashboard__charts">
+        <div class="dashboard__chart-card">
+          <h2 class="dashboard__chart-title">{{ 'dashboard.charts.statusTitle' | translate }}</h2>
+          <app-status-distribution-chart [counts]="data.applicationStatusCounts" />
+        </div>
+        <div class="dashboard__chart-card">
+          <h2 class="dashboard__chart-title">{{ 'dashboard.charts.activityTitle' | translate }}</h2>
+          <app-activity-chart [byDay]="data.applicationsByDay" />
+        </div>
+      </section>
+    }
   }
 </div>

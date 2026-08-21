@@ -1,4 +1,4 @@
-<mat-card appearance="outlined" class="stat-card">
+<ng-template #cardContent>
   <mat-card-content class="stat-card__content">
     <div class="stat-card__icon">
       <ng-content />
@@ -11,4 +11,16 @@
       }
     </div>
   </mat-card-content>
-</mat-card>
+</ng-template>
+
+@if (link()) {
+  <a [routerLink]="link()" class="stat-card stat-card--link">
+    <mat-card appearance="outlined">
+      <ng-container [ngTemplateOutlet]="cardContent" />
+    </mat-card>
+  </a>
+} @else {
+  <mat-card appearance="outlined" class="stat-card">
+    <ng-container [ngTemplateOutlet]="cardContent" />
+  </mat-card>
+}

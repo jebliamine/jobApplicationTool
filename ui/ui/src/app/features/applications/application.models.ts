@@ -53,3 +53,28 @@ export interface ApplicationRequest {
   contactPerson: string | null;
   notes: string | null;
 }
+
+/**
+ * PUT /api/v1/applications/{id} overwrites every field from the request body
+ * (see ApplicationService#applyRequest on the backend), so a status-only
+ * change still has to resend the rest of the record unchanged. Single-sourced
+ * here so application-list and the Kanban board can't drift on which fields
+ * must be preserved.
+ */
+export function buildStatusChangeRequest(
+  application: ApplicationResponse,
+  status: ApplicationStatus,
+): ApplicationRequest {
+  return {
+    jobId: application.job.id,
+    cvDocumentId: application.cv?.id ?? null,
+    coverLetterId: application.coverLetter?.id ?? null,
+    status,
+    appliedAt: application.appliedAt,
+    deadline: application.deadline,
+    followUpDate: application.followUpDate,
+    interviewDate: application.interviewDate,
+    contactPerson: application.contactPerson,
+    notes: application.notes,
+  };
+}

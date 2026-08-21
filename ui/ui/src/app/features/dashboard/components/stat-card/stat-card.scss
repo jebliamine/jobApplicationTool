@@ -3,8 +3,30 @@
 }
 
 .stat-card {
+  display: block;
   border-radius: var(--japp-radius-lg);
   height: 100%;
+  color: inherit;
+  text-decoration: none;
+}
+
+.stat-card--link {
+  border-radius: var(--japp-radius-lg);
+  transition: transform var(--japp-transition-fast);
+
+  mat-card {
+    height: 100%;
+    transition: border-color var(--japp-transition-fast);
+  }
+
+  &:hover mat-card {
+    border-color: var(--japp-color-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--japp-color-primary);
+    outline-offset: 2px;
+  }
 }
 
 .stat-card__content {

@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -84,6 +85,20 @@ public class ApplicationService {
         return requester.getRole() == UserRole.ADMIN
                 ? applicationDao.countAll()
                 : applicationDao.countByOwner(requester);
+    }
+
+    /** Same ADMIN/owner scoping as {@link #count}, broken down by {@link ApplicationStatus}. */
+    public Map<ApplicationStatus, Long> countByStatus(User requester) {
+        return requester.getRole() == UserRole.ADMIN
+                ? applicationDao.countAllGroupByStatus()
+                : applicationDao.countByOwnerGroupByStatus(requester);
+    }
+
+    /** Same ADMIN/owner scoping as {@link #count}, broken down by {@link Application#getAppliedAt()}. */
+    public Map<LocalDate, Long> countByAppliedAtSince(User requester, LocalDate since) {
+        return requester.getRole() == UserRole.ADMIN
+                ? applicationDao.countAllGroupByAppliedAtSince(since)
+                : applicationDao.countByOwnerGroupByAppliedAtSince(requester, since);
     }
 
     public Application update(UUID id, ApplicationRequest request, User requester) {

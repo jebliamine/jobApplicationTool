@@ -51,8 +51,32 @@
   gap: var(--japp-spacing-md);
 }
 
+.dashboard__charts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--japp-spacing-md);
+}
+
+.dashboard__chart-card {
+  padding: var(--japp-spacing-lg);
+  border: 1px solid var(--japp-border);
+  border-radius: var(--japp-radius-lg);
+  background: var(--japp-surface);
+}
+
+.dashboard__chart-title {
+  margin: 0 0 var(--japp-spacing-md);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--japp-text-primary);
+}
+
 @media (max-width: 599.98px) {
   .dashboard__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard__charts {
     grid-template-columns: 1fr;
   }
 }

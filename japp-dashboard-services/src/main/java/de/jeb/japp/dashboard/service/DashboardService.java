@@ -11,6 +11,8 @@ import de.jeb.japp.model.user.UserRole;
 import de.jeb.japp.user.service.UserServiceInterface;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+
 /**
  * Pure aggregation over the existing domain services — no persistence, no
  * business rules of its own. Every count reuses the ADMIN-sees-everything /
@@ -50,6 +52,8 @@ public class DashboardService {
         response.setCvCount(cvService.count(requester));
         response.setJobCount(jobService.count(requester));
         response.setApplicationCount(applicationService.count(requester));
+        response.setApplicationStatusCounts(applicationService.countByStatus(requester));
+        response.setApplicationsByDay(applicationService.countByAppliedAtSince(requester, LocalDate.now().minusWeeks(12)));
         response.setActiveCoverLetterCount(coverLetterService.countActive(requester));
         response.setArchivedCoverLetterCount(coverLetterService.countArchived(requester));
         response.setGenerationRequestCount(generationRequestService.count(requester));

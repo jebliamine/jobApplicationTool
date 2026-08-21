@@ -1,7 +1,9 @@
 package de.jeb.japp.model.dashboard.dto;
 
+import de.jeb.japp.model.application.ApplicationStatus;
 import de.jeb.japp.model.generation.GenerationStatus;
 
+import java.time.LocalDate;
 import java.util.Map;
 
 /**
@@ -15,6 +17,8 @@ public class DashboardResponse {
     private long cvCount;
     private long jobCount;
     private long applicationCount;
+    private Map<ApplicationStatus, Long> applicationStatusCounts;
+    private Map<LocalDate, Long> applicationsByDay;
     private long activeCoverLetterCount;
     private long archivedCoverLetterCount;
     private long generationRequestCount;
@@ -46,6 +50,22 @@ public class DashboardResponse {
 
     public void setApplicationCount(long applicationCount) {
         this.applicationCount = applicationCount;
+    }
+
+    public Map<ApplicationStatus, Long> getApplicationStatusCounts() {
+        return applicationStatusCounts;
+    }
+
+    public void setApplicationStatusCounts(Map<ApplicationStatus, Long> applicationStatusCounts) {
+        this.applicationStatusCounts = applicationStatusCounts;
+    }
+
+    public Map<LocalDate, Long> getApplicationsByDay() {
+        return applicationsByDay;
+    }
+
+    public void setApplicationsByDay(Map<LocalDate, Long> applicationsByDay) {
+        this.applicationsByDay = applicationsByDay;
     }
 
     public long getActiveCoverLetterCount() {

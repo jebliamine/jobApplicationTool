@@ -12,7 +12,9 @@ import {
 } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { UserService } from '../../core/user/user.service';
+import { ActivityChart } from './components/activity-chart/activity-chart';
 import { StatCard } from './components/stat-card/stat-card';
+import { StatusDistributionChart } from './components/status-distribution-chart/status-distribution-chart';
 import { DashboardResponse } from './dashboard.models';
 import { DashboardService } from './dashboard.service';
 
@@ -24,7 +26,9 @@ type LoadState = 'loading' | 'loaded' | 'error';
     MatButtonModule,
     MatProgressSpinnerModule,
     TranslatePipe,
+    ActivityChart,
     StatCard,
+    StatusDistributionChart,
     LucideBriefcase,
     LucideCircleAlert,
     LucideFileText,

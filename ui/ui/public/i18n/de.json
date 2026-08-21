@@ -46,6 +46,10 @@
     "loading": "Ihr Dashboard wird geladen…",
     "error": "Ihr Dashboard konnte nicht geladen werden.",
     "statisticsLabel": "Statistiken",
+    "charts": {
+      "statusTitle": "Bewerbungen nach Status",
+      "activityTitle": "Bewerbungen in den letzten 12 Wochen"
+    },
     "stats": {
       "cvs": "Lebensläufe",
       "jobs": "Stellen",

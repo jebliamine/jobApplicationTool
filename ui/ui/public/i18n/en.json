@@ -46,6 +46,10 @@
     "loading": "Loading your dashboard…",
     "error": "We could not load your dashboard.",
     "statisticsLabel": "Statistics",
+    "charts": {
+      "statusTitle": "Applications by status",
+      "activityTitle": "Applications over the last 12 weeks"
+    },
     "stats": {
       "cvs": "CVs",
       "jobs": "Jobs",

@@ -23,6 +23,12 @@
   color: var(--japp-text-secondary);
 }
 
+.application-list-page__header-actions {
+  display: flex;
+  gap: var(--japp-spacing-sm);
+  flex: none;
+}
+
 .application-list-page__add-button {
   flex: none;
 
@@ -63,6 +69,52 @@
   p {
     margin: 0;
   }
+}
+
+.application-list__toolbar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--japp-spacing-md);
+  margin-bottom: var(--japp-spacing-md);
+}
+
+.application-list__search {
+  flex: 1 1 320px;
+  min-width: 0;
+
+  svg {
+    margin-right: var(--japp-spacing-xs);
+    color: var(--japp-text-secondary);
+  }
+}
+
+.application-list__status-filter {
+  flex: 0 1 220px;
+  min-width: 0;
+}
+
+.application-list__status-trigger {
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--japp-radius-sm);
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--japp-color-primary);
+    outline-offset: 2px;
+  }
+}
+
+.application-list__status-check {
+  margin-left: auto;
+  color: var(--japp-color-primary);
 }
 
 .application-list__table-wrap {
@@ -174,6 +226,11 @@
     flex-direction: column;
   }
 
+  .application-list-page__header-actions {
+    flex-direction: column;
+    align-self: stretch;
+  }
+
   .application-list-page__add-button {
     align-self: stretch;
     text-align: center;
@@ -185,5 +242,15 @@
 
   .application-list__cards {
     display: flex;
+  }
+
+  .application-list__toolbar {
+    flex-direction: column;
+  }
+
+  .application-list__search,
+  .application-list__status-filter {
+    flex: 1 1 auto;
+    width: 100%;
   }
 }

@@ -92,6 +92,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'board',
+            loadComponent: () =>
+              import('./features/applications/application-board/application-board').then(
+                (m) => m.ApplicationBoard,
+              ),
+          },
+          {
             path: ':id',
             loadComponent: () =>
               import('./features/applications/application-detail/application-detail').then(
