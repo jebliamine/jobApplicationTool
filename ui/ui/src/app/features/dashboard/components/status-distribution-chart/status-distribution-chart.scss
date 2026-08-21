@@ -1,0 +1,70 @@
+:host {
+  display: block;
+}
+
+.status-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-sm);
+}
+
+.status-chart__row {
+  display: grid;
+  grid-template-columns: 88px 1fr 28px;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+}
+
+.status-chart__label {
+  font-size: 0.8125rem;
+  color: var(--japp-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.status-chart__track {
+  height: 10px;
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-surface-container);
+  overflow: hidden;
+}
+
+.status-chart__bar {
+  height: 100%;
+  border-radius: var(--japp-radius-full);
+  transition: width var(--japp-transition-base);
+}
+
+.status-chart__bar--info {
+  background: var(--japp-color-info);
+}
+
+.status-chart__bar--warning {
+  background: var(--japp-color-warning);
+}
+
+.status-chart__bar--success {
+  background: var(--japp-color-success);
+}
+
+.status-chart__bar--error {
+  background: var(--japp-color-error);
+}
+
+.status-chart__bar--neutral {
+  background: var(--japp-text-secondary);
+}
+
+.status-chart__value {
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--japp-text-primary);
+  text-align: right;
+}
+
+@media (max-width: 599.98px) {
+  .status-chart__row {
+    grid-template-columns: 72px 1fr 24px;
+  }
+}

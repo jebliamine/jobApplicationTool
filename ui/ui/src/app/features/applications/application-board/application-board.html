@@ -1,0 +1,102 @@
+<div class="application-board-page">
+  <header class="application-board-page__header">
+    <div>
+      <h1 class="application-board-page__title">Applications board</h1>
+      <p class="application-board-page__subtitle">
+        Drag a card to change its status, or use the status menu on each card.
+      </p>
+    </div>
+    <div class="application-board-page__actions">
+      <a mat-stroked-button routerLink="/applications">
+        <svg lucideList [size]="16" aria-hidden="true"></svg>
+        List view
+      </a>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <div class="application-board__state">
+      <mat-progress-spinner diameter="28" mode="indeterminate" />
+      <span>Loading your applications…</span>
+    </div>
+  } @else if (error()) {
+    <div class="application-board__state application-board__state--error" role="alert">
+      <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+      <span>We could not load your applications.</span>
+      <button mat-stroked-button type="button" (click)="load()">Retry</button>
+    </div>
+  } @else if (empty()) {
+    <div class="application-board__state application-board__state--empty">
+      <p>No applications yet. Track your first application to get started.</p>
+    </div>
+  } @else {
+    <div class="application-board__columns" cdkDropListGroup>
+      @for (status of statuses; track status) {
+        <div class="application-board__column">
+          <div class="application-board__column-header">
+            <app-status-badge [label]="statusLabel(status)" [severity]="statusSeverity(status)" />
+            <span class="application-board__column-count">{{ columnApplications(status).length }}</span>
+          </div>
+
+          <div
+            class="application-board__column-drop"
+            cdkDropList
+            [cdkDropListData]="status"
+            (cdkDropListDropped)="onDrop($event)"
+          >
+            @for (application of columnApplications(status); track application.id) {
+              <div class="application-board__card" cdkDrag [cdkDragData]="application">
+                <a class="application-board__card-title" [routerLink]="['/applications', application.id]">
+                  {{ application.job.title }}
+                </a>
+                <span class="application-board__card-company">{{ application.job.company.name }}</span>
+
+                <div class="application-board__card-dates">
+                  <span class="application-board__card-date">
+                    <svg lucideCalendar [size]="14" aria-hidden="true"></svg>
+                    {{ application.appliedAt | date: 'MMM d' }}
+                  </span>
+                  @if (application.deadline) {
+                    <span class="application-board__card-date application-board__card-date--deadline">
+                      Deadline {{ application.deadline | date: 'MMM d' }}
+                    </span>
+                  }
+                  @if (application.interviewDate) {
+                    <span class="application-board__card-date application-board__card-date--interview">
+                      Interview {{ application.interviewDate | date: 'MMM d' }}
+                    </span>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  class="application-board__status-trigger"
+                  [matMenuTriggerFor]="statusMenu"
+                  [disabled]="changingStatusId() === application.id"
+                  [attr.aria-label]="'Change status for ' + application.job.title"
+                >
+                  @if (changingStatusId() === application.id) {
+                    <mat-progress-spinner diameter="14" mode="indeterminate" />
+                    <span>Updating…</span>
+                  } @else {
+                    <span>Change status</span>
+                  }
+                </button>
+                <mat-menu #statusMenu="matMenu">
+                  @for (menuStatus of statuses; track menuStatus) {
+                    <button mat-menu-item type="button" (click)="changeStatus(application, menuStatus)">
+                      <span>{{ statusLabel(menuStatus) }}</span>
+                      @if (application.status === menuStatus) {
+                        <svg lucideCheck [size]="16" class="application-board__status-check" aria-hidden="true"></svg>
+                      }
+                    </button>
+                  }
+                </mat-menu>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,15 @@
+<div class="status-chart" role="img" [attr.aria-label]="'Applications by status: ' + summary()">
+  @for (bar of bars(); track bar.status) {
+    <div class="status-chart__row">
+      <span class="status-chart__label">{{ bar.label }}</span>
+      <div class="status-chart__track">
+        <div
+          class="status-chart__bar"
+          [class]="'status-chart__bar--' + bar.severity"
+          [style.width.%]="bar.widthPercent"
+        ></div>
+      </div>
+      <span class="status-chart__value">{{ bar.count }}</span>
+    </div>
+  }
+</div>

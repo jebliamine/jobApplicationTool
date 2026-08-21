@@ -1,0 +1,11 @@
+<div class="activity-chart" role="img" [attr.aria-label]="'Applications per week, last 12 weeks: ' + summary()">
+  @for (week of weeks(); track week.weekStart.getTime()) {
+    <div class="activity-chart__column">
+      <span class="activity-chart__value">{{ week.count }}</span>
+      <div class="activity-chart__track">
+        <div class="activity-chart__bar" [style.height.%]="week.heightPercent"></div>
+      </div>
+      <span class="activity-chart__label">{{ week.weekStart | date: 'MMM d' }}</span>
+    </div>
+  }
+</div>

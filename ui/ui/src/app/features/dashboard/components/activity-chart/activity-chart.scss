@@ -1,0 +1,61 @@
+:host {
+  display: block;
+}
+
+.activity-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--japp-spacing-xs);
+  height: 160px;
+}
+
+.activity-chart__column {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--japp-spacing-xs);
+  height: 100%;
+}
+
+.activity-chart__value {
+  font-size: 0.6875rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--japp-text-secondary);
+}
+
+.activity-chart__track {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  border-radius: var(--japp-radius-sm);
+  background: var(--japp-surface-container);
+  overflow: hidden;
+}
+
+.activity-chart__bar {
+  width: 100%;
+  min-height: 2px;
+  background: var(--japp-color-primary);
+  border-radius: var(--japp-radius-sm) var(--japp-radius-sm) 0 0;
+  transition: height var(--japp-transition-base);
+}
+
+.activity-chart__label {
+  font-size: 0.625rem;
+  color: var(--japp-text-secondary);
+  white-space: nowrap;
+}
+
+@media (max-width: 599.98px) {
+  .activity-chart {
+    height: 120px;
+  }
+
+  .activity-chart__label {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+}
