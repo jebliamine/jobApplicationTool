@@ -3,7 +3,7 @@ import { Router, RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideLogOut, LucideUser } from '@lucide/angular';
+import { LucideLogOut, LucideShield, LucideUser } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { UserService } from '../../core/user/user.service';
@@ -17,6 +17,7 @@ import { UserService } from '../../core/user/user.service';
     MatTooltipModule,
     TranslatePipe,
     LucideLogOut,
+    LucideShield,
     LucideUser,
   ],
   templateUrl: './user-menu.html',
@@ -31,6 +32,8 @@ export class UserMenu {
     const name = this.userService.currentUser()?.fullName ?? this.authService.currentUserEmail();
     return (name ?? '?').charAt(0).toUpperCase();
   });
+
+  protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   protected logout(): void {
     this.authService.logout();

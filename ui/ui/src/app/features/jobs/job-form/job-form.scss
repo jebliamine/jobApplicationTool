@@ -2,6 +2,11 @@
   display: block;
 }
 
+.job-form-page {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
 .job-form-page__header {
   max-width: 60ch;
   margin-bottom: var(--japp-spacing-lg);

@@ -13,6 +13,12 @@
     <svg lucideUser [size]="18" class="user-menu__item-icon" aria-hidden="true"></svg>
     <span>{{ 'userMenu.profile' | translate }}</span>
   </button>
+  @if (isAdmin()) {
+    <button mat-menu-item type="button" routerLink="/admin/dashboard">
+      <svg lucideShield [size]="18" class="user-menu__item-icon" aria-hidden="true"></svg>
+      <span>{{ 'userMenu.admin' | translate }}</span>
+    </button>
+  }
   <button mat-menu-item type="button" (click)="logout()">
     <svg lucideLogOut [size]="18" class="user-menu__item-icon" aria-hidden="true"></svg>
     <span>{{ 'userMenu.logout' | translate }}</span>

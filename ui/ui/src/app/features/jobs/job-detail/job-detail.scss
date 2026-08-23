@@ -2,6 +2,11 @@
   display: block;
 }
 
+.job-detail-page {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
 .job-detail-page__back {
   display: inline-flex;
   align-items: center;

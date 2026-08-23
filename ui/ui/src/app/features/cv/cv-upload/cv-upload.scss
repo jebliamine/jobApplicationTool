@@ -120,6 +120,14 @@
     align-items: stretch;
   }
 
+  .cv-upload__title-field,
+  .cv-upload__file-row {
+    // In row layout the 220px/240px flex-basis above acts as a min-width, but once
+    // the form switches to column layout the same basis is read along the (now
+    // vertical) main axis and inflates each field to that height instead.
+    flex: 1 1 auto;
+  }
+
   .cv-upload__actions {
     flex-direction: column;
 

@@ -2,6 +2,11 @@
   display: block;
 }
 
+.company-detail-page {
+  max-width: 640px;
+  margin-inline: auto;
+}
+
 .company-detail-page__back {
   display: inline-flex;
   align-items: center;

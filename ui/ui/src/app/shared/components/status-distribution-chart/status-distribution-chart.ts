@@ -2,12 +2,12 @@ import { Component, computed, input } from '@angular/core';
 import {
   APPLICATION_STATUSES,
   ApplicationStatus,
-} from '../../../applications/application.models';
+} from '../../../features/applications/application.models';
 import {
   APPLICATION_STATUS_LABELS,
   APPLICATION_STATUS_SEVERITY,
   ApplicationStatusSeverity,
-} from '../../../applications/application-status';
+} from '../../../features/applications/application-status';
 
 interface StatusBar {
   status: ApplicationStatus;

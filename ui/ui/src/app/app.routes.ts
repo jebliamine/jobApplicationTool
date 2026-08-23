@@ -1,9 +1,16 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/guards/admin.guard';
-import { authGuard, guestGuard } from './core/guards/auth.guard';
-import { Shell } from './layout/shell/shell';
+import { authGuard, guestGuard, publicGuard } from './core/guards/auth.guard';
+import { AdminShell } from './layout/admin-shell/admin-shell';
+import { UserShell } from './layout/user-shell/user-shell';
 
 export const routes: Routes = [
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () => import('./features/public-landing/public-landing').then((m) => m.PublicLanding),
+    canActivate: [publicGuard],
+  },
   {
     path: 'login',
     loadComponent: () => import('./features/auth/login/login').then((m) => m.Login),
@@ -16,10 +23,9 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: Shell,
+    component: UserShell,
     canActivate: [authGuard],
     children: [
-      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
       {
         path: 'dashboard',
         loadComponent: () => import('./features/dashboard/dashboard').then((m) => m.Dashboard),
@@ -139,17 +145,29 @@ export const routes: Routes = [
         ],
       },
       {
-        path: 'admin/ai-providers',
-        canActivate: [adminGuard],
-        loadComponent: () =>
-          import('./features/admin/ai-providers/ai-provider-list/ai-provider-list').then((m) => m.AiProviderList),
-      },
-      {
         path: 'settings',
         loadComponent: () => import('./features/settings/settings').then((m) => m.Settings),
       },
       { path: 'profile', redirectTo: 'settings' },
-      { path: '**', redirectTo: 'dashboard' },
     ],
   },
+  {
+    path: 'admin',
+    component: AdminShell,
+    canActivate: [authGuard, adminGuard],
+    children: [
+      { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./features/admin/admin-dashboard/admin-dashboard').then((m) => m.AdminDashboard),
+      },
+      {
+        path: 'ai-providers',
+        loadComponent: () =>
+          import('./features/admin/ai-providers/ai-provider-list/ai-provider-list').then((m) => m.AiProviderList),
+      },
+    ],
+  },
+  { path: '**', redirectTo: '' },
 ];

@@ -45,6 +45,7 @@
   // Elevation
   --japp-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
   --japp-shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 15px rgba(15, 23, 42, 0.08);
+  --japp-shadow-lg: 0 8px 16px rgba(15, 23, 42, 0.06), 0 20px 32px rgba(15, 23, 42, 0.1);
 
   // Transitions
   --japp-transition-fast: 120ms ease;
@@ -63,13 +64,24 @@
     sans-serif;
 }
 
-// Dark theme overrides. Only tokens that Material does not already remap
-// through --mat-sys-* need to be redeclared here.
+// Dark theme overrides. Deliberately NOT the raw M3-generated dark surfaces
+// (which read as flat/near-black on this palette) — a hand-picked charcoal/
+// slate hierarchy instead, layered on top of Material's own dark color
+// roles (--mat-sys-on-surface etc. stay Material-generated; only the
+// surface/background/border tokens below are overridden).
 :root[data-theme='dark'] {
+  --japp-background: #15161d;
+  --japp-surface: #1e2029;
+  --japp-surface-container: #1e2029;
+  --japp-surface-container-high: #262838;
+  --japp-border: #383b4d;
+  --japp-border-strong: #4a4e66;
+
   --japp-color-success: #4ade80;
   --japp-color-warning: #fbbf24;
   --japp-color-info: #38bdf8;
 
   --japp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
   --japp-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.45);
+  --japp-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.35), 0 20px 40px rgba(0, 0, 0, 0.5);
 }

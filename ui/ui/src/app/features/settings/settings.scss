@@ -2,6 +2,11 @@
   display: block;
 }
 
+.settings-page {
+  max-width: 480px;
+  margin-inline: auto;
+}
+
 .settings-page__header {
   max-width: 60ch;
   margin-bottom: var(--japp-spacing-xl);

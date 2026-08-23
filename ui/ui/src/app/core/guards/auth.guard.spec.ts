@@ -2,7 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, provideRouter } from '@angular/router';
-import { authGuard, guestGuard } from './auth.guard';
+import { authGuard, guestGuard, publicGuard } from './auth.guard';
 
 function fakeToken(claims: Record<string, unknown>): string {
   return `${btoa(JSON.stringify({ alg: 'none' }))}.${btoa(JSON.stringify(claims))}.signature`;
@@ -55,6 +55,23 @@ describe('authGuard / guestGuard', () => {
     );
 
     const result = run(guestGuard) as UrlTree;
+
+    expect(result).toBeInstanceOf(UrlTree);
+    expect(result.toString()).toContain('/dashboard');
+  });
+
+  it('publicGuard allows unauthenticated visitors to see the public landing page', () => {
+    const result = run(publicGuard);
+    expect(result).toBe(true);
+  });
+
+  it('publicGuard redirects already-authenticated users away from the public landing page to /dashboard', () => {
+    localStorage.setItem(
+      'japp-auth-token',
+      fakeToken({ sub: 'a@b.com', exp: Math.floor(Date.now() / 1000) + 3600 }),
+    );
+
+    const result = run(publicGuard) as UrlTree;
 
     expect(result).toBeInstanceOf(UrlTree);
     expect(result.toString()).toContain('/dashboard');

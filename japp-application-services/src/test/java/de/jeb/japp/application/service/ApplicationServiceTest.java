@@ -298,6 +298,22 @@ class ApplicationServiceTest {
     }
 
     @Test
+    void updateChangesStatus() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        ApplicationRequest request = validRequest();
+        request.setStatus(ApplicationStatus.INTERVIEWING);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application updated = applicationService.update(id, request, owner);
+
+        assertThat(updated.getStatus()).isEqualTo(ApplicationStatus.INTERVIEWING);
+    }
+
+    @Test
     void updateCanAttachACoverLetter() {
         UUID id = UUID.randomUUID();
         Application application = applicationOwnedBy(owner);

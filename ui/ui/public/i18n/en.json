@@ -9,14 +9,16 @@
     "skipToMainContent": "Skip to main content",
     "groupWorkspace": "Workspace",
     "groupAdmin": "Admin",
-    "dashboard": "Dashboard",
+    "dashboard": "Home",
     "cv": "CV",
     "jobs": "Jobs",
     "companies": "Companies",
     "applications": "Applications",
     "coverLetters": "Cover Letters",
     "aiProviders": "AI Providers",
-    "settings": "Settings"
+    "adminDashboard": "Admin Dashboard",
+    "settings": "Settings",
+    "backToWorkspace": "Back to Workspace"
   },
   "theme": {
     "changeTheme": "Change theme",
@@ -34,9 +36,14 @@
     "closeSearch": "Close search",
     "noMatchingPages": "No matching pages"
   },
+  "userNav": {
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
+  },
   "userMenu": {
     "account": "Account menu",
     "profile": "Profile",
+    "admin": "Admin",
     "logout": "Log out"
   },
   "notifications": {
@@ -52,13 +59,120 @@
     "dueTomorrow": "Due tomorrow",
     "dueInDays": "Due in {{count}} days"
   },
+  "landing": {
+    "header": {
+      "accountNav": "Account",
+      "login": "Log In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "title": "Your entire job search, organized in one place.",
+      "subtitle": "JAPP brings your CV, saved jobs, companies, AI-generated cover letters, and application tracking together — so nothing about your job search falls through the cracks.",
+      "primaryCta": "Get Started",
+      "secondaryCta": "Log In"
+    },
+    "pillars": {
+      "title": "Everything for your job search",
+      "subtitle": "One workspace for every part of a job search — from your CV to the offer.",
+      "cv": {
+        "title": "CV Management",
+        "description": "Upload and manage your CV, ready to reuse whenever you generate a tailored cover letter or submit an application."
+      },
+      "jobs": {
+        "title": "Jobs",
+        "description": "Save job postings you're interested in, with the role, location, and details for every opportunity you're considering."
+      },
+      "companies": {
+        "title": "Companies",
+        "description": "Keep track of the companies you're applying to, so you always arrive prepared."
+      },
+      "applications": {
+        "title": "Applications",
+        "description": "Turn a saved job into a real application, and follow it from applied through to an offer."
+      },
+      "coverLetters": {
+        "title": "Cover Letters",
+        "description": "Generate a tailored cover letter with your configured AI provider, based on the job description and your CV."
+      }
+    },
+    "howItWorks": {
+      "title": "How JAPP works",
+      "subtitle": "A clear, five-step workflow — from finding a role to tracking the outcome.",
+      "steps": {
+        "job": {
+          "title": "Save a job",
+          "description": "Found a role you're interested in? Save it with the details that matter."
+        },
+        "company": {
+          "title": "Save the company",
+          "description": "Keep the company's information alongside the job, so context is never lost."
+        },
+        "coverLetter": {
+          "title": "Generate a cover letter",
+          "description": "Use your configured AI provider to generate a cover letter tailored to the role and your CV."
+        },
+        "application": {
+          "title": "Create an application",
+          "description": "Connect the job, your CV, and the cover letter into a single application record."
+        },
+        "tracking": {
+          "title": "Track your progress",
+          "description": "Move the application through its stages, from applied to interviewing to offer."
+        }
+      }
+    },
+    "closingCta": {
+      "title": "Ready to organize your job search?",
+      "subtitle": "Create your free account and add your first job in minutes.",
+      "cta": "Get Started"
+    },
+    "footer": {
+      "linksNav": "Footer",
+      "copyright": "© {{year}} JAPP"
+    }
+  },
   "dashboard": {
-    "title": "Welcome to JAPP",
-    "subtitleAdmin": "An overview of activity across every user's account.",
-    "subtitleUser": "An overview of your job search activity.",
+    "greeting": "Welcome back, {{name}}",
+    "subtitle": "Here's what's happening with your job search.",
     "loading": "Loading your dashboard…",
     "error": "We could not load your dashboard.",
     "statisticsLabel": "Statistics",
+    "gettingStarted": {
+      "title": "Let's get your job search started",
+      "subtitle": "Complete these five steps to get the most out of JAPP.",
+      "steps": {
+        "job": {
+          "title": "Save a job",
+          "description": "Add the first role you're interested in.",
+          "cta": "Add a job"
+        },
+        "company": {
+          "title": "Save the company",
+          "description": "Keep the company's details alongside the job.",
+          "cta": "Add a company"
+        },
+        "coverLetter": {
+          "title": "Generate a cover letter",
+          "description": "Use AI to draft a cover letter tailored to the role.",
+          "cta": "Generate a cover letter"
+        },
+        "application": {
+          "title": "Create an application",
+          "description": "Connect the job, your CV, and the cover letter.",
+          "cta": "Create an application"
+        },
+        "tracking": {
+          "title": "Track your progress",
+          "description": "Follow your application from applied to offer.",
+          "cta": "View application board"
+        }
+      }
+    },
+    "recentApplications": {
+      "title": "Recent applications",
+      "viewAll": "View all",
+      "empty": "No applications yet."
+    },
     "charts": {
       "statusTitle": "Applications by status",
       "activityTitle": "Applications over the last 12 weeks"
@@ -73,6 +187,12 @@
       "archivedHint": "{{count}} archived",
       "failedHint": "{{count}} failed"
     }
+  },
+  "adminDashboard": {
+    "title": "Admin Dashboard",
+    "subtitle": "An overview of activity across every user's account.",
+    "loading": "Loading the admin dashboard…",
+    "error": "We could not load the admin dashboard."
   },
   "settings": {
     "title": "Settings",

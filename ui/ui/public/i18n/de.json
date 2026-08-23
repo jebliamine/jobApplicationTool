@@ -9,14 +9,16 @@
     "skipToMainContent": "Zum Hauptinhalt springen",
     "groupWorkspace": "Arbeitsbereich",
     "groupAdmin": "Admin",
-    "dashboard": "Dashboard",
+    "dashboard": "Start",
     "cv": "Lebenslauf",
     "jobs": "Stellen",
     "companies": "Unternehmen",
     "applications": "Bewerbungen",
     "coverLetters": "Anschreiben",
     "aiProviders": "KI-Anbieter",
-    "settings": "Einstellungen"
+    "adminDashboard": "Admin-Dashboard",
+    "settings": "Einstellungen",
+    "backToWorkspace": "Zurück zum Arbeitsbereich"
   },
   "theme": {
     "changeTheme": "Design ändern",
@@ -34,9 +36,14 @@
     "closeSearch": "Suche schließen",
     "noMatchingPages": "Keine passenden Seiten"
   },
+  "userNav": {
+    "openMenu": "Menü öffnen",
+    "closeMenu": "Menü schließen"
+  },
   "userMenu": {
     "account": "Kontomenü",
     "profile": "Profil",
+    "admin": "Admin",
     "logout": "Abmelden"
   },
   "notifications": {
@@ -52,13 +59,120 @@
     "dueTomorrow": "Morgen fällig",
     "dueInDays": "In {{count}} Tagen fällig"
   },
+  "landing": {
+    "header": {
+      "accountNav": "Konto",
+      "login": "Anmelden",
+      "getStarted": "Loslegen"
+    },
+    "hero": {
+      "title": "Ihre gesamte Jobsuche, an einem Ort organisiert.",
+      "subtitle": "JAPP vereint Ihren Lebenslauf, gespeicherte Stellen, Unternehmen, KI-generierte Anschreiben und die Bewerbungsverfolgung — damit nichts in Ihrer Jobsuche verloren geht.",
+      "primaryCta": "Loslegen",
+      "secondaryCta": "Anmelden"
+    },
+    "pillars": {
+      "title": "Alles für Ihre Jobsuche",
+      "subtitle": "Ein Arbeitsbereich für jeden Teil der Jobsuche — vom Lebenslauf bis zum Angebot.",
+      "cv": {
+        "title": "Lebenslauf-Verwaltung",
+        "description": "Laden Sie Ihren Lebenslauf hoch und verwalten Sie ihn — bereit für jedes maßgeschneiderte Anschreiben oder jede Bewerbung."
+      },
+      "jobs": {
+        "title": "Stellen",
+        "description": "Speichern Sie interessante Stellenangebote mit Rolle, Standort und Details zu jeder Möglichkeit, die Sie in Betracht ziehen."
+      },
+      "companies": {
+        "title": "Unternehmen",
+        "description": "Behalten Sie den Überblick über die Unternehmen, bei denen Sie sich bewerben, damit Sie immer vorbereitet sind."
+      },
+      "applications": {
+        "title": "Bewerbungen",
+        "description": "Machen Sie aus einer gespeicherten Stelle eine echte Bewerbung und verfolgen Sie sie von der Bewerbung bis zum Angebot."
+      },
+      "coverLetters": {
+        "title": "Anschreiben",
+        "description": "Generieren Sie mit Ihrem konfigurierten KI-Anbieter ein maßgeschneidertes Anschreiben auf Basis der Stellenbeschreibung und Ihres Lebenslaufs."
+      }
+    },
+    "howItWorks": {
+      "title": "So funktioniert JAPP",
+      "subtitle": "Ein klarer, fünfstufiger Ablauf — von der passenden Stelle bis zur Verfolgung des Ergebnisses.",
+      "steps": {
+        "job": {
+          "title": "Stelle speichern",
+          "description": "Eine interessante Stelle gefunden? Speichern Sie sie mit den wichtigen Details."
+        },
+        "company": {
+          "title": "Unternehmen speichern",
+          "description": "Bewahren Sie die Unternehmensinformationen zusammen mit der Stelle auf, damit der Kontext nie verloren geht."
+        },
+        "coverLetter": {
+          "title": "Anschreiben generieren",
+          "description": "Nutzen Sie Ihren konfigurierten KI-Anbieter, um ein Anschreiben passend zur Stelle und Ihrem Lebenslauf zu generieren."
+        },
+        "application": {
+          "title": "Bewerbung erstellen",
+          "description": "Verbinden Sie die Stelle, Ihren Lebenslauf und das Anschreiben zu einer einzigen Bewerbung."
+        },
+        "tracking": {
+          "title": "Fortschritt verfolgen",
+          "description": "Verfolgen Sie die Bewerbung durch ihre Phasen — von beworben über Vorstellungsgespräch bis zum Angebot."
+        }
+      }
+    },
+    "closingCta": {
+      "title": "Bereit, Ihre Jobsuche zu organisieren?",
+      "subtitle": "Erstellen Sie Ihr kostenloses Konto und fügen Sie in wenigen Minuten Ihre erste Stelle hinzu.",
+      "cta": "Loslegen"
+    },
+    "footer": {
+      "linksNav": "Fußzeile",
+      "copyright": "© {{year}} JAPP"
+    }
+  },
   "dashboard": {
-    "title": "Willkommen bei JAPP",
-    "subtitleAdmin": "Ein Überblick über die Aktivität aller Benutzerkonten.",
-    "subtitleUser": "Ein Überblick über Ihre Jobsuche-Aktivität.",
+    "greeting": "Willkommen zurück, {{name}}",
+    "subtitle": "Das ist der aktuelle Stand Ihrer Jobsuche.",
     "loading": "Ihr Dashboard wird geladen…",
     "error": "Ihr Dashboard konnte nicht geladen werden.",
     "statisticsLabel": "Statistiken",
+    "gettingStarted": {
+      "title": "Starten wir Ihre Jobsuche",
+      "subtitle": "Schließen Sie diese fünf Schritte ab, um JAPP optimal zu nutzen.",
+      "steps": {
+        "job": {
+          "title": "Stelle speichern",
+          "description": "Fügen Sie die erste interessante Stelle hinzu.",
+          "cta": "Stelle hinzufügen"
+        },
+        "company": {
+          "title": "Unternehmen speichern",
+          "description": "Bewahren Sie die Unternehmensdetails zusammen mit der Stelle auf.",
+          "cta": "Unternehmen hinzufügen"
+        },
+        "coverLetter": {
+          "title": "Anschreiben generieren",
+          "description": "Nutzen Sie KI, um ein passendes Anschreiben zu entwerfen.",
+          "cta": "Anschreiben generieren"
+        },
+        "application": {
+          "title": "Bewerbung erstellen",
+          "description": "Verbinden Sie die Stelle, Ihren Lebenslauf und das Anschreiben.",
+          "cta": "Bewerbung erstellen"
+        },
+        "tracking": {
+          "title": "Fortschritt verfolgen",
+          "description": "Verfolgen Sie Ihre Bewerbung von beworben bis zum Angebot.",
+          "cta": "Bewerbungsübersicht öffnen"
+        }
+      }
+    },
+    "recentApplications": {
+      "title": "Letzte Bewerbungen",
+      "viewAll": "Alle anzeigen",
+      "empty": "Noch keine Bewerbungen."
+    },
     "charts": {
       "statusTitle": "Bewerbungen nach Status",
       "activityTitle": "Bewerbungen in den letzten 12 Wochen"
@@ -73,6 +187,12 @@
       "archivedHint": "{{count}} archiviert",
       "failedHint": "{{count}} fehlgeschlagen"
     }
+  },
+  "adminDashboard": {
+    "title": "Admin-Dashboard",
+    "subtitle": "Ein Überblick über die Aktivität aller Benutzerkonten.",
+    "loading": "Admin-Dashboard wird geladen…",
+    "error": "Das Admin-Dashboard konnte nicht geladen werden."
   },
   "settings": {
     "title": "Einstellungen",

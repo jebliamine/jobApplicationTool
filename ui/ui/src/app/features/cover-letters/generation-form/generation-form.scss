@@ -2,6 +2,11 @@
   display: block;
 }
 
+.generation-form-page {
+  max-width: 560px;
+  margin-inline: auto;
+}
+
 .generation-form-page__header {
   max-width: 60ch;
   margin-bottom: var(--japp-spacing-lg);

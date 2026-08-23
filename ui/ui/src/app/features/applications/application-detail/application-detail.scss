@@ -2,6 +2,11 @@
   display: block;
 }
 
+.application-detail-page {
+  max-width: 720px;
+  margin-inline: auto;
+}
+
 .application-detail-page__back {
   display: inline-flex;
   align-items: center;

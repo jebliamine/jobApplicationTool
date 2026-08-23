@@ -8,13 +8,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { LucideSearch, LucideX } from '@lucide/angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { APP_PAGES } from '../../core/navigation/app-pages';
-import { UserService } from '../../core/user/user.service';
+import { AppPage } from '../../core/navigation/app-pages';
 
 /**
  * Navigates between known application pages — not a backend/data search.
  * On compact (mobile) layouts it starts as an icon button and expands into
- * a full-width field that overlays the topbar.
+ * a full-width field that overlays the topbar. The searchable page set is
+ * supplied by the host shell (UserShell passes USER_APP_PAGES, AdminShell
+ * passes ADMIN_APP_PAGES) so this component stays shell-agnostic.
  */
 @Component({
   selector: 'app-nav-search',
@@ -33,22 +34,18 @@ import { UserService } from '../../core/user/user.service';
 })
 export class NavSearch {
   private readonly router = inject(Router);
-  private readonly userService = inject(UserService);
   private readonly translate = inject(TranslateService);
 
+  readonly pages = input.required<readonly AppPage[]>();
   readonly compact = input(false);
 
   protected readonly expanded = signal(false);
   protected readonly control = new FormControl('', { nonNullable: true });
 
   private readonly query = toSignal(this.control.valueChanges, { initialValue: '' });
-  private readonly visiblePages = computed(() => {
-    const isAdmin = this.userService.currentUser()?.role === 'ADMIN';
-    return APP_PAGES.filter((page) => !page.adminOnly || isAdmin);
-  });
   protected readonly results = computed(() => {
     const term = this.query().trim().toLowerCase();
-    const pages = this.visiblePages();
+    const pages = this.pages();
     // page.label is a translation key (see app-pages.ts) — filter against the
     // resolved display text so search works in whichever language is active.
     return term
@@ -89,7 +86,7 @@ export class NavSearch {
   }
 
   private navigateByLabel(label: string): void {
-    const page = APP_PAGES.find((candidate) => candidate.label === label);
+    const page = this.pages().find((candidate) => candidate.label === label);
     if (page) {
       this.router.navigate([page.path]);
     }
