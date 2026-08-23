@@ -39,6 +39,19 @@
     "profile": "Profile",
     "logout": "Log out"
   },
+  "notifications": {
+    "title": "Notifications",
+    "empty": "You're all caught up.",
+    "kinds": {
+      "DEADLINE": "Deadline",
+      "FOLLOW_UP": "Follow-up",
+      "INTERVIEW": "Interview"
+    },
+    "overdue": "Overdue by {{count}} days",
+    "dueToday": "Due today",
+    "dueTomorrow": "Due tomorrow",
+    "dueInDays": "Due in {{count}} days"
+  },
   "dashboard": {
     "title": "Welcome to JAPP",
     "subtitleAdmin": "An overview of activity across every user's account.",

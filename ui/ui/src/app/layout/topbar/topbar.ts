@@ -5,6 +5,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LucideMenu, LucidePanelLeftClose, LucidePanelLeftOpen } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { NavSearch } from '../nav-search/nav-search';
+import { NotificationBell } from '../notification-bell/notification-bell';
 import { ThemeToggle } from '../theme-toggle/theme-toggle';
 import { UserMenu } from '../user-menu/user-menu';
 
@@ -19,6 +20,7 @@ import { UserMenu } from '../user-menu/user-menu';
     LucidePanelLeftClose,
     LucidePanelLeftOpen,
     NavSearch,
+    NotificationBell,
     ThemeToggle,
     UserMenu,
   ],

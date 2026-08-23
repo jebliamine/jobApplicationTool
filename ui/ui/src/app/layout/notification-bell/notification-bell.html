@@ -1,0 +1,54 @@
+<button
+  mat-icon-button
+  type="button"
+  [matMenuTriggerFor]="menu"
+  (menuOpened)="onMenuOpened()"
+  [matTooltip]="'notifications.title' | translate"
+  [attr.aria-label]="'notifications.title' | translate"
+>
+  <svg
+    lucideBell
+    [size]="20"
+    aria-hidden="true"
+    [matBadge]="count()"
+    [matBadgeHidden]="count() === 0"
+    matBadgeColor="warn"
+    matBadgeSize="small"
+    matBadgeOverlap="true"
+  ></svg>
+</button>
+
+<mat-menu #menu="matMenu" xPosition="before" class="notification-bell__menu">
+  <div class="notification-bell__header" (click)="$event.stopPropagation()">
+    <span>{{ 'notifications.title' | translate }}</span>
+  </div>
+
+  @if (reminders().length === 0) {
+    <div class="notification-bell__empty" (click)="$event.stopPropagation()">
+      {{ 'notifications.empty' | translate }}
+    </div>
+  } @else {
+    @for (reminder of reminders(); track reminder.applicationId + reminder.kind) {
+      <a mat-menu-item class="notification-bell__item" [routerLink]="'/applications/' + reminder.applicationId">
+        <div class="notification-bell__item-icon">
+          @switch (reminder.kind) {
+            @case ('DEADLINE') {
+              <svg lucideTarget [size]="16" aria-hidden="true"></svg>
+            }
+            @case ('FOLLOW_UP') {
+              <svg lucideMessageCircle [size]="16" aria-hidden="true"></svg>
+            }
+            @case ('INTERVIEW') {
+              <svg lucideCalendarClock [size]="16" aria-hidden="true"></svg>
+            }
+          }
+        </div>
+        <div class="notification-bell__item-body">
+          <span class="notification-bell__item-title">{{ reminder.jobTitle }} · {{ reminder.companyName }}</span>
+          <span class="notification-bell__item-meta">{{ kindLabel(reminder.kind) }}</span>
+        </div>
+        <app-status-badge [label]="dueLabel(reminder)" [severity]="reminder.severity" />
+      </a>
+    }
+  }
+</mat-menu>

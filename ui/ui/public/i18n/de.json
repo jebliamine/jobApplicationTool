@@ -39,6 +39,19 @@
     "profile": "Profil",
     "logout": "Abmelden"
   },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "empty": "Alles erledigt.",
+    "kinds": {
+      "DEADLINE": "Frist",
+      "FOLLOW_UP": "Nachfassen",
+      "INTERVIEW": "Vorstellungsgespräch"
+    },
+    "overdue": "Seit {{count}} Tagen überfällig",
+    "dueToday": "Heute fällig",
+    "dueTomorrow": "Morgen fällig",
+    "dueInDays": "In {{count}} Tagen fällig"
+  },
   "dashboard": {
     "title": "Willkommen bei JAPP",
     "subtitleAdmin": "Ein Überblick über die Aktivität aller Benutzerkonten.",

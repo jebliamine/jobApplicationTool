@@ -1,0 +1,57 @@
+:host {
+  display: inline-flex;
+}
+
+.notification-bell__menu {
+  max-width: 360px;
+}
+
+.notification-bell__header {
+  padding: var(--japp-spacing-sm) var(--japp-spacing-md);
+  font-weight: 600;
+  color: var(--japp-text-primary);
+  cursor: default;
+}
+
+.notification-bell__empty {
+  padding: var(--japp-spacing-md);
+  color: var(--japp-text-secondary);
+  text-align: center;
+  cursor: default;
+}
+
+.notification-bell__item {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  height: auto;
+  min-height: 56px;
+  padding-top: var(--japp-spacing-xs);
+  padding-bottom: var(--japp-spacing-xs);
+  line-height: 1.3;
+}
+
+.notification-bell__item-icon {
+  flex: none;
+  color: var(--japp-text-secondary);
+}
+
+.notification-bell__item-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.notification-bell__item-title {
+  font-weight: 500;
+  color: var(--japp-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.notification-bell__item-meta {
+  font-size: 0.8125rem;
+  color: var(--japp-text-secondary);
+}
