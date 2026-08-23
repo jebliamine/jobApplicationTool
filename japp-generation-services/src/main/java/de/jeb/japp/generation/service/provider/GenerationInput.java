@@ -1,11 +1,11 @@
 package de.jeb.japp.generation.service.provider;
 
 /**
- * Everything a {@link CoverLetterGenerationProvider} needs to generate a
+ * Everything a { CoverLetterGenerationProvider} needs to generate a
  * cover letter — plain values only, deliberately decoupled from the
  * GenerationRequest/Job/CVDocument/User JPA entities so a provider
  * implementation never depends on persistence or domain types.
- *
+ * <p>
  * {@code cvText} is the CV's extracted, normalized text (see japp-cv-parser's
  * extraction pipeline) — nullable, since extraction may have failed or the CV
  * may predate the extraction feature. {@code cvTitle} remains available

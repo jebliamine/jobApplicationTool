@@ -2,6 +2,7 @@ package de.jeb.japp.generation.service.provider;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
+import de.jeb.japp.generation.service.provider.placeholder.PlaceholderCoverLetterGenerationAdapter;
 import de.jeb.japp.model.ai.AdapterType;
 import org.junit.jupiter.api.Test;
 

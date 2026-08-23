@@ -1,7 +1,10 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.placeholder;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
+import de.jeb.japp.generation.service.provider.GenerationInput;
+import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Service;
 
