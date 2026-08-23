@@ -2,6 +2,7 @@ package de.jeb.japp.generation.service;
 
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestAccessDeniedException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestNotFoundException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestValidationException;
@@ -11,7 +12,6 @@ import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProviderRegistry;
 import de.jeb.japp.generation.service.provider.GenerationInput;
@@ -83,6 +83,7 @@ public class GenerationRequestService {
         generationRequest.setJob(job);
         generationRequest.setCvDocument(cv);
         generationRequest.setJobDescriptionSnapshot(job.getDescription());
+        generationRequest.setCvTextSnapshot(cv.getExtractedText());
         generationRequest.setProvider(provider.id().name());
         generationRequest.setModel(provider.model());
         generationRequest.setStatus(GenerationStatus.PENDING);
@@ -104,21 +105,27 @@ public class GenerationRequestService {
                 : generationRequestDao.getAllGenerationRequestsByOwner(requester);
     }
 
-    /** ADMIN gets the global count, matching {@link #list}'s ADMIN-sees-everything convention. */
+    /**
+     * ADMIN gets the global count, matching {@link #list}'s ADMIN-sees-everything convention.
+     */
     public long count(User requester) {
         return requester.getRole() == UserRole.ADMIN
                 ? generationRequestDao.countAll()
                 : generationRequestDao.countByOwner(requester);
     }
 
-    /** Same ADMIN/owner scoping as {@link #count}, broken down by {@link GenerationStatus}. */
+    /**
+     * Same ADMIN/owner scoping as {@link #count}, broken down by {@link GenerationStatus}.
+     */
     public Map<GenerationStatus, Long> countByStatus(User requester) {
         return requester.getRole() == UserRole.ADMIN
                 ? generationRequestDao.countAllGroupByStatus()
                 : generationRequestDao.countByOwnerGroupByStatus(requester);
     }
 
-    /** The CoverLetter this request produced, if it has reached COMPLETED. */
+    /**
+     * The CoverLetter this request produced, if it has reached COMPLETED.
+     */
     public Optional<CoverLetter> findCoverLetter(UUID generationRequestId) {
         return coverLetterDao.getCoverLetterByGenerationRequestId(generationRequestId);
     }
@@ -157,7 +164,9 @@ public class GenerationRequestService {
         return generationRequestDao.saveGenerationRequest(generationRequest);
     }
 
-    /** Translates the resolved Job/CV/User entities into the plain-value input the provider operates on. */
+    /**
+     * Translates the resolved Job/CV/User entities into the plain-value input the provider operates on.
+     */
     private GenerationInput buildInput(Job job, CVDocument cv, User owner) {
         String applicantName = (owner.getFullName() != null && !owner.getFullName().isBlank())
                 ? owner.getFullName()
@@ -167,6 +176,7 @@ public class GenerationRequestService {
                 job.getCompany().getName(),
                 job.getDescription(),
                 cv != null ? cv.getTitle() : null,
+                cv != null ? cv.getExtractedText() : null,
                 applicantName
         );
     }

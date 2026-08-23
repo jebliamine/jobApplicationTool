@@ -4,9 +4,10 @@ import de.jeb.japp.generation.service.provider.GenerationInput;
 
 /**
  * Builds the prompt sent to Gemini from {@link GenerationInput} only — no
- * invented CV content. {@code cvTitle} is the only CV information the system
- * has (there is no CV text extraction), so it is presented as the document's
- * title, never as if it were extracted CV content.
+ * invented CV content. When {@code cvText} (the CV's extracted, normalized
+ * text) is present, it is included as the actual CV content; otherwise
+ * {@code cvTitle} — the only CV information available in that case — is
+ * presented as the document's title, never as if it were extracted content.
  */
 final class GeminiPromptBuilder {
 
@@ -25,7 +26,9 @@ final class GeminiPromptBuilder {
         prompt.append("Position: ").append(input.jobTitle()).append('\n');
         prompt.append("Unternehmen: ").append(input.companyName()).append('\n');
 
-        if (input.cvTitle() != null && !input.cvTitle().isBlank()) {
+        if (input.cvText() != null && !input.cvText().isBlank()) {
+            prompt.append("\nLebenslauf-Inhalt:\n").append(input.cvText()).append('\n');
+        } else if (input.cvTitle() != null && !input.cvTitle().isBlank()) {
             prompt.append("Titel des hinterlegten Lebenslauf-Dokuments: ").append(input.cvTitle()).append('\n');
         }
 

@@ -6,16 +6,18 @@ package de.jeb.japp.generation.service.provider;
  * GenerationRequest/Job/CVDocument/User JPA entities so a provider
  * implementation never depends on persistence or domain types.
  *
- * {@code cvTitle} is nullable: the current system does not extract CV text,
- * so a CV's title is the only CV information available to generate from
- * (matching the previous placeholder behavior); {@code cvTitle} is absent
- * whenever no CV was resolved for the request.
+ * {@code cvText} is the CV's extracted, normalized text (see japp-cv-parser's
+ * extraction pipeline) — nullable, since extraction may have failed or the CV
+ * may predate the extraction feature. {@code cvTitle} remains available
+ * independently as a fallback label for providers to reference when
+ * {@code cvText} is absent.
  */
 public record GenerationInput(
         String jobTitle,
         String companyName,
         String jobDescription,
         String cvTitle,
+        String cvText,
         String applicantName
 ) {
 }

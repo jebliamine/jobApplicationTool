@@ -1,6 +1,7 @@
 package de.jeb.japp.generation.service.provider;
 
 import de.jeb.japp.ai.service.ProviderConnectionTester;
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.model.ai.dto.AiProviderTestResult;
 import de.jeb.japp.model.generation.GenerationProvider;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
  * {@link CoverLetterGenerationProviderRegistry}, which that module must not
  * depend on. Spring wires this bean in wherever ProviderConnectionTester is
  * injected, since both modules are on the classpath of the assembled app.
- *
+ * <p>
  * A "test" is simply a real generate() call with a minimal, throwaway
  * prompt — it goes through the exact same provider/resolver path a real
  * cover-letter generation does, so the result is trustworthy. The raw
@@ -43,6 +44,7 @@ public class RegistryProviderConnectionTester implements ProviderConnectionTeste
                 "Test Position",
                 "Test Company",
                 "This is a connection test. Reply with a short acknowledgement.",
+                null,
                 null,
                 "Test User"
         );

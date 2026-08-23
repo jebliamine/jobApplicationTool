@@ -79,7 +79,7 @@ class GeminiCoverLetterGenerationProviderDbConfigurationTest {
                         MediaType.APPLICATION_JSON));
 
         GenerationInput input =
-                new GenerationInput("Backend Engineer", "Acme Corp", "Build things.", "My Resume", "Jane Doe");
+                new GenerationInput("Backend Engineer", "Acme Corp", "Build things.", "My Resume", null, "Jane Doe");
         GenerationResult result = provider.generate(input);
 
         assertThat(result.content()).isEqualTo("Generated via DB config.");

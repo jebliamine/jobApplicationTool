@@ -4,13 +4,18 @@ import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVStorageException;
 import de.jeb.japp.commons.exceptions.cv.CVValidationException;
+import de.jeb.japp.cv.service.parser.DocumentExtractionService;
+import de.jeb.japp.cv.service.parser.normalizer.NormalizedDocument;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.user.UserDao;
 import de.jeb.japp.file.storage.services.FileStorageServiceInterface;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.cv.ExtractionStatus;
 import de.jeb.japp.model.storage.StoredFile;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +29,8 @@ import java.util.UUID;
 @Service
 public class CVServiceImpl implements CVServiceInterface {
 
+    private static final Logger log = LoggerFactory.getLogger(CVServiceImpl.class);
+
     private static final long MAX_FILE_SIZE_BYTES = 10L * 1024 * 1024;
     private static final Set<String> ALLOWED_EXTENSIONS = Set.of("pdf", "doc", "docx");
     private static final Set<String> ALLOWED_CONTENT_TYPES = Set.of(
@@ -35,11 +42,18 @@ public class CVServiceImpl implements CVServiceInterface {
     private final CVDao cvDao;
     private final UserDao userDao;
     private final FileStorageServiceInterface storageService;
+    private final DocumentExtractionService extractionService;
 
-    public CVServiceImpl(CVDao cvDao, UserDao userDao, FileStorageServiceInterface storageService) {
+    public CVServiceImpl(
+            CVDao cvDao,
+            UserDao userDao,
+            FileStorageServiceInterface storageService,
+            DocumentExtractionService extractionService
+    ) {
         this.cvDao = cvDao;
         this.userDao = userDao;
         this.storageService = storageService;
+        this.extractionService = extractionService;
     }
 
     @Override
@@ -64,7 +78,29 @@ public class CVServiceImpl implements CVServiceInterface {
         doc.setUpdatedAt(now);
         doc.setOwner(owner);
 
+        applyExtraction(doc, stored);
+
         return cvDao.saveCV(doc);
+    }
+
+    /**
+     * Best-effort: a CV is still a valid upload even if text extraction fails, so any
+     * failure here is caught and recorded on the document rather than failing the upload.
+     */
+    private void applyExtraction(CVDocument doc, StoredFile stored) {
+        try {
+            Resource resource = storageService.load(stored.getStorageKey());
+            NormalizedDocument normalized = extractionService.process(
+                    resource, stored.getOriginalFilename(), stored.getContentType());
+
+            doc.setExtractedText(normalized.text());
+            doc.setExtractionStatus(ExtractionStatus.COMPLETED);
+            doc.setExtractionQuality(normalized.quality() != null ? normalized.quality().name() : null);
+            doc.setExtractedAt(LocalDateTime.now());
+        } catch (Exception e) {
+            log.warn("CV text extraction failed for upload: fileName={}", stored.getOriginalFilename(), e);
+            doc.setExtractionStatus(ExtractionStatus.FAILED);
+        }
     }
 
     @Override

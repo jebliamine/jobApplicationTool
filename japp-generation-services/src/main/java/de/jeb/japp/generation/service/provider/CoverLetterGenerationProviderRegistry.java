@@ -1,5 +1,6 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.model.generation.GenerationProvider;
 import org.springframework.stereotype.Component;
 

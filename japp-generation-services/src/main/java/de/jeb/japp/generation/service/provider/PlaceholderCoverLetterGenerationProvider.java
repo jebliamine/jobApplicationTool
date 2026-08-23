@@ -1,5 +1,6 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.model.generation.GenerationProvider;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +35,9 @@ public class PlaceholderCoverLetterGenerationProvider implements CoverLetterGene
             throw new CoverLetterGenerationException("The selected job has no description to generate from.");
         }
 
-        String cvReference = input.cvTitle() != null ? " and my CV \"" + input.cvTitle() + "\"" : "";
+        String cvReference = input.cvText() != null && !input.cvText().isBlank()
+                ? " and my CV"
+                : (input.cvTitle() != null ? " and my CV \"" + input.cvTitle() + "\"" : "");
         String description = input.jobDescription().trim();
         String descriptionExcerpt = description.length() > DESCRIPTION_EXCERPT_LENGTH
                 ? description.substring(0, DESCRIPTION_EXCERPT_LENGTH).trim() + "…"

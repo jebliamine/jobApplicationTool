@@ -46,6 +46,10 @@ public class GenerationRequest {
     @Column(length = 8000)
     private String jobDescriptionSnapshot;
 
+    /** Copy of the CV's extracted text at request time, same reproducibility reasoning as {@link #jobDescriptionSnapshot}. Null when the CV has no extracted text (extraction failed, or predates the extraction feature). */
+    @Column(length = 8000)
+    private String cvTextSnapshot;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private GenerationStatus status;
@@ -94,6 +98,14 @@ public class GenerationRequest {
 
     public void setJobDescriptionSnapshot(String jobDescriptionSnapshot) {
         this.jobDescriptionSnapshot = jobDescriptionSnapshot;
+    }
+
+    public String getCvTextSnapshot() {
+        return cvTextSnapshot;
+    }
+
+    public void setCvTextSnapshot(String cvTextSnapshot) {
+        this.cvTextSnapshot = cvTextSnapshot;
     }
 
     public GenerationStatus getStatus() {

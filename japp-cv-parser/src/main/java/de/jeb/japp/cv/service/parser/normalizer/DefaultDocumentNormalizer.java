@@ -50,7 +50,8 @@ public class DefaultDocumentNormalizer implements DocumentNormalizer {
         text = removeRepeatedHeaderFooterLines(text);
         text = collapseBlankLineRuns(text);
 
-        return new NormalizedDocument(text.trim(), document.filename(), document.contentType());
+        return new NormalizedDocument(text.trim(), document.filename(), document.contentType(),
+                document.quality(), document.extractionMethod());
     }
 
     private String normalizeLineEndings(String text) {

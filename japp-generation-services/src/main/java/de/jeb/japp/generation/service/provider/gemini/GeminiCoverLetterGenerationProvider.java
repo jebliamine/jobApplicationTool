@@ -2,7 +2,7 @@ package de.jeb.japp.generation.service.provider.gemini;
 
 import de.jeb.japp.ai.service.ProviderSettingsResolver;
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
 import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
@@ -10,12 +10,7 @@ import de.jeb.japp.model.generation.GenerationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.HttpStatusCodeException;
-import org.springframework.web.client.ResourceAccessException;
-import org.springframework.web.client.RestClient;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.*;
 
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
@@ -30,7 +25,7 @@ import java.util.regex.Pattern;
  * response) is converted to a {@link CoverLetterGenerationException} —
  * GenerationRequestService never sees a Gemini-specific exception type or
  * the raw API response.
- *
+ * <p>
  * Configuration (api key, model, base URL) is resolved through
  * {@link ProviderSettingsResolver} at call time, on every {@link #generate}
  * — never cached in this class, never taken from Spring startup-time
@@ -46,7 +41,9 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
     private static final String GENERATE_CONTENT_PATH = "/v1beta/models/{model}:generateContent";
     private static final int MAX_LOGGED_ERROR_BODY_LENGTH = 300;
 
-    /** 1 initial attempt + up to 2 retries, only for HTTP 429/5xx — see callGemini(). */
+    /**
+     * 1 initial attempt + up to 2 retries, only for HTTP 429/5xx — see callGemini().
+     */
     private static final int MAX_ATTEMPTS = 3;
     private static final long RETRY_1_BASE_DELAY_MILLIS = 500;
     private static final long RETRY_1_JITTER_MILLIS = 250;
@@ -148,7 +145,9 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
         throw new CoverLetterGenerationException("Gemini returned an unexpected response.");
     }
 
-    /** Logs the retry decision (provider, status, attempt, delay) — never the API key or response body — then sleeps. */
+    /**
+     * Logs the retry decision (provider, status, attempt, delay) — never the API key or response body — then sleeps.
+     */
     private void waitBeforeRetry(HttpStatusCodeException e, String category, int attempt) {
         long delayMillis = retryDelayMillis(attempt);
         log.warn("Gemini {} error (retrying): provider=GEMINI, status={}, attempt={}, retryDelayMs={}",
@@ -161,7 +160,9 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
         }
     }
 
-    /** attempt 1 (about to become retry 1): ~500-750ms. attempt 2 (about to become retry 2): ~1500-2000ms. */
+    /**
+     * attempt 1 (about to become retry 1): ~500-750ms. attempt 2 (about to become retry 2): ~1500-2000ms.
+     */
     private long retryDelayMillis(int failedAttempt) {
         long base = failedAttempt == 1 ? RETRY_1_BASE_DELAY_MILLIS : RETRY_2_BASE_DELAY_MILLIS;
         long jitterRange = failedAttempt == 1 ? RETRY_1_JITTER_MILLIS : RETRY_2_JITTER_MILLIS;

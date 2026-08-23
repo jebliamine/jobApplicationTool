@@ -1,5 +1,6 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.model.generation.GenerationProvider;
 
 /**
@@ -14,10 +15,14 @@ import de.jeb.japp.model.generation.GenerationProvider;
  */
 public interface CoverLetterGenerationProvider {
 
-    /** The provider id this implementation is registered under. */
+    /**
+     * The provider id this implementation is registered under.
+     */
     GenerationProvider id();
 
-    /** The model identifier to record on the GenerationRequest for requests handled by this provider. */
+    /**
+     * The model identifier to record on the GenerationRequest for requests handled by this provider.
+     */
     String model();
 
     /**

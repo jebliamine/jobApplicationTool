@@ -1,5 +1,6 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.model.generation.GenerationProvider;
 import org.junit.jupiter.api.Test;
 
@@ -22,6 +23,7 @@ class PlaceholderCoverLetterGenerationProviderTest {
                 "Acme Corp",
                 "Build and maintain backend services.",
                 "My Resume",
+                null,
                 "Jane Doe"
         );
     }
@@ -50,7 +52,7 @@ class PlaceholderCoverLetterGenerationProviderTest {
     @Test
     void handlesAMissingCvTitleGracefully() {
         GenerationInput input = new GenerationInput(
-                "Backend Engineer", "Acme Corp", "Build and maintain backend services.", null, "Jane Doe");
+                "Backend Engineer", "Acme Corp", "Build and maintain backend services.", null, null, "Jane Doe");
 
         GenerationResult result = provider.generate(input);
 
@@ -59,8 +61,21 @@ class PlaceholderCoverLetterGenerationProviderTest {
     }
 
     @Test
+    void referencesTheCvWithoutDumpingItsFullTextWhenExtractedTextIsPresent() {
+        GenerationInput input = new GenerationInput(
+                "Backend Engineer", "Acme Corp", "Build and maintain backend services.",
+                "My Resume", "Full extracted CV text goes here.", "Jane Doe");
+
+        GenerationResult result = provider.generate(input);
+
+        assertThat(result.content()).contains("my CV");
+        assertThat(result.content()).doesNotContain("Full extracted CV text goes here.");
+    }
+
+    @Test
     void throwsWhenJobDescriptionIsBlank() {
-        GenerationInput input = new GenerationInput("Backend Engineer", "Acme Corp", "   ", "My Resume", "Jane Doe");
+        GenerationInput input = new GenerationInput(
+                "Backend Engineer", "Acme Corp", "   ", "My Resume", null, "Jane Doe");
 
         assertThatThrownBy(() -> provider.generate(input))
                 .isInstanceOf(CoverLetterGenerationException.class);
@@ -68,7 +83,8 @@ class PlaceholderCoverLetterGenerationProviderTest {
 
     @Test
     void throwsWhenJobDescriptionIsNull() {
-        GenerationInput input = new GenerationInput("Backend Engineer", "Acme Corp", null, "My Resume", "Jane Doe");
+        GenerationInput input = new GenerationInput(
+                "Backend Engineer", "Acme Corp", null, "My Resume", null, "Jane Doe");
 
         assertThatThrownBy(() -> provider.generate(input))
                 .isInstanceOf(CoverLetterGenerationException.class);

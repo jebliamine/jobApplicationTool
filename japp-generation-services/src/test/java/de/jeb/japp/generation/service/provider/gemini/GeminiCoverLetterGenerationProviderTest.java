@@ -2,7 +2,7 @@ package de.jeb.japp.generation.service.provider.gemini;
 
 import de.jeb.japp.ai.service.ProviderSettingsResolver;
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
 import de.jeb.japp.model.generation.GenerationProvider;
@@ -20,18 +20,10 @@ import org.springframework.web.client.RestClient;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 /**
  * Proves the provider resolves its configuration through ProviderSettingsResolver
@@ -73,7 +65,8 @@ class GeminiCoverLetterGenerationProviderTest {
 
     private GenerationInput validInput() {
         return new GenerationInput(
-                "Backend Engineer", "Acme Corp", "Build and maintain backend services.", "My Resume", "Jane Doe");
+                "Backend Engineer", "Acme Corp", "Build and maintain backend services.",
+                "My Resume", null, "Jane Doe");
     }
 
     private void expectSuccess() {
@@ -318,7 +311,8 @@ class GeminiCoverLetterGenerationProviderTest {
     @Test
     void blankJobDescriptionFailsCleanlyWithoutMakingARequest() {
         stubAvailable(API_KEY);
-        GenerationInput input = new GenerationInput("Backend Engineer", "Acme Corp", "  ", "My Resume", "Jane Doe");
+        GenerationInput input = new GenerationInput(
+                "Backend Engineer", "Acme Corp", "  ", "My Resume", null, "Jane Doe");
 
         assertThatThrownBy(() -> provider().generate(input))
                 .isInstanceOf(CoverLetterGenerationException.class);

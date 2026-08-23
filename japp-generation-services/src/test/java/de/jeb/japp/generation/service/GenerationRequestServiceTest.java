@@ -1,6 +1,7 @@
 package de.jeb.japp.generation.service;
 
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
+import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestAccessDeniedException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestNotFoundException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestValidationException;
@@ -9,7 +10,6 @@ import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationProviderRegistry;
 import de.jeb.japp.generation.service.provider.GenerationResult;
@@ -97,6 +97,7 @@ class GenerationRequestServiceTest {
         cv = new CVDocument();
         cv.setOwner(owner);
         cv.setTitle("My Resume");
+        cv.setExtractedText("Extracted CV content.");
 
         // saveGenerationRequest is called repeatedly through process(); echo back whatever is passed in.
         lenient().when(generationRequestDao.saveGenerationRequest(any()))
@@ -146,6 +147,33 @@ class GenerationRequestServiceTest {
         assertThat(result.getJob()).isEqualTo(job);
         assertThat(result.getCvDocument()).isEqualTo(cv);
         assertThat(result.getJobDescriptionSnapshot()).isEqualTo(job.getDescription());
+        assertThat(result.getCvTextSnapshot()).isEqualTo(cv.getExtractedText());
+    }
+
+    @Test
+    void cvTextSnapshotIsNullWhenTheCvHasNoExtractedText() {
+        cv.setExtractedText(null);
+        GenerationRequestCreateRequest request = validRequest();
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot()).isNull();
+    }
+
+    @Test
+    void generationInputCarriesTheCvsExtractedText() {
+        GenerationRequestCreateRequest request = validRequest();
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        generationRequestService.create(request, owner);
+
+        ArgumentCaptor<de.jeb.japp.generation.service.provider.GenerationInput> captor =
+                ArgumentCaptor.forClass(de.jeb.japp.generation.service.provider.GenerationInput.class);
+        verify(placeholderProvider).generate(captor.capture());
+        assertThat(captor.getValue().cvText()).isEqualTo(cv.getExtractedText());
     }
 
     @Test

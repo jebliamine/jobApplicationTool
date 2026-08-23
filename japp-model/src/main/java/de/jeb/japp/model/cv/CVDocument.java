@@ -27,6 +27,18 @@ public class CVDocument {
     @ManyToOne
     private User owner;
 
+    @Column(columnDefinition = "text")
+    private String extractedText;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private ExtractionStatus extractionStatus = ExtractionStatus.NOT_ATTEMPTED;
+
+    @Column(length = 20)
+    private String extractionQuality;
+
+    private LocalDateTime extractedAt;
+
     public String getStorageKey() {
         return storageKey;
     }
@@ -102,5 +114,37 @@ public class CVDocument {
 
     public void setOwner(User owner) {
         this.owner = owner;
+    }
+
+    public String getExtractedText() {
+        return extractedText;
+    }
+
+    public void setExtractedText(String extractedText) {
+        this.extractedText = extractedText;
+    }
+
+    public ExtractionStatus getExtractionStatus() {
+        return extractionStatus;
+    }
+
+    public void setExtractionStatus(ExtractionStatus extractionStatus) {
+        this.extractionStatus = extractionStatus;
+    }
+
+    public String getExtractionQuality() {
+        return extractionQuality;
+    }
+
+    public void setExtractionQuality(String extractionQuality) {
+        this.extractionQuality = extractionQuality;
+    }
+
+    public LocalDateTime getExtractedAt() {
+        return extractedAt;
+    }
+
+    public void setExtractedAt(LocalDateTime extractedAt) {
+        this.extractedAt = extractedAt;
     }
 }

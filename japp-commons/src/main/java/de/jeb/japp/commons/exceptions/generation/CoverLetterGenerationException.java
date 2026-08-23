@@ -1,7 +1,7 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.commons.exceptions.generation;
 
 /**
- * Thrown by a {@link CoverLetterGenerationProvider} when it cannot produce a
+ * Thrown by a {CoverLetterGenerationProvider} when it cannot produce a
  * result. Caught by GenerationRequestService and turned into a FAILED
  * GenerationRequest with this message stored as the error — never surfaced
  * to the REST layer as its own exception type.
