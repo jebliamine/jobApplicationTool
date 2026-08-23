@@ -17,23 +17,28 @@ public class AiProviderConfigurationDao {
         this.repository = repository;
     }
 
-    public Optional<AiProviderConfiguration> getByProvider(String provider) {
-        return repository.findByProvider(provider);
+    public Optional<AiProviderConfiguration> getById(UUID id) {
+        return repository.findById(id);
     }
 
     public List<AiProviderConfiguration> getAll() {
-        return repository.findAllByOrderByProviderAsc();
+        return repository.findAllByOrderByDisplayNameAsc();
     }
 
-    public boolean existsByProvider(String provider) {
-        return repository.existsByProvider(provider);
+    public boolean existsByAdapterType(String adapterType) {
+        return repository.existsByAdapterType(adapterType);
+    }
+
+    /** The singleton built-in Placeholder row, if it has been seeded. */
+    public Optional<AiProviderConfiguration> getFirstByAdapterType(String adapterType) {
+        return repository.findFirstByAdapterType(adapterType);
     }
 
     public AiProviderConfiguration save(AiProviderConfiguration configuration) {
         return repository.save(configuration);
     }
 
-    public Optional<AiProviderConfiguration> getById(UUID id) {
-        return repository.findById(id);
+    public void deleteById(UUID id) {
+        repository.deleteById(id);
     }
 }

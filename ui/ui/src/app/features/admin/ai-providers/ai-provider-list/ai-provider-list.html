@@ -1,9 +1,18 @@
 <div class="ai-provider-list">
   <header class="ai-provider-list__header">
-    <h1 class="ai-provider-list__title">AI Providers</h1>
-    <p class="ai-provider-list__subtitle">
-      Configure which AI providers are available for cover-letter generation. API keys are never shown once saved.
-    </p>
+    <div class="ai-provider-list__header-row">
+      <div>
+        <h1 class="ai-provider-list__title">AI Providers</h1>
+        <p class="ai-provider-list__subtitle">
+          Configure which AI providers are available for cover-letter generation. API keys are never shown once
+          saved.
+        </p>
+      </div>
+      <button mat-flat-button color="primary" type="button" (click)="addProvider()">
+        <svg lucidePlus [size]="16" aria-hidden="true"></svg>
+        Add Provider
+      </button>
+    </div>
   </header>
 
   @if (loading()) {
@@ -19,7 +28,7 @@
     </div>
   } @else {
     <div class="ai-provider-list__grid">
-      @for (provider of providers(); track provider.provider) {
+      @for (provider of providers(); track provider.id) {
         <mat-card appearance="outlined" class="ai-provider-list__card">
           <mat-card-content>
             <div class="ai-provider-list__card-header">
@@ -28,6 +37,8 @@
                 {{ provider.enabled ? 'Enabled' : 'Disabled' }}
               </span>
             </div>
+
+            <span class="ai-provider-list__adapter-type">{{ provider.adapterType }}</span>
 
             <dl class="ai-provider-list__details">
               <div class="ai-provider-list__detail-row">
@@ -52,15 +63,26 @@
               <button
                 mat-stroked-button
                 type="button"
-                [disabled]="!provider.enabled || testingProvider() === provider.provider"
+                [disabled]="!provider.enabled || testingProviderId() === provider.id"
                 (click)="testConnection(provider)"
               >
-                @if (testingProvider() === provider.provider) {
+                @if (testingProviderId() === provider.id) {
                   <mat-progress-spinner diameter="16" mode="indeterminate" />
                 } @else {
                   Test Connection
                 }
               </button>
+              @if (provider.adapterType !== 'PLACEHOLDER') {
+                <button
+                  mat-icon-button
+                  type="button"
+                  aria-label="Delete provider"
+                  [disabled]="deletingProviderId() === provider.id"
+                  (click)="deleteProvider(provider)"
+                >
+                  <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+                </button>
+              }
             </div>
           </mat-card-content>
         </mat-card>

@@ -28,11 +28,6 @@ spring:
       max-request-size: 10MB
 
 ai:
-  gemini:
-    api-key: ${GEMINI_API_KEY:}
-    model: ${AI_GEMINI_MODEL:gemini-3.7-flash}
-    base-url: ${AI_GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
-    timeout: ${AI_GEMINI_TIMEOUT:30s}
   credentials:
     encryption-key: ${AI_CREDENTIALS_ENCRYPTION_KEY:}
 

@@ -23,12 +23,13 @@ export interface GenerationRequestResponse {
 
 /**
  * Request body for POST /api/v1/generation-requests — owner is never
- * accepted from the client. provider is a plain string (one of the ids
- * returned by GET /api/v1/ai/providers — see ../ai-provider.models.ts);
- * omitting it defaults to PLACEHOLDER on the backend.
+ * accepted from the client. providerId is the id of an AiProviderConfiguration
+ * instance (one of the ids returned by GET /api/v1/ai/providers — see
+ * ../ai-provider.models.ts); omitting it defaults to the built-in Placeholder
+ * instance on the backend.
  */
 export interface GenerationRequestCreateRequest {
   jobId: string;
   cvDocumentId: string;
-  provider?: string;
+  providerId?: string;
 }

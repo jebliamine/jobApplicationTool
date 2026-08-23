@@ -6,8 +6,20 @@ import { AiProviderResponse } from './ai-provider.models';
 import { AiProviderService } from './ai-provider.service';
 
 const PROVIDERS: AiProviderResponse[] = [
-  { id: 'PLACEHOLDER', displayName: 'Placeholder', available: true, model: 'deterministic-v1' },
-  { id: 'GEMINI', displayName: 'Google Gemini', available: false, model: null },
+  {
+    id: '11111111-1111-1111-1111-111111111111',
+    adapterType: 'PLACEHOLDER',
+    displayName: 'Placeholder',
+    available: true,
+    model: 'deterministic-v1',
+  },
+  {
+    id: '22222222-2222-2222-2222-222222222222',
+    adapterType: 'GEMINI_GENERATE_CONTENT',
+    displayName: 'Google Gemini',
+    available: false,
+    model: null,
+  },
 ];
 
 describe('AiProviderService', () => {

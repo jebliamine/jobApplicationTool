@@ -1,6 +1,14 @@
 <h2 mat-dialog-title>Configure {{ data.provider.displayName }}</h2>
 <form [formGroup]="form" (ngSubmit)="save()">
   <mat-dialog-content class="ai-provider-form">
+    <mat-form-field appearance="outline" class="ai-provider-form__field">
+      <mat-label>Display name</mat-label>
+      <input matInput formControlName="displayName" />
+      @if (form.controls.displayName.hasError('required')) {
+        <mat-error>A display name is required.</mat-error>
+      }
+    </mat-form-field>
+
     <mat-slide-toggle formControlName="enabled">Enabled</mat-slide-toggle>
 
     <mat-form-field appearance="outline" class="ai-provider-form__field">

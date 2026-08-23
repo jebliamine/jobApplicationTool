@@ -1,36 +1,29 @@
 package de.jeb.japp.generation.service.provider;
 
+import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
-import de.jeb.japp.model.generation.GenerationProvider;
+import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Service;
 
 /**
  * Deterministic, no external AI call: templates the Job/CV metadata into a
- * cover letter body. The default {@link CoverLetterGenerationProvider} —
- * used whenever no provider is explicitly selected, and requires no external
- * configuration. Fails when the job has no description, since a real
- * generator would have nothing to generate from either — this is the same
- * failure behavior the previous inline implementation had, just relocated
- * here.
+ * cover letter body. Used whenever the built-in Placeholder instance is
+ * selected — requires no external configuration. Fails when the job has no
+ * description, since a real generator would have nothing to generate from
+ * either.
  */
 @Service
-public class PlaceholderCoverLetterGenerationProvider implements CoverLetterGenerationProvider {
+public class PlaceholderCoverLetterGenerationAdapter implements CoverLetterGenerationAdapter {
 
     private static final int DESCRIPTION_EXCERPT_LENGTH = 400;
-    private static final String MODEL = "deterministic-v1";
 
     @Override
-    public GenerationProvider id() {
-        return GenerationProvider.PLACEHOLDER;
+    public AdapterType type() {
+        return AdapterType.PLACEHOLDER;
     }
 
     @Override
-    public String model() {
-        return MODEL;
-    }
-
-    @Override
-    public GenerationResult generate(GenerationInput input) {
+    public GenerationResult generate(ResolvedProviderConfig config, GenerationInput input) {
         if (input.jobDescription() == null || input.jobDescription().isBlank()) {
             throw new CoverLetterGenerationException("The selected job has no description to generate from.");
         }

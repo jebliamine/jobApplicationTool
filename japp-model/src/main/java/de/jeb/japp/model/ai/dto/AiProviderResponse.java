@@ -9,6 +9,7 @@ package de.jeb.japp.model.ai.dto;
  */
 public class AiProviderResponse {
     private String id;
+    private String adapterType;
     private String displayName;
     private boolean available;
     private String model;
@@ -16,8 +17,9 @@ public class AiProviderResponse {
     public AiProviderResponse() {
     }
 
-    public AiProviderResponse(String id, String displayName, boolean available, String model) {
+    public AiProviderResponse(String id, String adapterType, String displayName, boolean available, String model) {
         this.id = id;
+        this.adapterType = adapterType;
         this.displayName = displayName;
         this.available = available;
         this.model = model;
@@ -25,6 +27,10 @@ public class AiProviderResponse {
 
     public String getId() {
         return id;
+    }
+
+    public String getAdapterType() {
+        return adapterType;
     }
 
     public String getDisplayName() {

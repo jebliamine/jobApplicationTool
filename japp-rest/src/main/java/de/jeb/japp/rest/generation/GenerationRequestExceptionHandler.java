@@ -1,5 +1,6 @@
 package de.jeb.japp.rest.generation;
 
+import de.jeb.japp.commons.exceptions.ai.AiProviderNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestAccessDeniedException;
@@ -27,7 +28,12 @@ public class GenerationRequestExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler({GenerationRequestNotFoundException.class, JobNotFoundException.class, CVNotFoundException.class})
+    @ExceptionHandler({
+            GenerationRequestNotFoundException.class,
+            JobNotFoundException.class,
+            CVNotFoundException.class,
+            AiProviderNotFoundException.class
+    })
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }

@@ -3,8 +3,26 @@
 }
 
 .ai-provider-list__header {
-  max-width: 60ch;
   margin-bottom: var(--japp-spacing-lg);
+}
+
+.ai-provider-list__header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--japp-spacing-md);
+  flex-wrap: wrap;
+
+  > div {
+    max-width: 60ch;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--japp-spacing-xs);
+    flex-shrink: 0;
+  }
 }
 
 .ai-provider-list__title {
@@ -73,6 +91,14 @@
 .ai-provider-list__status--enabled {
   background: color-mix(in srgb, var(--japp-color-success) 16%, var(--japp-surface));
   color: var(--japp-color-success);
+}
+
+.ai-provider-list__adapter-type {
+  display: block;
+  margin-bottom: var(--japp-spacing-md);
+  font-size: 0.75rem;
+  font-family: var(--japp-font-mono, monospace);
+  color: var(--japp-text-secondary);
 }
 
 .ai-provider-list__details {

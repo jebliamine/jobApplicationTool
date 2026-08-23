@@ -1,20 +1,20 @@
-package de.jeb.japp.generation.service.provider.gemini;
-
-import de.jeb.japp.generation.service.provider.GenerationInput;
+package de.jeb.japp.generation.service.provider;
 
 /**
- * Builds the prompt sent to Gemini from {@link GenerationInput} only — no
- * invented CV content. When {@code cvText} (the CV's extracted, normalized
- * text) is present, it is included as the actual CV content; otherwise
- * {@code cvTitle} — the only CV information available in that case — is
- * presented as the document's title, never as if it were extracted content.
+ * Builds the prompt sent to any LLM adapter from {@link GenerationInput} only — no invented CV
+ * content. When {@code cvText} (the CV's extracted, normalized text) is present, it is included
+ * as the actual CV content; otherwise {@code cvTitle} — the only CV information available in
+ * that case — is presented as the document's title, never as if it were extracted content.
+ * <p>
+ * Shared across every adapter (Gemini, OpenAI-compatible, Anthropic, ...): the instructions given
+ * to the model don't vary by vendor, only each adapter's request/response envelope does.
  */
-final class GeminiPromptBuilder {
+public final class CoverLetterPromptBuilder {
 
-    private GeminiPromptBuilder() {
+    private CoverLetterPromptBuilder() {
     }
 
-    static String build(GenerationInput input) {
+    public static String build(GenerationInput input) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("Du bist ein professioneller Bewerbungsassistent. Verfasse ein professionelles, ")
                 .append("deutschsprachiges Bewerbungsschreiben (Anschreiben) für eine Bewerbung in Deutschland, ")

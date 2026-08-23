@@ -1,12 +1,12 @@
 package de.jeb.japp.generation.service.provider.gemini;
 
-import de.jeb.japp.ai.service.ProviderSettingsResolver;
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
+import de.jeb.japp.generation.service.provider.CoverLetterPromptBuilder;
 import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
-import de.jeb.japp.model.generation.GenerationProvider;
+import de.jeb.japp.model.ai.AdapterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -18,26 +18,20 @@ import java.util.regex.Pattern;
 
 /**
  * Calls Google's Gemini {@code generateContent} REST API over HTTPS — a
- * small, isolated HTTP integration behind the existing
- * {@link CoverLetterGenerationProvider} abstraction. No SDK, no local model,
- * no streaming/chat/RAG. Every failure mode (missing/disabled configuration,
- * auth, rate limit, server error, timeout, connection failure, malformed/empty
- * response) is converted to a {@link CoverLetterGenerationException} —
- * GenerationRequestService never sees a Gemini-specific exception type or
- * the raw API response.
+ * small, isolated HTTP integration behind the {@link CoverLetterGenerationAdapter}
+ * abstraction. No SDK, no local model, no streaming/chat/RAG. Every failure mode
+ * (missing/disabled configuration, auth, rate limit, server error, timeout,
+ * connection failure, malformed/empty response) is converted to a
+ * {@link CoverLetterGenerationException} — GenerationRequestService never sees a
+ * Gemini-specific exception type or the raw API response.
  * <p>
- * Configuration (api key, model, base URL) is resolved through
- * {@link ProviderSettingsResolver} at call time, on every {@link #generate}
- * — never cached in this class, never taken from Spring startup-time
- * properties directly. This is what lets an admin change/enable/disable
- * Gemini and have it take effect without restarting the application. The
- * RestClient itself only carries the connect/read timeout (env-only, not
- * admin-configurable) — see {@link GeminiConfig}; the base URL is applied
- * per-call as an absolute URI since it can vary at runtime.
+ * Unlike the pre-dynamic-provider design, this adapter does not resolve its own
+ * configuration — {@link ResolvedProviderConfig} is passed in per call, since many
+ * differently-configured Gemini instances can exist simultaneously.
  */
-public class GeminiCoverLetterGenerationProvider implements CoverLetterGenerationProvider {
+public class GeminiGenerateContentAdapter implements CoverLetterGenerationAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(GeminiCoverLetterGenerationProvider.class);
+    private static final Logger log = LoggerFactory.getLogger(GeminiGenerateContentAdapter.class);
     private static final String GENERATE_CONTENT_PATH = "/v1beta/models/{model}:generateContent";
     private static final int MAX_LOGGED_ERROR_BODY_LENGTH = 300;
 
@@ -52,37 +46,28 @@ public class GeminiCoverLetterGenerationProvider implements CoverLetterGeneratio
     private static final Pattern ERROR_STATUS_PATTERN = Pattern.compile("\"status\"\\s*:\\s*\"([^\"]*)\"");
     private static final Pattern ERROR_MESSAGE_PATTERN = Pattern.compile("\"message\"\\s*:\\s*\"([^\"]*)\"");
 
-    private final ProviderSettingsResolver resolver;
     private final RestClient restClient;
 
-    public GeminiCoverLetterGenerationProvider(ProviderSettingsResolver resolver, RestClient restClient) {
-        this.resolver = resolver;
+    public GeminiGenerateContentAdapter(RestClient restClient) {
         this.restClient = restClient;
     }
 
     @Override
-    public GenerationProvider id() {
-        return GenerationProvider.GEMINI;
+    public AdapterType type() {
+        return AdapterType.GEMINI_GENERATE_CONTENT;
     }
 
     @Override
-    public String model() {
-        return resolver.resolve(GenerationProvider.GEMINI).getModel();
-    }
-
-    @Override
-    public GenerationResult generate(GenerationInput input) {
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
-
-        if (!resolved.isAvailable()) {
-            throw new CoverLetterGenerationException("Gemini is not configured or is currently disabled.");
+    public GenerationResult generate(ResolvedProviderConfig config, GenerationInput input) {
+        if (!config.isAvailable()) {
+            throw new CoverLetterGenerationException("This Gemini instance is not configured or is currently disabled.");
         }
         if (input.jobDescription() == null || input.jobDescription().isBlank()) {
             throw new CoverLetterGenerationException("The selected job has no description to generate from.");
         }
 
-        String prompt = GeminiPromptBuilder.build(input);
-        GeminiGenerateContentResponse response = callGemini(resolved, prompt);
+        String prompt = CoverLetterPromptBuilder.build(input);
+        GeminiGenerateContentResponse response = callGemini(config, prompt);
 
         String text = response != null ? response.firstText() : null;
         if (text == null || text.isBlank()) {

@@ -81,7 +81,8 @@ export class GenerationForm {
           const available = providers.filter((provider) => provider.available);
           this.providers.set(available);
 
-          const defaultProvider = available.find((provider) => provider.id === 'PLACEHOLDER') ?? available[0];
+          const defaultProvider =
+            available.find((provider) => provider.adapterType === 'PLACEHOLDER') ?? available[0];
           if (defaultProvider) {
             this.form.controls.provider.setValue(defaultProvider.id);
           }
@@ -106,7 +107,7 @@ export class GenerationForm {
 
     const raw = this.form.getRawValue();
     this.generationService
-      .create({ jobId: raw.jobId, cvDocumentId: raw.cvDocumentId, provider: raw.provider })
+      .create({ jobId: raw.jobId, cvDocumentId: raw.cvDocumentId, providerId: raw.provider })
       .subscribe({
         next: (request) => this.handleGenerationUpdate(request, 0),
         error: (error: HttpErrorResponse) => {

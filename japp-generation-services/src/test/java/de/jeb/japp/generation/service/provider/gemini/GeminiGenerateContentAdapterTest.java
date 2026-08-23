@@ -1,16 +1,12 @@
 package de.jeb.japp.generation.service.provider.gemini;
 
-import de.jeb.japp.ai.service.ProviderSettingsResolver;
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
-import de.jeb.japp.model.generation.GenerationProvider;
+import de.jeb.japp.model.ai.AdapterType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,29 +17,20 @@ import java.io.IOException;
 import java.net.SocketTimeoutException;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 /**
- * Proves the provider resolves its configuration through ProviderSettingsResolver
- * on every call (never cached in this class) — the resolver is mocked, and
- * every HTTP expectation below asserts on the URI/header values the mocked
- * resolver's ResolvedProviderConfig supplied. Also covers the retry-on-429/5xx
- * behavior: tests that expect a retry register the same MockRestServiceServer
- * expectation multiple times (one per real HTTP attempt) and let the real
- * (short) backoff run — no sleep is mocked out, keeping this test dependency-free.
+ * Unlike the pre-dynamic-provider version of this test, configuration is passed directly as a
+ * {@link ResolvedProviderConfig} rather than resolved through a mocked ProviderSettingsResolver —
+ * the adapter no longer resolves its own config, so there's nothing left to mock there.
  */
-@ExtendWith(MockitoExtension.class)
-class GeminiCoverLetterGenerationProviderTest {
+class GeminiGenerateContentAdapterTest {
 
     private static final String BASE_URL = "https://gemini.test";
     private static final String MODEL = "gemini-2.0-flash";
     private static final String EXPECTED_URI = BASE_URL + "/v1beta/models/" + MODEL + ":generateContent";
     private static final String API_KEY = "test-api-key";
-
-    @Mock
-    private ProviderSettingsResolver resolver;
 
     private RestClient.Builder restClientBuilder;
     private MockRestServiceServer mockServer;
@@ -54,13 +41,12 @@ class GeminiCoverLetterGenerationProviderTest {
         mockServer = MockRestServiceServer.bindTo(restClientBuilder).build();
     }
 
-    private void stubAvailable(String apiKey) {
-        lenient().when(resolver.resolve(GenerationProvider.GEMINI))
-                .thenReturn(new ResolvedProviderConfig(true, apiKey, MODEL, BASE_URL));
+    private GeminiGenerateContentAdapter adapter() {
+        return new GeminiGenerateContentAdapter(restClientBuilder.build());
     }
 
-    private GeminiCoverLetterGenerationProvider provider() {
-        return new GeminiCoverLetterGenerationProvider(resolver, restClientBuilder.build());
+    private ResolvedProviderConfig availableConfig() {
+        return new ResolvedProviderConfig(true, API_KEY, MODEL, BASE_URL);
     }
 
     private GenerationInput validInput() {
@@ -83,25 +69,15 @@ class GeminiCoverLetterGenerationProviderTest {
     }
 
     @Test
-    void isRegisteredUnderTheGeminiId() {
-        assertThat(provider().id()).isEqualTo(GenerationProvider.GEMINI);
-    }
-
-    @Test
-    void modelIsResolvedThroughProviderSettingsResolverOnEachCall() {
-        when(resolver.resolve(GenerationProvider.GEMINI))
-                .thenReturn(new ResolvedProviderConfig(true, "key", "gemini-custom-model", BASE_URL));
-
-        assertThat(provider().model()).isEqualTo("gemini-custom-model");
-        verify(resolver).resolve(GenerationProvider.GEMINI);
+    void isRegisteredUnderTheGeminiGenerateContentType() {
+        assertThat(adapter().type()).isEqualTo(AdapterType.GEMINI_GENERATE_CONTENT);
     }
 
     @Test
     void successfulResponseProducesGenerationResult() {
-        stubAvailable(API_KEY);
         expectSuccess();
 
-        GenerationResult result = provider().generate(validInput());
+        GenerationResult result = adapter().generate(availableConfig(), validInput());
 
         assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
         mockServer.verify();
@@ -109,55 +85,49 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void emptyCandidatesListFails() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess("{\"candidates\":[]}", MediaType.APPLICATION_JSON));
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
     }
 
     @Test
     void blankTextFails() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess(
                         "{\"candidates\":[{\"content\":{\"parts\":[{\"text\":\"   \"}]}}]}", MediaType.APPLICATION_JSON));
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
     }
 
     @Test
     void malformedJsonResponseFails() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI))
                 .andRespond(withSuccess("not json at all", MediaType.APPLICATION_JSON));
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
     }
 
     @Test
     void unauthorizedIsNotRetriedAndReportsTheStatusCode() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.UNAUTHORIZED);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 401")
                 .hasMessageContaining("authentication");
 
-        // Only one expectation was registered — a second/third attempt would fail the mock server.
         mockServer.verify();
     }
 
     @Test
     void forbiddenIsNotRetried() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.FORBIDDEN);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 403");
 
@@ -166,10 +136,9 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void badRequestIsNotRetried() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.BAD_REQUEST);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 400");
 
@@ -178,10 +147,9 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void notFoundIsNotRetried() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.NOT_FOUND);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 404");
 
@@ -190,12 +158,11 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void connectionFailureIsNotRetried() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(request -> {
             throw new IOException("simulated connection failure");
         });
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
 
         mockServer.verify();
@@ -203,12 +170,11 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void timeoutIsNotRetried() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(request -> {
             throw new SocketTimeoutException("simulated read timeout");
         });
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
 
         mockServer.verify();
@@ -216,11 +182,10 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void serverErrorOnFirstAttemptIsRetriedAndSucceedsOnTheSecond() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
         expectSuccess();
 
-        GenerationResult result = provider().generate(validInput());
+        GenerationResult result = adapter().generate(availableConfig(), validInput());
 
         assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
         mockServer.verify();
@@ -228,12 +193,11 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void serverErrorOnFirstTwoAttemptsIsRetriedAndSucceedsOnTheThird() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
         expectSuccess();
 
-        GenerationResult result = provider().generate(validInput());
+        GenerationResult result = adapter().generate(availableConfig(), validInput());
 
         assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
         mockServer.verify();
@@ -241,28 +205,25 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void serverErrorOnAllAttemptsFailsWithTheStatusCodeAndNeverLeaksTheApiKey() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
         expectStatus(HttpStatus.SERVICE_UNAVAILABLE);
 
-        Throwable thrown = catchThrowable(() -> provider().generate(validInput()));
+        Throwable thrown = catchThrowable(() -> adapter().generate(availableConfig(), validInput()));
 
         assertThat(thrown).isInstanceOf(CoverLetterGenerationException.class);
         assertThat(thrown.getMessage()).contains("HTTP 503").contains("unavailable");
         assertThat(thrown.getMessage()).doesNotContain(API_KEY);
-        // Exactly MAX_ATTEMPTS (3) requests were made — no more, no fewer.
         mockServer.verify();
     }
 
     @Test
     void tooManyRequestsOnFirstTwoAttemptsIsRetriedAndSucceedsOnTheThird() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.TOO_MANY_REQUESTS);
         expectStatus(HttpStatus.TOO_MANY_REQUESTS);
         expectSuccess();
 
-        GenerationResult result = provider().generate(validInput());
+        GenerationResult result = adapter().generate(availableConfig(), validInput());
 
         assertThat(result.content()).isEqualTo("Sehr geehrte Damen und Herren, ...");
         mockServer.verify();
@@ -270,12 +231,11 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void tooManyRequestsOnAllAttemptsFailsWithTheStatusCode() {
-        stubAvailable(API_KEY);
         expectStatus(HttpStatus.TOO_MANY_REQUESTS);
         expectStatus(HttpStatus.TOO_MANY_REQUESTS);
         expectStatus(HttpStatus.TOO_MANY_REQUESTS);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 429")
                 .hasMessageContaining("rate limit");
@@ -285,12 +245,11 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void genericServerErrorReportsTheStatusCode() {
-        stubAvailable(API_KEY);
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
         mockServer.expect(requestTo(EXPECTED_URI)).andRespond(withServerError());
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class)
                 .hasMessageContaining("HTTP 500");
 
@@ -299,10 +258,9 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void unavailableConfigurationFailsCleanlyWithoutMakingARequest() {
-        when(resolver.resolve(GenerationProvider.GEMINI))
-                .thenReturn(new ResolvedProviderConfig(false, null, MODEL, BASE_URL));
+        ResolvedProviderConfig unavailable = new ResolvedProviderConfig(false, null, MODEL, BASE_URL);
 
-        assertThatThrownBy(() -> provider().generate(validInput()))
+        assertThatThrownBy(() -> adapter().generate(unavailable, validInput()))
                 .isInstanceOf(CoverLetterGenerationException.class);
 
         mockServer.verify();
@@ -310,11 +268,9 @@ class GeminiCoverLetterGenerationProviderTest {
 
     @Test
     void blankJobDescriptionFailsCleanlyWithoutMakingARequest() {
-        stubAvailable(API_KEY);
-        GenerationInput input = new GenerationInput(
-                "Backend Engineer", "Acme Corp", "  ", "My Resume", null, "Jane Doe");
+        GenerationInput input = new GenerationInput("Backend Engineer", "Acme Corp", "  ", "My Resume", null, "Jane Doe");
 
-        assertThatThrownBy(() -> provider().generate(input))
+        assertThatThrownBy(() -> adapter().generate(availableConfig(), input))
                 .isInstanceOf(CoverLetterGenerationException.class);
 
         mockServer.verify();

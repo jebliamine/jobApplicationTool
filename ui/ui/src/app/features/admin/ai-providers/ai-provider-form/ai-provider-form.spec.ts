@@ -5,7 +5,8 @@ import { AdminAiProviderResponse } from '../ai-provider.models';
 import { AiProviderForm, AiProviderFormData } from './ai-provider-form';
 
 const CONFIGURED_GEMINI: AdminAiProviderResponse = {
-  provider: 'GEMINI',
+  id: '11111111-1111-1111-1111-111111111111',
+  adapterType: 'GEMINI_GENERATE_CONTENT',
   displayName: 'Google Gemini',
   enabled: true,
   hasApiKey: true,
@@ -34,9 +35,10 @@ describe('AiProviderForm', () => {
     fixture.detectChanges();
   }
 
-  it('pre-fills enabled, model, and base URL from the provider data', () => {
+  it('pre-fills display name, enabled, model, and base URL from the provider data', () => {
     setup(CONFIGURED_GEMINI);
 
+    expect(component['form'].controls.displayName.value).toBe('Google Gemini');
     expect(component['form'].controls.enabled.value).toBe(true);
     expect(component['form'].controls.defaultModel.value).toBe('gemini-2.0-flash');
     expect(component['form'].controls.baseUrl.value).toBe('https://generativelanguage.googleapis.com');
@@ -61,6 +63,15 @@ describe('AiProviderForm', () => {
     setup({ ...CONFIGURED_GEMINI, hasApiKey: false });
 
     expect(fixture.nativeElement.querySelector('mat-checkbox')).toBeNull();
+  });
+
+  it('save() rejects a blank display name', () => {
+    setup(CONFIGURED_GEMINI);
+    component['form'].controls.displayName.setValue('   ');
+
+    component['save']();
+
+    expect(dialogRef.close).not.toHaveBeenCalled();
   });
 
   it('save() omits apiKey when the field is left blank', () => {

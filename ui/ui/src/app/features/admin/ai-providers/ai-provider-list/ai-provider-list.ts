@@ -5,16 +5,29 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../../../core/ui/toast.service';
-import { LucideCircleAlert, LucideSettings } from '@lucide/angular';
+import { LucideCircleAlert, LucidePlus, LucideSettings, LucideTrash2 } from '@lucide/angular';
 import { finalize } from 'rxjs';
 import { describeApiError } from '../../../../core/http/describe-api-error';
+import {
+  ConfirmDialog,
+  ConfirmDialogData,
+} from '../../../../shared/components/confirm-dialog/confirm-dialog';
+import { AiProviderCreate } from '../ai-provider-create/ai-provider-create';
 import { AiProviderForm, AiProviderFormData } from '../ai-provider-form/ai-provider-form';
-import { AdminAiProviderResponse, AiProviderUpdateRequest } from '../ai-provider.models';
+import { AdminAiProviderResponse, AiProviderCreateRequest, AiProviderUpdateRequest } from '../ai-provider.models';
 import { AdminAiProviderService } from '../ai-provider.service';
 
 @Component({
   selector: 'app-ai-provider-list',
-  imports: [MatButtonModule, MatCardModule, MatProgressSpinnerModule, LucideCircleAlert, LucideSettings],
+  imports: [
+    MatButtonModule,
+    MatCardModule,
+    MatProgressSpinnerModule,
+    LucideCircleAlert,
+    LucidePlus,
+    LucideSettings,
+    LucideTrash2,
+  ],
   templateUrl: './ai-provider-list.html',
   styleUrl: './ai-provider-list.scss',
 })
@@ -26,7 +39,8 @@ export class AiProviderList {
   protected readonly providers = signal<AdminAiProviderResponse[]>([]);
   protected readonly loading = signal(true);
   protected readonly serverError = signal<string | null>(null);
-  protected readonly testingProvider = signal<string | null>(null);
+  protected readonly testingProviderId = signal<string | null>(null);
+  protected readonly deletingProviderId = signal<string | null>(null);
 
   constructor() {
     this.load();
@@ -44,6 +58,26 @@ export class AiProviderList {
       });
   }
 
+  protected addProvider(): void {
+    const ref = this.dialog.open<AiProviderCreate, undefined, AiProviderCreateRequest | undefined>(
+      AiProviderCreate,
+      { width: '480px' },
+    );
+
+    ref.afterClosed().subscribe((request) => {
+      if (!request) {
+        return;
+      }
+      this.adminAiProviderService.create(request).subscribe({
+        next: (created) => {
+          this.providers.update((current) => [...current, created]);
+          this.toast.success(`${created.displayName} added.`);
+        },
+        error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
+      });
+    });
+  }
+
   protected configure(provider: AdminAiProviderResponse): void {
     const ref = this.dialog.open<AiProviderForm, AiProviderFormData, AiProviderUpdateRequest | undefined>(
       AiProviderForm,
@@ -54,9 +88,9 @@ export class AiProviderList {
       if (!request) {
         return;
       }
-      this.adminAiProviderService.update(provider.provider, request).subscribe({
+      this.adminAiProviderService.update(provider.id, request).subscribe({
         next: (updated) => {
-          this.providers.update((current) => current.map((p) => (p.provider === updated.provider ? updated : p)));
+          this.providers.update((current) => current.map((p) => (p.id === updated.id ? updated : p)));
           this.toast.success(`${updated.displayName} updated.`);
         },
         error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
@@ -64,14 +98,47 @@ export class AiProviderList {
     });
   }
 
-  protected testConnection(provider: AdminAiProviderResponse): void {
-    if (this.testingProvider()) {
+  protected deleteProvider(provider: AdminAiProviderResponse): void {
+    if (this.deletingProviderId()) {
       return;
     }
-    this.testingProvider.set(provider.provider);
+    const ref = this.dialog.open<ConfirmDialog, ConfirmDialogData, boolean>(ConfirmDialog, {
+      data: {
+        title: 'Delete provider?',
+        message: `Are you sure you want to delete "${provider.displayName}"? This action cannot be undone.`,
+      },
+      width: '420px',
+    });
+
+    ref.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.performDelete(provider);
+      }
+    });
+  }
+
+  private performDelete(provider: AdminAiProviderResponse): void {
+    this.deletingProviderId.set(provider.id);
     this.adminAiProviderService
-      .test(provider.provider)
-      .pipe(finalize(() => this.testingProvider.set(null)))
+      .delete(provider.id)
+      .pipe(finalize(() => this.deletingProviderId.set(null)))
+      .subscribe({
+        next: () => {
+          this.providers.update((current) => current.filter((p) => p.id !== provider.id));
+          this.toast.success(`${provider.displayName} deleted.`);
+        },
+        error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
+      });
+  }
+
+  protected testConnection(provider: AdminAiProviderResponse): void {
+    if (this.testingProviderId()) {
+      return;
+    }
+    this.testingProviderId.set(provider.id);
+    this.adminAiProviderService
+      .test(provider.id)
+      .pipe(finalize(() => this.testingProviderId.set(null)))
       .subscribe({
         next: (result) => {
           const message = result.message ?? (result.success ? 'Connection successful.' : 'Connection failed.');

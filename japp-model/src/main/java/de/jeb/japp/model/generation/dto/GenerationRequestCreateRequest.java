@@ -1,18 +1,17 @@
 package de.jeb.japp.model.generation.dto;
 
-import de.jeb.japp.model.generation.GenerationProvider;
-
 import java.util.UUID;
 
 /**
  * Request body for POST /api/v1/generation-requests — owner is never
- * accepted from the client. {@code provider} is optional; when omitted the
- * service defaults to {@link GenerationProvider#PLACEHOLDER}.
+ * accepted from the client. {@code providerId} is the id of an
+ * AiProviderConfiguration instance; optional — when omitted the service
+ * defaults to the built-in Placeholder instance.
  */
 public class GenerationRequestCreateRequest {
     private UUID jobId;
     private UUID cvDocumentId;
-    private GenerationProvider provider;
+    private UUID providerId;
 
     public GenerationRequestCreateRequest() {
     }
@@ -33,11 +32,11 @@ public class GenerationRequestCreateRequest {
         this.cvDocumentId = cvDocumentId;
     }
 
-    public GenerationProvider getProvider() {
-        return provider;
+    public UUID getProviderId() {
+        return providerId;
     }
 
-    public void setProvider(GenerationProvider provider) {
-        this.provider = provider;
+    public void setProviderId(UUID providerId) {
+        this.providerId = providerId;
     }
 }

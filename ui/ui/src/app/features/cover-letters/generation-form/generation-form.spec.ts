@@ -20,23 +20,27 @@ const JOB = {
 
 const CV = { id: '44444444-4444-4444-4444-444444444444', title: 'My Resume' } as any;
 
+const PLACEHOLDER_ID = '11111111-1111-1111-1111-111111111111';
+const GEMINI_ID = '22222222-2222-2222-2222-222222222222';
+
 const PLACEHOLDER_PROVIDER: AiProviderResponse = {
-  id: 'PLACEHOLDER',
+  id: PLACEHOLDER_ID,
+  adapterType: 'PLACEHOLDER',
   displayName: 'Placeholder',
   available: true,
   model: 'deterministic-v1',
 };
 
 const GEMINI_PROVIDER: AiProviderResponse = {
-  id: 'GEMINI',
+  id: GEMINI_ID,
+  adapterType: 'GEMINI_GENERATE_CONTENT',
   displayName: 'Google Gemini',
   available: true,
   model: 'gemini-2.0-flash',
 };
 
 const DISABLED_GEMINI_PROVIDER: AiProviderResponse = {
-  id: 'GEMINI',
-  displayName: 'Google Gemini',
+  ...GEMINI_PROVIDER,
   available: false,
   model: null,
 };
@@ -46,7 +50,7 @@ const COMPLETED_RESPONSE: GenerationRequestResponse = {
   job: JOB,
   cv: CV,
   status: 'COMPLETED',
-  provider: 'PLACEHOLDER',
+  provider: 'Placeholder',
   model: 'deterministic-v1',
   errorMessage: null,
   coverLetter: { id: '77777777-7777-7777-7777-777777777777' } as any,
@@ -96,9 +100,9 @@ describe('GenerationForm', () => {
     component['form'].controls.cvDocumentId.setValue(CV.id);
   }
 
-  it('loads providers dynamically from AiProviderService and defaults to PLACEHOLDER', () => {
+  it('loads providers dynamically from AiProviderService and defaults to the built-in Placeholder instance', () => {
     setup();
-    expect(component['form'].controls.provider.value).toBe('PLACEHOLDER');
+    expect(component['form'].controls.provider.value).toBe(PLACEHOLDER_ID);
   });
 
   it('renders a provider selector with the providers returned by the backend', () => {
@@ -114,44 +118,44 @@ describe('GenerationForm', () => {
     setup({ providers: [PLACEHOLDER_PROVIDER, DISABLED_GEMINI_PROVIDER] });
 
     expect(component['providers']()).toEqual([PLACEHOLDER_PROVIDER]);
-    expect(component['form'].controls.provider.value).toBe('PLACEHOLDER');
+    expect(component['form'].controls.provider.value).toBe(PLACEHOLDER_ID);
   });
 
-  it('falls back to the first available provider when PLACEHOLDER itself is unavailable', () => {
+  it('falls back to the first available provider when Placeholder itself is unavailable', () => {
     setup({ providers: [{ ...PLACEHOLDER_PROVIDER, available: false }, GEMINI_PROVIDER] });
 
     expect(component['providers']()).toEqual([GEMINI_PROVIDER]);
-    expect(component['form'].controls.provider.value).toBe('GEMINI');
+    expect(component['form'].controls.provider.value).toBe(GEMINI_ID);
   });
 
-  it('sends PLACEHOLDER by default when the user does not change the provider', () => {
+  it('sends the Placeholder instance id by default when the user does not change the provider', () => {
     setup();
     fillJobAndCv();
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, provider: 'PLACEHOLDER' });
+    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: PLACEHOLDER_ID });
   });
 
-  it('sends GEMINI when the user selects it', () => {
+  it('sends the selected provider instance id', () => {
     setup();
     fillJobAndCv();
-    component['form'].controls.provider.setValue('GEMINI');
+    component['form'].controls.provider.setValue(GEMINI_ID);
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, provider: 'GEMINI' });
+    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: GEMINI_ID });
   });
 
-  it('can explicitly select PLACEHOLDER after selecting another provider', () => {
+  it('can explicitly select the Placeholder instance again after selecting another provider', () => {
     setup();
     fillJobAndCv();
-    component['form'].controls.provider.setValue('GEMINI');
-    component['form'].controls.provider.setValue('PLACEHOLDER');
+    component['form'].controls.provider.setValue(GEMINI_ID);
+    component['form'].controls.provider.setValue(PLACEHOLDER_ID);
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, provider: 'PLACEHOLDER' });
+    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: PLACEHOLDER_ID });
   });
 
   it('displays a generation error returned by the backend', () => {

@@ -1,21 +1,19 @@
 package de.jeb.japp.ai.service;
 
 import de.jeb.japp.ai.service.encryption.AiCredentialEncryptor;
-import de.jeb.japp.ai.service.gemini.GeminiProperties;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
+import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
-import de.jeb.japp.model.generation.GenerationProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.Duration;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -29,138 +27,128 @@ class ProviderSettingsResolverTest {
     @Mock
     private AiCredentialEncryptor encryptor;
 
-    private GeminiProperties geminiProperties;
     private ProviderSettingsResolver resolver;
+
+    private UUID instanceId;
 
     @BeforeEach
     void setUp() {
-        geminiProperties = new GeminiProperties();
-        geminiProperties.setApiKey("");
-        geminiProperties.setModel("gemini-2.0-flash");
-        geminiProperties.setBaseUrl("https://generativelanguage.googleapis.com");
-        geminiProperties.setTimeout(Duration.ofSeconds(30));
-
-        resolver = new ProviderSettingsResolver(dao, encryptor, geminiProperties);
+        resolver = new ProviderSettingsResolver(dao, encryptor);
+        instanceId = UUID.randomUUID();
     }
 
-    private AiProviderConfiguration configFor(String provider, boolean enabled) {
+    private AiProviderConfiguration configFor(AdapterType type, boolean enabled) {
         AiProviderConfiguration config = new AiProviderConfiguration();
-        config.setProvider(provider);
+        config.setAdapterType(type.name());
         config.setEnabled(enabled);
         return config;
     }
 
     @Test
-    void placeholderIsAvailableWhenNoRowExistsYet() {
-        when(dao.getByProvider("PLACEHOLDER")).thenReturn(Optional.empty());
-
-        assertThat(resolver.resolve(GenerationProvider.PLACEHOLDER).isAvailable()).isTrue();
+    void nullInstanceIdIsUnavailable() {
+        assertThat(resolver.resolve(null).isAvailable()).isFalse();
     }
 
     @Test
-    void placeholderIsUnavailableWhenExplicitlyDisabled() {
-        when(dao.getByProvider("PLACEHOLDER")).thenReturn(Optional.of(configFor("PLACEHOLDER", false)));
+    void unknownInstanceIsUnavailable() {
+        when(dao.getById(instanceId)).thenReturn(Optional.empty());
 
-        assertThat(resolver.resolve(GenerationProvider.PLACEHOLDER).isAvailable()).isFalse();
+        assertThat(resolver.resolve(instanceId).isAvailable()).isFalse();
     }
 
     @Test
-    void geminiFallsBackToEnvironmentWhenNoDatabaseRowExists() {
-        geminiProperties.setApiKey("env-api-key");
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.empty());
+    void disabledInstanceIsUnavailable() {
+        when(dao.getById(instanceId)).thenReturn(Optional.of(configFor(AdapterType.GEMINI_GENERATE_CONTENT, false)));
 
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
+        assertThat(resolver.resolve(instanceId).isAvailable()).isFalse();
+    }
+
+    @Test
+    void enabledPlaceholderIsAvailableWithNoCredential() {
+        AiProviderConfiguration config = configFor(AdapterType.PLACEHOLDER, true);
+        config.setDefaultModel("deterministic-v1");
+        when(dao.getById(instanceId)).thenReturn(Optional.of(config));
+
+        var resolved = resolver.resolve(instanceId);
 
         assertThat(resolved.isAvailable()).isTrue();
-        assertThat(resolved.getApiKey()).isEqualTo("env-api-key");
-        assertThat(resolved.getModel()).isEqualTo("gemini-2.0-flash");
+        assertThat(resolved.getApiKey()).isNull();
+        assertThat(resolved.getModel()).isEqualTo("deterministic-v1");
     }
 
     @Test
-    void geminiIsUnavailableWhenNeitherDatabaseNorEnvironmentIsConfigured() {
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.empty());
-
-        assertThat(resolver.resolve(GenerationProvider.GEMINI).isAvailable()).isFalse();
-    }
-
-    @Test
-    void databaseConfigurationTakesPrecedenceOverEnvironment() {
-        geminiProperties.setApiKey("env-api-key");
-        AiProviderConfiguration config = configFor("GEMINI", true);
+    void enabledWithADecryptableKeyIsAvailable() {
+        AiProviderConfiguration config = configFor(AdapterType.GEMINI_GENERATE_CONTENT, true);
         config.setEncryptedApiKey("ciphertext");
-        config.setDefaultModel("gemini-db-model");
-        config.setBaseUrl("https://db-base-url.example");
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.of(config));
+        config.setDefaultModel("gemini-3.7-flash");
+        config.setBaseUrl("https://generativelanguage.googleapis.com");
+        when(dao.getById(instanceId)).thenReturn(Optional.of(config));
         when(encryptor.isAvailable()).thenReturn(true);
-        when(encryptor.decrypt("ciphertext")).thenReturn("db-api-key");
+        when(encryptor.decrypt("ciphertext")).thenReturn("real-key");
 
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
+        var resolved = resolver.resolve(instanceId);
 
         assertThat(resolved.isAvailable()).isTrue();
-        assertThat(resolved.getApiKey()).isEqualTo("db-api-key");
-        assertThat(resolved.getModel()).isEqualTo("gemini-db-model");
-        assertThat(resolved.getBaseUrl()).isEqualTo("https://db-base-url.example");
+        assertThat(resolved.getApiKey()).isEqualTo("real-key");
+        assertThat(resolved.getModel()).isEqualTo("gemini-3.7-flash");
+        assertThat(resolved.getBaseUrl()).isEqualTo("https://generativelanguage.googleapis.com");
     }
 
     @Test
-    void disabledDatabaseRowFallsBackToEnvironment() {
-        geminiProperties.setApiKey("env-api-key");
-        AiProviderConfiguration config = configFor("GEMINI", false);
+    void enabledWithNoStoredKeyIsUnavailable() {
+        when(dao.getById(instanceId)).thenReturn(Optional.of(configFor(AdapterType.GEMINI_GENERATE_CONTENT, true)));
+
+        assertThat(resolver.resolve(instanceId).isAvailable()).isFalse();
+    }
+
+    @Test
+    void enabledWithAStoredKeyButNoEncryptionKeyConfiguredIsUnavailable() {
+        AiProviderConfiguration config = configFor(AdapterType.GEMINI_GENERATE_CONTENT, true);
         config.setEncryptedApiKey("ciphertext");
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.of(config));
+        when(dao.getById(instanceId)).thenReturn(Optional.of(config));
+        when(encryptor.isAvailable()).thenReturn(false);
 
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
-
-        assertThat(resolved.isAvailable()).isTrue();
-        assertThat(resolved.getApiKey()).isEqualTo("env-api-key");
-        verify(encryptor, never()).decrypt(any());
+        assertThat(resolver.resolve(instanceId).isAvailable()).isFalse();
     }
 
     @Test
-    void databaseRowEnabledButNoKeyStoredFallsBackToEnvironment() {
-        geminiProperties.setApiKey("env-api-key");
-        AiProviderConfiguration config = configFor("GEMINI", true);
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.of(config));
-
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
-
-        assertThat(resolved.isAvailable()).isTrue();
-        assertThat(resolved.getApiKey()).isEqualTo("env-api-key");
-    }
-
-    @Test
-    void decryptionFailureFallsBackToEnvironmentInsteadOfCrashing() {
-        geminiProperties.setApiKey("env-api-key");
-        AiProviderConfiguration config = configFor("GEMINI", true);
+    void decryptionFailureIsUnavailableInsteadOfCrashing() {
+        AiProviderConfiguration config = configFor(AdapterType.GEMINI_GENERATE_CONTENT, true);
         config.setEncryptedApiKey("ciphertext");
-        when(dao.getByProvider("GEMINI")).thenReturn(Optional.of(config));
+        when(dao.getById(instanceId)).thenReturn(Optional.of(config));
         when(encryptor.isAvailable()).thenReturn(true);
         when(encryptor.decrypt("ciphertext")).thenThrow(new RuntimeException("bad key"));
 
-        ResolvedProviderConfig resolved = resolver.resolve(GenerationProvider.GEMINI);
-
-        assertThat(resolved.isAvailable()).isTrue();
-        assertThat(resolved.getApiKey()).isEqualTo("env-api-key");
+        assertThat(resolver.resolve(instanceId).isAvailable()).isFalse();
     }
 
     @Test
     void resultsAreCachedAcrossCalls() {
-        when(dao.getByProvider("PLACEHOLDER")).thenReturn(Optional.empty());
+        when(dao.getById(instanceId)).thenReturn(Optional.of(configFor(AdapterType.PLACEHOLDER, true)));
 
-        resolver.resolve(GenerationProvider.PLACEHOLDER);
-        resolver.resolve(GenerationProvider.PLACEHOLDER);
+        resolver.resolve(instanceId);
+        resolver.resolve(instanceId);
 
-        verify(dao, times(1)).getByProvider("PLACEHOLDER");
+        verify(dao, times(1)).getById(instanceId);
     }
 
     @Test
     void invalidateForcesFreshResolutionOnNextCall() {
-        when(dao.getByProvider("PLACEHOLDER")).thenReturn(Optional.empty());
+        when(dao.getById(instanceId)).thenReturn(Optional.of(configFor(AdapterType.PLACEHOLDER, true)));
 
-        resolver.resolve(GenerationProvider.PLACEHOLDER);
-        resolver.invalidate(GenerationProvider.PLACEHOLDER);
-        resolver.resolve(GenerationProvider.PLACEHOLDER);
+        resolver.resolve(instanceId);
+        resolver.invalidate(instanceId);
+        resolver.resolve(instanceId);
 
-        verify(dao, times(2)).getByProvider("PLACEHOLDER");
+        verify(dao, times(2)).getById(instanceId);
+    }
+
+    @Test
+    void placeholderNeverAttemptsDecryption() {
+        when(dao.getById(instanceId)).thenReturn(Optional.of(configFor(AdapterType.PLACEHOLDER, true)));
+
+        resolver.resolve(instanceId);
+
+        verify(encryptor, never()).decrypt(org.mockito.ArgumentMatchers.any());
     }
 }

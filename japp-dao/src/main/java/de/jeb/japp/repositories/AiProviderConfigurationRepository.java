@@ -6,12 +6,13 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface AiProviderConfigurationRepository extends JpaRepository<AiProviderConfiguration, java.util.UUID> {
-    Optional<AiProviderConfiguration> findByProvider(String provider);
+public interface AiProviderConfigurationRepository extends JpaRepository<AiProviderConfiguration, UUID> {
+    List<AiProviderConfiguration> findAllByOrderByDisplayNameAsc();
 
-    List<AiProviderConfiguration> findAllByOrderByProviderAsc();
+    boolean existsByAdapterType(String adapterType);
 
-    boolean existsByProvider(String provider);
+    Optional<AiProviderConfiguration> findFirstByAdapterType(String adapterType);
 }

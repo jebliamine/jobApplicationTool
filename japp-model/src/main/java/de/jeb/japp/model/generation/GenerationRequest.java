@@ -1,5 +1,6 @@
 package de.jeb.japp.model.generation;
 
+import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.user.User;
@@ -56,6 +57,16 @@ public class GenerationRequest {
 
     private String provider;
     private String model;
+
+    /**
+     * The exact provider instance used, if it still exists — nullable, ON DELETE SET NULL, since
+     * an admin may later delete the instance. {@code provider}/{@code model} above remain the
+     * reproducible point-in-time snapshot regardless of whether this reference survives.
+     */
+    @ManyToOne
+    @JoinColumn(name = "provider_instance_id")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
+    private AiProviderConfiguration providerInstance;
 
     @Column(length = 2000)
     private String errorMessage;
@@ -130,6 +141,14 @@ public class GenerationRequest {
 
     public void setModel(String model) {
         this.model = model;
+    }
+
+    public AiProviderConfiguration getProviderInstance() {
+        return providerInstance;
+    }
+
+    public void setProviderInstance(AiProviderConfiguration providerInstance) {
+        this.providerInstance = providerInstance;
     }
 
     public String getErrorMessage() {

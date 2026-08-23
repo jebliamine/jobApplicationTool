@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -13,6 +13,7 @@ export interface AiProviderFormData {
 }
 
 interface AiProviderFormControls {
+  displayName: FormControl<string>;
   enabled: FormControl<boolean>;
   defaultModel: FormControl<string>;
   baseUrl: FormControl<string>;
@@ -23,7 +24,9 @@ interface AiProviderFormControls {
 /**
  * The API key input always starts blank — it is never pre-filled with the
  * existing key (which this dialog never even receives; only `hasApiKey` is
- * known). Leaving it blank on save means "keep the existing key".
+ * known). Leaving it blank on save means "keep the existing key". The
+ * adapter type is fixed at creation time and shown read-only here — changing
+ * an instance's wire protocol after creation doesn't make sense.
  */
 @Component({
   selector: 'app-ai-provider-form',
@@ -44,6 +47,10 @@ export class AiProviderForm {
   private readonly dialogRef = inject(MatDialogRef<AiProviderForm, AiProviderUpdateRequest | undefined>);
 
   protected readonly form = new FormGroup<AiProviderFormControls>({
+    displayName: new FormControl(this.data.provider.displayName, {
+      nonNullable: true,
+      validators: [Validators.required],
+    }),
     enabled: new FormControl(this.data.provider.enabled, { nonNullable: true }),
     defaultModel: new FormControl(this.data.provider.defaultModel ?? '', { nonNullable: true }),
     baseUrl: new FormControl(this.data.provider.baseUrl ?? '', { nonNullable: true }),
@@ -57,7 +64,13 @@ export class AiProviderForm {
 
   protected save(): void {
     const raw = this.form.getRawValue();
+    if (this.form.invalid || !raw.displayName.trim()) {
+      this.form.markAllAsTouched();
+      return;
+    }
+
     const request: AiProviderUpdateRequest = {
+      displayName: raw.displayName.trim(),
       enabled: raw.enabled,
       defaultModel: raw.defaultModel.trim() || null,
       baseUrl: raw.baseUrl.trim() || null,

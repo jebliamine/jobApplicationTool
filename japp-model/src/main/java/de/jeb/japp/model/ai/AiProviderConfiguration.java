@@ -9,23 +9,27 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
- * One row per known AI provider (see GenerationProvider), seeded at startup.
- * provider is a plain String matching GenerationProvider#name() — not a JPA
- * enum mapping, so adding a provider later never requires a migration (see
- * GenerationRequest.provider/model for the same, already-established
- * pattern). encryptedApiKey is ciphertext only — the encryption key itself
- * never lives in this database; see AiCredentialEncryptor (japp-ai-provider-services).
+ * One admin-managed provider instance — a named, configured connection using one
+ * {@link AdapterType}. Unlike the old one-row-per-enum-constant model, admins can create any
+ * number of instances of the same adapter type (e.g. several OPENAI_COMPATIBLE instances
+ * pointing at different accounts, models, or local servers). adapterType is a plain String
+ * matching AdapterType#name() — not a JPA enum mapping, so adding a new adapter type never
+ * requires a migration for existing rows. encryptedApiKey is ciphertext only — the encryption
+ * key itself never lives in this database; see AiCredentialEncryptor (japp-ai-provider-services).
  */
 @Entity
-@Table(name = "ai_provider_configuration", uniqueConstraints = @UniqueConstraint(columnNames = "provider"))
+@Table(name = "ai_provider_configuration")
 public class AiProviderConfiguration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String provider;
+    @Column(nullable = false)
+    private String adapterType;
+
+    @Column(nullable = false)
+    private String displayName;
 
     @Column(nullable = false)
     private boolean enabled;
@@ -49,12 +53,20 @@ public class AiProviderConfiguration {
         return id;
     }
 
-    public String getProvider() {
-        return provider;
+    public String getAdapterType() {
+        return adapterType;
     }
 
-    public void setProvider(String provider) {
-        this.provider = provider;
+    public void setAdapterType(String adapterType) {
+        this.adapterType = adapterType;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
     }
 
     public boolean isEnabled() {

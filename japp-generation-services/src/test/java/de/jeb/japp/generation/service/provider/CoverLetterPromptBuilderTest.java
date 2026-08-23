@@ -1,11 +1,10 @@
-package de.jeb.japp.generation.service.provider.gemini;
+package de.jeb.japp.generation.service.provider;
 
-import de.jeb.japp.generation.service.provider.GenerationInput;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class GeminiPromptBuilderTest {
+class CoverLetterPromptBuilderTest {
 
     @Test
     void includesTheFullCvTextWhenPresent() {
@@ -13,7 +12,7 @@ class GeminiPromptBuilderTest {
                 "Backend Engineer", "Acme Corp", "Build things.",
                 "My Resume", "Extracted CV content about ten years of Java experience.", "Jane Doe");
 
-        String prompt = GeminiPromptBuilder.build(input);
+        String prompt = CoverLetterPromptBuilder.build(input);
 
         assertThat(prompt).contains("Extracted CV content about ten years of Java experience.");
         assertThat(prompt).doesNotContain("Titel des hinterlegten Lebenslauf-Dokuments");
@@ -24,7 +23,7 @@ class GeminiPromptBuilderTest {
         GenerationInput input = new GenerationInput(
                 "Backend Engineer", "Acme Corp", "Build things.", "My Resume", null, "Jane Doe");
 
-        String prompt = GeminiPromptBuilder.build(input);
+        String prompt = CoverLetterPromptBuilder.build(input);
 
         assertThat(prompt).contains("Titel des hinterlegten Lebenslauf-Dokuments: My Resume");
     }
@@ -34,7 +33,7 @@ class GeminiPromptBuilderTest {
         GenerationInput input = new GenerationInput(
                 "Backend Engineer", "Acme Corp", "Build things.", null, null, "Jane Doe");
 
-        String prompt = GeminiPromptBuilder.build(input);
+        String prompt = CoverLetterPromptBuilder.build(input);
 
         assertThat(prompt).doesNotContain("Lebenslauf");
     }
@@ -44,7 +43,7 @@ class GeminiPromptBuilderTest {
         GenerationInput input = new GenerationInput(
                 "Backend Engineer", "Acme Corp", "Build things.", "My Resume", "   ", "Jane Doe");
 
-        String prompt = GeminiPromptBuilder.build(input);
+        String prompt = CoverLetterPromptBuilder.build(input);
 
         assertThat(prompt).contains("Titel des hinterlegten Lebenslauf-Dokuments: My Resume");
     }

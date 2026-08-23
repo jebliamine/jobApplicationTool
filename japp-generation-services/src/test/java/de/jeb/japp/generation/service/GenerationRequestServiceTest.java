@@ -1,22 +1,27 @@
 package de.jeb.japp.generation.service;
 
+import de.jeb.japp.ai.service.ProviderSettingsResolver;
+import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.generation.CoverLetterGenerationException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestAccessDeniedException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestNotFoundException;
 import de.jeb.japp.commons.exceptions.generation.GenerationRequestValidationException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
 import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationProvider;
-import de.jeb.japp.generation.service.provider.CoverLetterGenerationProviderRegistry;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapterRegistry;
+import de.jeb.japp.generation.service.provider.GenerationInput;
 import de.jeb.japp.generation.service.provider.GenerationResult;
+import de.jeb.japp.model.ai.AdapterType;
+import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
-import de.jeb.japp.model.generation.GenerationProvider;
 import de.jeb.japp.model.generation.GenerationRequest;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.generation.dto.GenerationRequestCreateRequest;
@@ -29,6 +34,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -51,11 +57,15 @@ class GenerationRequestServiceTest {
     @Mock
     private CVDao cvDao;
     @Mock
-    private CoverLetterGenerationProviderRegistry providerRegistry;
+    private AiProviderConfigurationDao providerDao;
     @Mock
-    private CoverLetterGenerationProvider placeholderProvider;
+    private ProviderSettingsResolver providerSettingsResolver;
     @Mock
-    private CoverLetterGenerationProvider geminiProvider;
+    private CoverLetterGenerationAdapterRegistry adapterRegistry;
+    @Mock
+    private CoverLetterGenerationAdapter placeholderAdapter;
+    @Mock
+    private CoverLetterGenerationAdapter geminiAdapter;
 
     private GenerationRequestService generationRequestService;
 
@@ -65,11 +75,13 @@ class GenerationRequestServiceTest {
     private Company company;
     private Job job;
     private CVDocument cv;
+    private AiProviderConfiguration placeholderInstance;
+    private AiProviderConfiguration geminiInstance;
 
     @BeforeEach
     void setUp() {
-        generationRequestService =
-                new GenerationRequestService(generationRequestDao, coverLetterDao, jobDao, cvDao, providerRegistry);
+        generationRequestService = new GenerationRequestService(
+                generationRequestDao, coverLetterDao, jobDao, cvDao, providerDao, providerSettingsResolver, adapterRegistry);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -99,25 +111,43 @@ class GenerationRequestServiceTest {
         cv.setTitle("My Resume");
         cv.setExtractedText("Extracted CV content.");
 
+        placeholderInstance = providerInstance(AdapterType.PLACEHOLDER, "Placeholder");
+        geminiInstance = providerInstance(AdapterType.GEMINI_GENERATE_CONTENT, "Google Gemini");
+
+        // Requests without an explicit providerId default to the built-in Placeholder instance.
+        lenient().when(providerDao.getFirstByAdapterType(AdapterType.PLACEHOLDER.name()))
+                .thenReturn(Optional.of(placeholderInstance));
+        lenient().when(providerDao.getById(placeholderInstance.getId())).thenReturn(Optional.of(placeholderInstance));
+        lenient().when(providerDao.getById(geminiInstance.getId())).thenReturn(Optional.of(geminiInstance));
+
+        lenient().when(adapterRegistry.resolve(AdapterType.PLACEHOLDER)).thenReturn(placeholderAdapter);
+        lenient().when(adapterRegistry.resolve(AdapterType.GEMINI_GENERATE_CONTENT)).thenReturn(geminiAdapter);
+
+        lenient().when(providerSettingsResolver.resolve(placeholderInstance.getId()))
+                .thenReturn(new ResolvedProviderConfig(true, null, "deterministic-v1", null));
+        lenient().when(providerSettingsResolver.resolve(geminiInstance.getId()))
+                .thenReturn(new ResolvedProviderConfig(true, "key", "gemini-2.0-flash", "https://gemini.test"));
+
         // saveGenerationRequest is called repeatedly through process(); echo back whatever is passed in.
         lenient().when(generationRequestDao.saveGenerationRequest(any()))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Requests without an explicit provider default to PLACEHOLDER (see GenerationRequestService#create).
-        lenient().when(providerRegistry.resolve(GenerationProvider.PLACEHOLDER)).thenReturn(placeholderProvider);
-        lenient().when(providerRegistry.resolve(GenerationProvider.GEMINI)).thenReturn(geminiProvider);
-        lenient().when(placeholderProvider.id()).thenReturn(GenerationProvider.PLACEHOLDER);
-        lenient().when(placeholderProvider.model()).thenReturn("deterministic-v1");
-        lenient().when(geminiProvider.id()).thenReturn(GenerationProvider.GEMINI);
-        lenient().when(geminiProvider.model()).thenReturn("gemini-2.0-flash");
-
-        // Default: the resolved provider succeeds. Individual tests override this to exercise failure handling.
-        lenient().when(placeholderProvider.generate(any()))
+        // Default: the resolved adapter succeeds. Individual tests override this to exercise failure handling.
+        lenient().when(placeholderAdapter.generate(any(), any()))
                 .thenReturn(new GenerationResult(
                         "Generated cover letter mentioning " + job.getTitle() + " at " + company.getName() + "."));
-        lenient().when(geminiProvider.generate(any()))
+        lenient().when(geminiAdapter.generate(any(), any()))
                 .thenReturn(new GenerationResult(
                         "Gemini cover letter mentioning " + job.getTitle() + " at " + company.getName() + "."));
+    }
+
+    private AiProviderConfiguration providerInstance(AdapterType type, String displayName) {
+        AiProviderConfiguration config = new AiProviderConfiguration();
+        config.setAdapterType(type.name());
+        config.setDisplayName(displayName);
+        config.setEnabled(true);
+        ReflectionTestUtils.setField(config, "id", UUID.randomUUID());
+        return config;
     }
 
     private GenerationRequestCreateRequest validRequest() {
@@ -170,33 +200,34 @@ class GenerationRequestServiceTest {
 
         generationRequestService.create(request, owner);
 
-        ArgumentCaptor<de.jeb.japp.generation.service.provider.GenerationInput> captor =
-                ArgumentCaptor.forClass(de.jeb.japp.generation.service.provider.GenerationInput.class);
-        verify(placeholderProvider).generate(captor.capture());
+        ArgumentCaptor<GenerationInput> captor = ArgumentCaptor.forClass(GenerationInput.class);
+        verify(placeholderAdapter).generate(any(), captor.capture());
         assertThat(captor.getValue().cvText()).isEqualTo(cv.getExtractedText());
     }
 
     @Test
-    void serviceCallsTheProviderAndReachesCompletedWhenItSucceeds() {
+    void serviceCallsTheAdapterAndReachesCompletedWhenItSucceeds() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
-        verify(placeholderProvider).generate(any());
+        verify(placeholderAdapter).generate(any(), any());
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.COMPLETED);
         assertThat(result.getStartedAt()).isNotNull();
         assertThat(result.getCompletedAt()).isNotNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getProviderInstance()).isEqualTo(placeholderInstance);
+        assertThat(result.getModel()).isEqualTo("deterministic-v1");
     }
 
     @Test
-    void aCoverLetterIsCreatedFromTheProvidersResultOnSuccess() {
+    void aCoverLetterIsCreatedFromTheAdaptersResultOnSuccess() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-        when(placeholderProvider.generate(any())).thenReturn(new GenerationResult("Text from the provider."));
+        when(placeholderAdapter.generate(any(), any())).thenReturn(new GenerationResult("Text from the provider."));
 
         generationRequestService.create(request, owner);
 
@@ -206,17 +237,17 @@ class GenerationRequestServiceTest {
 
         assertThat(savedCoverLetter.getOwner()).isEqualTo(owner);
         assertThat(savedCoverLetter.getGenerationRequest()).isNotNull();
-        // The stored text must come straight from the provider's result — proves the
+        // The stored text must come straight from the adapter's result — proves the
         // service depends on the abstraction rather than generating content itself.
         assertThat(savedCoverLetter.getResultText()).isEqualTo("Text from the provider.");
     }
 
     @Test
-    void providerFailureResultsInFailedWithTheErrorMessageStored() {
+    void adapterFailureResultsInFailedWithTheErrorMessageStored() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-        when(placeholderProvider.generate(any()))
+        when(placeholderAdapter.generate(any(), any()))
                 .thenThrow(new CoverLetterGenerationException("The provider could not generate a letter."));
 
         GenerationRequest result = generationRequestService.create(request, owner);
@@ -338,65 +369,62 @@ class GenerationRequestServiceTest {
     }
 
     @Test
-    void defaultsToPlaceholderWhenProviderIsOmitted() {
+    void defaultsToThePlaceholderInstanceWhenProviderIdIsOmitted() {
         GenerationRequestCreateRequest request = validRequest();
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
-        verify(providerRegistry).resolve(GenerationProvider.PLACEHOLDER);
-        verify(placeholderProvider).generate(any());
-        verify(geminiProvider, never()).generate(any());
-        assertThat(result.getProvider()).isEqualTo("PLACEHOLDER");
+        verify(placeholderAdapter).generate(any(), any());
+        verify(geminiAdapter, never()).generate(any(), any());
+        assertThat(result.getProvider()).isEqualTo("Placeholder");
         assertThat(result.getModel()).isEqualTo("deterministic-v1");
     }
 
     @Test
-    void selectsPlaceholderWhenExplicitlyRequested() {
+    void selectsTheRequestedProviderInstance() {
         GenerationRequestCreateRequest request = validRequest();
-        request.setProvider(GenerationProvider.PLACEHOLDER);
+        request.setProviderId(geminiInstance.getId());
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
-        verify(providerRegistry).resolve(GenerationProvider.PLACEHOLDER);
-        assertThat(result.getProvider()).isEqualTo("PLACEHOLDER");
-    }
-
-    @Test
-    void selectsGeminiWhenRequested() {
-        GenerationRequestCreateRequest request = validRequest();
-        request.setProvider(GenerationProvider.GEMINI);
-        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
-        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-
-        GenerationRequest result = generationRequestService.create(request, owner);
-
-        verify(providerRegistry).resolve(GenerationProvider.GEMINI);
-        verify(geminiProvider).generate(any());
-        verify(placeholderProvider, never()).generate(any());
-        assertThat(result.getProvider()).isEqualTo("GEMINI");
+        verify(geminiAdapter).generate(any(), any());
+        verify(placeholderAdapter, never()).generate(any(), any());
+        assertThat(result.getProvider()).isEqualTo("Google Gemini");
         assertThat(result.getModel()).isEqualTo("gemini-2.0-flash");
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.COMPLETED);
     }
 
     @Test
-    void geminiProviderFailureResultsInFailedGenerationRequest() {
+    void selectedAdapterFailureResultsInFailedGenerationRequest() {
         GenerationRequestCreateRequest request = validRequest();
-        request.setProvider(GenerationProvider.GEMINI);
+        request.setProviderId(geminiInstance.getId());
         when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
         when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
-        when(geminiProvider.generate(any()))
+        when(geminiAdapter.generate(any(), any()))
                 .thenThrow(new CoverLetterGenerationException("Gemini is not configured."));
 
         GenerationRequest result = generationRequestService.create(request, owner);
 
         assertThat(result.getStatus()).isEqualTo(GenerationStatus.FAILED);
         assertThat(result.getErrorMessage()).isEqualTo("Gemini is not configured.");
-        // Provider/model metadata is still recorded even though generation failed.
-        assertThat(result.getProvider()).isEqualTo("GEMINI");
+        assertThat(result.getProvider()).isEqualTo("Google Gemini");
         verifyNoInteractions(coverLetterDao);
+    }
+
+    @Test
+    void unknownProviderIdIsRejectedBeforeAnythingElseIsResolved() {
+        GenerationRequestCreateRequest request = validRequest();
+        UUID unknownId = UUID.randomUUID();
+        request.setProviderId(unknownId);
+        when(providerDao.getById(unknownId)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> generationRequestService.create(request, owner))
+                .isInstanceOf(de.jeb.japp.commons.exceptions.ai.AiProviderNotFoundException.class);
+
+        verifyNoInteractions(jobDao, cvDao, coverLetterDao);
     }
 }

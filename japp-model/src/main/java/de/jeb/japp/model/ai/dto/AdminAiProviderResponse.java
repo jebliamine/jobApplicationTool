@@ -1,11 +1,14 @@
 package de.jeb.japp.model.ai.dto;
 
+import java.util.UUID;
+
 /**
  * Admin response for GET /api/v1/admin/ai/providers — never the API key or
  * its ciphertext, only whether one is present (hasApiKey).
  */
 public class AdminAiProviderResponse {
-    private String provider;
+    private UUID id;
+    private String adapterType;
     private String displayName;
     private boolean enabled;
     private boolean hasApiKey;
@@ -16,9 +19,11 @@ public class AdminAiProviderResponse {
     }
 
     public AdminAiProviderResponse(
-            String provider, String displayName, boolean enabled, boolean hasApiKey, String defaultModel, String baseUrl
+            UUID id, String adapterType, String displayName, boolean enabled,
+            boolean hasApiKey, String defaultModel, String baseUrl
     ) {
-        this.provider = provider;
+        this.id = id;
+        this.adapterType = adapterType;
         this.displayName = displayName;
         this.enabled = enabled;
         this.hasApiKey = hasApiKey;
@@ -26,8 +31,12 @@ public class AdminAiProviderResponse {
         this.baseUrl = baseUrl;
     }
 
-    public String getProvider() {
-        return provider;
+    public UUID getId() {
+        return id;
+    }
+
+    public String getAdapterType() {
+        return adapterType;
     }
 
     public String getDisplayName() {
