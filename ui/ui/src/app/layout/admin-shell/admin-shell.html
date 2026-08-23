@@ -1,0 +1,26 @@
+<a class="japp-visually-hidden" href="#main-content">{{ 'nav.skipToMainContent' | translate }}</a>
+
+<mat-sidenav-container class="admin-shell">
+  <mat-sidenav
+    class="admin-shell__sidenav"
+    [class.admin-shell__sidenav--collapsed]="collapsed()"
+    [mode]="sidenavMode()"
+    [opened]="sidenavOpened()"
+    (openedChange)="onOpenedChange($event)"
+  >
+    <app-admin-sidebar [collapsed]="collapsed()" (linkActivated)="closeSidenavOnHandset()" />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="admin-shell__content">
+    <app-topbar
+      [showMenuButton]="isHandset()"
+      [sidebarCollapsed]="collapsed()"
+      [searchPages]="searchPages"
+      (menuToggle)="toggleSidenav()"
+      (collapseToggle)="toggleCollapsed()"
+    />
+    <main id="main-content" class="admin-shell__main" tabindex="-1">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,23 @@
+@if (applications().length === 0) {
+  <div class="recent-application-list__empty">
+    <svg lucideInbox [size]="22" aria-hidden="true"></svg>
+    <span>{{ 'dashboard.recentApplications.empty' | translate }}</span>
+  </div>
+} @else {
+  <ul class="recent-application-list">
+    @for (application of applications(); track application.id) {
+      <li class="recent-application-list__item">
+        <a [routerLink]="['/applications', application.id]" class="recent-application-list__link">
+          <div class="recent-application-list__main">
+            <span class="recent-application-list__title">{{ application.job.title }}</span>
+            <span class="recent-application-list__company">{{ application.job.company.name }}</span>
+          </div>
+          <div class="recent-application-list__meta">
+            <app-status-badge [label]="statusLabel(application.status)" [severity]="statusSeverity(application.status)" />
+            <span class="recent-application-list__date">{{ application.appliedAt | date: 'mediumDate' }}</span>
+          </div>
+        </a>
+      </li>
+    }
+  </ul>
+}

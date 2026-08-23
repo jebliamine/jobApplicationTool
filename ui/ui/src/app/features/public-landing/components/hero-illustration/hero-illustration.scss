@@ -1,0 +1,177 @@
+// A definite width here is required: the only content inside .hero-illustration
+// is absolutely-positioned (cards/pills), so with no explicit host width the
+// inner element's `width: 100%` + `aspect-ratio` has nothing non-circular to
+// resolve against inside a flex parent (landing__hero-visual) and collapses to 0×0.
+:host {
+  display: block;
+  width: 100%;
+}
+
+.hero-illustration {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+}
+
+.hero-illustration__glow {
+  position: absolute;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--japp-color-primary) 30%, transparent) 0%,
+    color-mix(in srgb, var(--japp-color-accent) 18%, transparent) 45%,
+    transparent 75%
+  );
+  filter: blur(28px);
+}
+
+.hero-illustration__card {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: var(--japp-spacing-md);
+  border-radius: var(--japp-radius-lg);
+  background: var(--japp-surface);
+  border: 1px solid var(--japp-border);
+  box-shadow: var(--japp-shadow-md);
+}
+
+.hero-illustration__card--cv {
+  top: 6%;
+  left: 4%;
+  width: 62%;
+  transform: rotate(-4deg);
+  z-index: 2;
+}
+
+.hero-illustration__card--letter {
+  bottom: 8%;
+  right: 2%;
+  width: 56%;
+  transform: rotate(3deg);
+  z-index: 1;
+}
+
+.hero-illustration__card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  margin-bottom: 4px;
+}
+
+.hero-illustration__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex: none;
+  background: linear-gradient(135deg, var(--japp-color-primary), var(--japp-color-accent));
+}
+
+.hero-illustration__header-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1 1 auto;
+}
+
+.hero-illustration__line {
+  display: block;
+  height: 7px;
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-surface-container-high);
+}
+
+.hero-illustration__line--title {
+  width: 70%;
+  height: 8px;
+}
+
+.hero-illustration__line--subtitle {
+  width: 45%;
+}
+
+.hero-illustration__line--short {
+  width: 55%;
+}
+
+.hero-illustration__section-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--japp-color-primary);
+  margin-top: 4px;
+}
+
+.hero-illustration__letter-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  align-self: flex-start;
+  padding: 3px var(--japp-spacing-sm);
+  border-radius: var(--japp-radius-full);
+  background: color-mix(in srgb, var(--japp-color-accent) 16%, var(--japp-surface));
+  color: var(--japp-color-accent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.hero-illustration__pill {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--japp-spacing-xs);
+  padding: var(--japp-spacing-xs) var(--japp-spacing-sm);
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-surface);
+  border: 1px solid var(--japp-border);
+  box-shadow: var(--japp-shadow-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--japp-text-primary);
+  z-index: 3;
+}
+
+.hero-illustration__pill--primary {
+  top: 2%;
+  right: 4%;
+}
+
+.hero-illustration__pill--secondary {
+  bottom: 2%;
+  left: 0;
+}
+
+.hero-illustration__pill-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--japp-color-success) 18%, transparent);
+  color: var(--japp-color-success);
+}
+
+.hero-illustration__pill-icon--accent {
+  background: color-mix(in srgb, var(--japp-color-primary) 18%, transparent);
+  color: var(--japp-color-primary);
+}
+
+@media (max-width: 599.98px) {
+  .hero-illustration {
+    max-width: 320px;
+  }
+
+  .hero-illustration__pill {
+    font-size: 0.75rem;
+  }
+}

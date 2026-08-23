@@ -1,0 +1,31 @@
+<ol class="workflow-guide">
+  @for (item of steps; track item.step) {
+    <li class="workflow-guide__item">
+      <div class="workflow-guide__icon">
+        @switch (item.icon) {
+          @case ('jobs') {
+            <svg lucideBriefcase [size]="20" aria-hidden="true"></svg>
+          }
+          @case ('companies') {
+            <svg lucideBuilding2 [size]="20" aria-hidden="true"></svg>
+          }
+          @case ('cover-letters') {
+            <svg lucideMail [size]="20" aria-hidden="true"></svg>
+          }
+          @case ('applications') {
+            <svg lucideClipboardList [size]="20" aria-hidden="true"></svg>
+          }
+          @case ('tracking') {
+            <svg lucideTrendingUp [size]="20" aria-hidden="true"></svg>
+          }
+        }
+      </div>
+      <span class="workflow-guide__step">{{ item.step }}</span>
+      <h3 class="workflow-guide__title">{{ item.titleKey | translate }}</h3>
+      <p class="workflow-guide__description">{{ item.descriptionKey | translate }}</p>
+      <a mat-stroked-button [routerLink]="item.link" class="workflow-guide__cta">
+        {{ item.ctaKey | translate }}
+      </a>
+    </li>
+  }
+</ol>

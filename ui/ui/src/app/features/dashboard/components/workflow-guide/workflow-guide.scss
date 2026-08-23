@@ -1,0 +1,64 @@
+:host {
+  display: block;
+}
+
+.workflow-guide {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--japp-spacing-md);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.workflow-guide__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-xs);
+  padding: var(--japp-spacing-lg);
+  border: 1px solid var(--japp-border);
+  border-radius: var(--japp-radius-lg);
+  background: var(--japp-surface);
+}
+
+.workflow-guide__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--japp-radius-md);
+  background: var(--japp-surface-container-high);
+  color: var(--japp-color-primary);
+  margin-bottom: var(--japp-spacing-xs);
+}
+
+.workflow-guide__step {
+  position: absolute;
+  top: var(--japp-spacing-lg);
+  right: var(--japp-spacing-lg);
+  font-family: var(--japp-font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--japp-border-strong);
+}
+
+.workflow-guide__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--japp-text-primary);
+}
+
+.workflow-guide__description {
+  margin: 0;
+  flex: 1 1 auto;
+  color: var(--japp-text-secondary);
+  font-size: 0.875rem;
+}
+
+.workflow-guide__cta {
+  align-self: flex-start;
+  margin-top: var(--japp-spacing-sm);
+}

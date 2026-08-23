@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  min-height: 100dvh;
+}
+
+.user-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--japp-background);
+}
+
+.user-shell__main {
+  flex: 1 1 auto;
+  padding: var(--japp-spacing-lg);
+  max-width: 100%;
+  overflow-x: hidden;
+
+  &:focus {
+    outline: none;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .user-shell__main {
+    padding: var(--japp-spacing-md);
+  }
+}

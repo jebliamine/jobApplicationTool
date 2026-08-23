@@ -1,0 +1,103 @@
+<div class="landing">
+  <header class="landing__header">
+    <div class="landing__header-bar">
+      <a routerLink="/" class="landing__brand">
+        <span class="landing__brand-mark" aria-hidden="true">J</span>
+        <span class="landing__brand-name">JAPP</span>
+      </a>
+      <nav class="landing__header-actions" [attr.aria-label]="'landing.header.accountNav' | translate">
+        <a mat-button routerLink="/login">{{ 'landing.header.login' | translate }}</a>
+        <a mat-flat-button color="primary" routerLink="/register">{{ 'landing.header.getStarted' | translate }}</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="landing__main">
+    <section class="landing__hero">
+      <div class="landing__hero-content">
+        <h1 class="landing__hero-title">{{ 'landing.hero.title' | translate }}</h1>
+        <p class="landing__hero-subtitle">{{ 'landing.hero.subtitle' | translate }}</p>
+        <div class="landing__hero-actions">
+          <a mat-flat-button color="primary" routerLink="/register" class="landing__hero-cta">
+            {{ 'landing.hero.primaryCta' | translate }}
+          </a>
+          <a mat-stroked-button routerLink="/login" class="landing__hero-cta">
+            {{ 'landing.hero.secondaryCta' | translate }}
+          </a>
+        </div>
+      </div>
+      <div class="landing__hero-visual">
+        <app-hero-illustration />
+      </div>
+    </section>
+
+    <section class="landing__section" aria-labelledby="pillars-heading">
+      <div class="landing__section-header">
+        <h2 id="pillars-heading" class="landing__section-title">{{ 'landing.pillars.title' | translate }}</h2>
+        <p class="landing__section-subtitle">{{ 'landing.pillars.subtitle' | translate }}</p>
+      </div>
+      <ul class="landing__pillars">
+        @for (pillar of pillars; track pillar.titleKey) {
+          <li class="landing__pillar">
+            <div class="landing__pillar-icon">
+              @switch (pillar.icon) {
+                @case ('cv') {
+                  <svg lucideFileText [size]="22" aria-hidden="true"></svg>
+                }
+                @case ('jobs') {
+                  <svg lucideBriefcase [size]="22" aria-hidden="true"></svg>
+                }
+                @case ('companies') {
+                  <svg lucideBuilding2 [size]="22" aria-hidden="true"></svg>
+                }
+                @case ('applications') {
+                  <svg lucideClipboardList [size]="22" aria-hidden="true"></svg>
+                }
+                @case ('cover-letters') {
+                  <svg lucideMail [size]="22" aria-hidden="true"></svg>
+                }
+              }
+            </div>
+            <h3 class="landing__pillar-title">{{ pillar.titleKey | translate }}</h3>
+            <p class="landing__pillar-description">{{ pillar.descriptionKey | translate }}</p>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section class="landing__section landing__section--muted" aria-labelledby="how-it-works-heading">
+      <div class="landing__section-header">
+        <h2 id="how-it-works-heading" class="landing__section-title">{{ 'landing.howItWorks.title' | translate }}</h2>
+        <p class="landing__section-subtitle">{{ 'landing.howItWorks.subtitle' | translate }}</p>
+      </div>
+      <ol class="landing__steps">
+        @for (item of workflowSteps; track item.step) {
+          <li class="landing__step">
+            <span class="landing__step-number" aria-hidden="true">{{ item.step }}</span>
+            <h3 class="landing__step-title">{{ item.titleKey | translate }}</h3>
+            <p class="landing__step-description">{{ item.descriptionKey | translate }}</p>
+          </li>
+        }
+      </ol>
+    </section>
+
+    <section class="landing__cta-band" aria-labelledby="cta-heading">
+      <h2 id="cta-heading" class="landing__cta-title">{{ 'landing.closingCta.title' | translate }}</h2>
+      <p class="landing__cta-subtitle">{{ 'landing.closingCta.subtitle' | translate }}</p>
+      <a mat-flat-button color="primary" routerLink="/register" class="landing__cta-button">
+        {{ 'landing.closingCta.cta' | translate }}
+      </a>
+    </section>
+  </main>
+
+  <footer class="landing__footer">
+    <div class="landing__footer-bar">
+      <span class="landing__footer-brand">JAPP</span>
+      <nav class="landing__footer-links" [attr.aria-label]="'landing.footer.linksNav' | translate">
+        <a routerLink="/login">{{ 'landing.header.login' | translate }}</a>
+        <a routerLink="/register">{{ 'landing.header.getStarted' | translate }}</a>
+      </nav>
+      <span class="landing__footer-copyright">{{ 'landing.footer.copyright' | translate: { year: currentYear } }}</span>
+    </div>
+  </footer>
+</div>

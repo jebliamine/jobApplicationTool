@@ -1,0 +1,79 @@
+<header class="user-nav">
+  <div class="user-nav__bar">
+    <a class="user-nav__brand" routerLink="/dashboard">
+      <span class="user-nav__brand-mark" aria-hidden="true">J</span>
+      <span class="user-nav__brand-name">JAPP</span>
+    </a>
+
+    <nav class="user-nav__links" [attr.aria-label]="'nav.primaryNavigation' | translate">
+      @for (page of pages; track page.path) {
+        <a
+          [routerLink]="page.path"
+          routerLinkActive="user-nav__link--active"
+          [routerLinkActiveOptions]="{ exact: page.path === '/dashboard' }"
+          class="user-nav__link"
+        >
+          {{ page.label | translate }}
+        </a>
+      }
+    </nav>
+
+    <div class="user-nav__actions">
+      <app-nav-search [pages]="pages" [compact]="true" />
+      <app-notification-bell />
+      <app-theme-toggle />
+      <app-user-menu />
+
+      <button
+        mat-icon-button
+        type="button"
+        class="user-nav__menu-toggle"
+        [attr.aria-label]="(mobileMenuOpen() ? 'userNav.closeMenu' : 'userNav.openMenu') | translate"
+        [attr.aria-expanded]="mobileMenuOpen()"
+        (click)="toggleMobileMenu()"
+      >
+        @if (mobileMenuOpen()) {
+          <svg lucideX [size]="22" aria-hidden="true"></svg>
+        } @else {
+          <svg lucideMenu [size]="22" aria-hidden="true"></svg>
+        }
+      </button>
+    </div>
+  </div>
+
+  @if (mobileMenuOpen()) {
+    <nav class="user-nav__mobile-panel" [attr.aria-label]="'nav.primaryNavigation' | translate">
+      @for (page of pages; track page.path) {
+        <a
+          [routerLink]="page.path"
+          routerLinkActive="user-nav__mobile-link--active"
+          [routerLinkActiveOptions]="{ exact: page.path === '/dashboard' }"
+          class="user-nav__mobile-link"
+          (click)="closeMobileMenu()"
+        >
+          @switch (page.icon) {
+            @case ('dashboard') {
+              <svg lucideLayoutDashboard [size]="20" aria-hidden="true"></svg>
+            }
+            @case ('cv') {
+              <svg lucideFileText [size]="20" aria-hidden="true"></svg>
+            }
+            @case ('jobs') {
+              <svg lucideBriefcase [size]="20" aria-hidden="true"></svg>
+            }
+            @case ('companies') {
+              <svg lucideBuilding2 [size]="20" aria-hidden="true"></svg>
+            }
+            @case ('applications') {
+              <svg lucideClipboardList [size]="20" aria-hidden="true"></svg>
+            }
+            @case ('cover-letters') {
+              <svg lucideMail [size]="20" aria-hidden="true"></svg>
+            }
+          }
+          <span>{{ page.label | translate }}</span>
+        </a>
+      }
+    </nav>
+  }
+</header>

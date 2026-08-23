@@ -1,0 +1,58 @@
+<nav class="admin-sidebar" [attr.aria-label]="'nav.primaryNavigation' | translate">
+  <a class="admin-sidebar__brand" routerLink="/admin/dashboard" (click)="linkActivated.emit()">
+    <span class="admin-sidebar__brand-mark" aria-hidden="true">J</span>
+    @if (!collapsed()) {
+      <span class="admin-sidebar__brand-name">JAPP <span class="admin-sidebar__brand-badge">Admin</span></span>
+    }
+  </a>
+
+  <mat-nav-list class="admin-sidebar__list">
+    @if (!collapsed()) {
+      <h3 matSubheader class="admin-sidebar__group-label">{{ 'nav.groupAdmin' | translate }}</h3>
+    }
+
+    @for (page of adminPages; track page.path) {
+      <a
+        mat-list-item
+        [routerLink]="page.path"
+        routerLinkActive="admin-sidebar__item--active"
+        [matTooltip]="collapsed() ? (page.label | translate) : ''"
+        matTooltipPosition="right"
+        (click)="linkActivated.emit()"
+      >
+        @switch (page.icon) {
+          @case ('admin-dashboard') {
+            <svg lucideLayoutDashboard [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+          @case ('ai-providers') {
+            <svg lucideBrainCircuit [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
+        }
+        @if (!collapsed()) {
+          <span matListItemTitle>{{ page.label | translate }}</span>
+        } @else {
+          <span class="japp-visually-hidden">{{ page.label | translate }}</span>
+        }
+      </a>
+    }
+  </mat-nav-list>
+
+  <mat-divider class="admin-sidebar__divider" />
+
+  <mat-nav-list class="admin-sidebar__list admin-sidebar__list--bottom">
+    <a
+      mat-list-item
+      routerLink="/dashboard"
+      [matTooltip]="collapsed() ? ('nav.backToWorkspace' | translate) : ''"
+      matTooltipPosition="right"
+      (click)="linkActivated.emit()"
+    >
+      <svg lucideArrowLeftRight [size]="20" matListItemIcon aria-hidden="true"></svg>
+      @if (!collapsed()) {
+        <span matListItemTitle>{{ 'nav.backToWorkspace' | translate }}</span>
+      } @else {
+        <span class="japp-visually-hidden">{{ 'nav.backToWorkspace' | translate }}</span>
+      }
+    </a>
+  </mat-nav-list>
+</nav>
