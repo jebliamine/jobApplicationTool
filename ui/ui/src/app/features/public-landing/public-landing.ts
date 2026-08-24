@@ -1,7 +1,11 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import {
   LucideBriefcase,
   LucideBuilding2,
@@ -9,8 +13,20 @@ import {
   LucideFileText,
   LucideMail,
 } from '@lucide/angular';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { ThemeToggle } from '../../layout/theme-toggle/theme-toggle';
 import { HeroIllustration } from './components/hero-illustration/hero-illustration';
+
+// No backend contact endpoint exists yet — the form builds a mailto: link
+// client-side and hands off to the visitor's own email client rather than
+// inventing a POST /api/v1/contact endpoint that isn't part of the API contract.
+const BETA_CONTACT_EMAIL = 'yukiszuki9@gmail.com';
+
+interface ContactForm {
+  name: FormControl<string>;
+  email: FormControl<string>;
+  message: FormControl<string>;
+}
 
 interface Pillar {
   readonly icon: 'cv' | 'jobs' | 'companies' | 'applications' | 'cover-letters';
@@ -22,6 +38,11 @@ interface WorkflowStep {
   readonly step: number;
   readonly titleKey: string;
   readonly descriptionKey: string;
+}
+
+interface FaqItem {
+  readonly questionKey: string;
+  readonly answerKey: string;
 }
 
 const PILLARS: readonly Pillar[] = [
@@ -68,6 +89,17 @@ const WORKFLOW_STEPS: readonly WorkflowStep[] = [
   },
 ];
 
+// Mirrored (in English) in the FAQPage JSON-LD in index.html — keep the two
+// in sync if these change, since that copy is static and won't pick up
+// translation edits automatically.
+const FAQ_ITEMS: readonly FaqItem[] = [
+  { questionKey: 'landing.faq.items.whatIsJapp.question', answerKey: 'landing.faq.items.whatIsJapp.answer' },
+  { questionKey: 'landing.faq.items.pricing.question', answerKey: 'landing.faq.items.pricing.answer' },
+  { questionKey: 'landing.faq.items.stack.question', answerKey: 'landing.faq.items.stack.answer' },
+  { questionKey: 'landing.faq.items.coverLetters.question', answerKey: 'landing.faq.items.coverLetters.answer' },
+  { questionKey: 'landing.faq.items.privacy.question', answerKey: 'landing.faq.items.privacy.answer' },
+];
+
 /**
  * The public, unauthenticated marketing page at '/' — publicGuard redirects
  * already-authenticated visitors straight to /dashboard, so this only ever
@@ -78,8 +110,13 @@ const WORKFLOW_STEPS: readonly WorkflowStep[] = [
   selector: 'app-public-landing',
   imports: [
     RouterLink,
+    ReactiveFormsModule,
     MatButtonModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatInputModule,
     TranslatePipe,
+    ThemeToggle,
     HeroIllustration,
     LucideBriefcase,
     LucideBuilding2,
@@ -93,21 +130,60 @@ const WORKFLOW_STEPS: readonly WorkflowStep[] = [
 export class PublicLanding {
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly translate = inject(TranslateService);
 
   protected readonly pillars = PILLARS;
   protected readonly workflowSteps = WORKFLOW_STEPS;
+  protected readonly faqItems = FAQ_ITEMS;
   protected readonly currentYear = new Date().getFullYear();
+
+  protected readonly contactForm = new FormGroup<ContactForm>({
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    email: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.email] }),
+    message: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+  });
+  protected readonly contactSent = signal(false);
 
   constructor() {
     // Client-rendered only (no SSR/prerendering in this app yet) — this helps
     // the browser tab/history and any crawler that does execute JS, but is
     // not sufficient on its own for true crawlability or Open Graph previews.
-    this.title.setTitle('JAPP — Organize your job search: CVs, jobs, companies, cover letters, and applications');
-    this.meta.updateTag({
-      name: 'description',
-      content:
-        'JAPP is a job application management workspace: manage your CV, save job opportunities and companies, ' +
-        'generate tailored cover letters with AI, and track every application from applied to offer.',
-    });
+    // The real fallback for non-JS crawlers is the static <head>/<noscript>
+    // content in index.html, which these calls otherwise duplicate.
+    const title = 'JAPP — Organize your job search: CVs, jobs, companies, cover letters, and applications';
+    const description =
+      'JAPP is a job application management workspace: manage your CV, save job opportunities and companies, ' +
+      'generate tailored cover letters with AI, and track every application from applied to offer.';
+
+    this.title.setTitle(title);
+    this.meta.updateTag({ name: 'description', content: description });
+    this.meta.updateTag({ name: 'keywords', content: 'job application tracker, job search organizer, CV manager, cover letter generator, AI cover letter' });
+    this.meta.updateTag({ property: 'og:type', content: 'website' });
+    this.meta.updateTag({ property: 'og:site_name', content: 'JAPP' });
+    this.meta.updateTag({ property: 'og:title', content: 'JAPP — Organize your job search' });
+    this.meta.updateTag({ property: 'og:description', content: description });
+    this.meta.updateTag({ name: 'twitter:card', content: 'summary' });
+    this.meta.updateTag({ name: 'twitter:title', content: 'JAPP — Organize your job search' });
+    this.meta.updateTag({ name: 'twitter:description', content: description });
+  }
+
+  /**
+   * Opens the visitor's own email client with a pre-filled beta-test request
+   * (see the BETA_CONTACT_EMAIL comment above for why this isn't a backend call).
+   */
+  protected submitContactForm(): void {
+    if (this.contactForm.invalid) {
+      this.contactForm.markAllAsTouched();
+      return;
+    }
+
+    const { name, email, message } = this.contactForm.getRawValue();
+    const subject = this.translate.instant('landing.contact.form.mailSubject');
+    const body = this.translate.instant('landing.contact.form.mailBody', { name, email, message });
+    const mailtoUrl = `mailto:${BETA_CONTACT_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    window.location.href = mailtoUrl;
+    this.contactSent.set(true);
+    this.contactForm.reset();
   }
 }

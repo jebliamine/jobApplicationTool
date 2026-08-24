@@ -121,14 +121,73 @@
         }
       }
     },
+    "faq": {
+      "title": "Häufig gestellte Fragen",
+      "subtitle": "Alles, was Sie vorab wissen möchten.",
+      "items": {
+        "whatIsJapp": {
+          "question": "Was ist JAPP?",
+          "answer": "JAPP ist ein Arbeitsbereich für die Bewerbungsverwaltung, der Ihren Lebenslauf, gespeicherte Stellen, Unternehmen, KI-generierte Anschreiben und die Bewerbungsverfolgung an einem Ort zusammenführt."
+        },
+        "pricing": {
+          "question": "Kann ich JAPP kostenlos testen?",
+          "answer": "JAPP befindet sich derzeit in der offenen Beta-Phase. Schreiben Sie mir über das Kontaktformular weiter unten, und ich melde mich wegen des Zugangs bei Ihnen."
+        },
+        "stack": {
+          "question": "Welche Technologie steckt hinter JAPP?",
+          "answer": "JAPP läuft mit einem Angular-Frontend und einem Spring-Boot-Backend mit einer PostgreSQL-Datenbank, abgesichert durch JWT-basierte Authentifizierung."
+        },
+        "coverLetters": {
+          "question": "Kann JAPP Anschreiben für mich erstellen?",
+          "answer": "Ja. Verbinden Sie einen KI-Anbieter, und JAPP erstellt ein Anschreiben, das auf eine bestimmte Stellenbeschreibung und Ihren Lebenslauf zugeschnitten ist."
+        },
+        "privacy": {
+          "question": "Wie werden meine Daten geschützt?",
+          "answer": "Ihr Lebenslauf, Ihre Stellen, Unternehmen und Bewerbungen sind an Ihr Konto gebunden und durch JWT-basierte Authentifizierung geschützt."
+        }
+      }
+    },
     "closingCta": {
       "title": "Bereit, Ihre Jobsuche zu organisieren?",
       "subtitle": "Erstellen Sie Ihr kostenloses Konto und fügen Sie in wenigen Minuten Ihre erste Stelle hinzu.",
       "cta": "Loslegen"
     },
+    "contact": {
+      "title": "Interesse an der Beta-Version?",
+      "subtitle": "Schreiben Sie mir eine Nachricht, und ich melde mich wegen des frühen Zugangs bei Ihnen.",
+      "form": {
+        "name": "Name",
+        "nameError": "Name ist erforderlich.",
+        "email": "E-Mail",
+        "emailError": "Geben Sie eine gültige E-Mail-Adresse ein.",
+        "message": "Nachricht",
+        "messageError": "Nachricht ist erforderlich.",
+        "submit": "Beta-Zugang anfragen",
+        "hint": "Öffnet Ihr E-Mail-Programm mit dieser Nachricht.",
+        "mailSubject": "JAPP Beta-Test-Anfrage",
+        "mailBody": "Name: {{name}}\nE-Mail: {{email}}\n\n{{message}}",
+        "sentConfirmation": "Ihr E-Mail-Programm sollte jetzt mit der fertigen Nachricht geöffnet sein."
+      }
+    },
     "footer": {
-      "linksNav": "Fußzeile",
-      "copyright": "© {{year}} JAPP"
+      "copyright": "© {{year}} JAPP",
+      "badge": "Beta",
+      "builtWith": "Ein persönliches Projekt — entstanden, um zu lernen und die eigene Jobsuche zu vereinfachen.",
+      "about": {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua — ersetzen Sie dies durch ein paar Sätze über sich selbst.",
+        "tech": "Erstellt mit Angular, Spring Boot & PostgreSQL."
+      },
+      "nav": {
+        "title": "Schnellzugriff",
+        "contact": "Kontakt"
+      },
+      "social": {
+        "title": "Vernetzen",
+        "nav": "Soziale Netzwerke",
+        "github": "GitHub-Profil",
+        "linkedin": "LinkedIn-Profil",
+        "xing": "Xing-Profil"
+      }
     }
   },
   "dashboard": {

@@ -1,0 +1,27 @@
+# JAPP — robots.txt
+# TODO: replace https://japp.example.com with the real production domain once deployed.
+
+User-agent: *
+Allow: /
+
+# Common AI/LLM crawlers — explicitly allowed (redundant with the wildcard
+# above, but listed so it's obvious at a glance that they're welcome).
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://japp.example.com/sitemap.xml

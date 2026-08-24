@@ -121,14 +121,73 @@
         }
       }
     },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you might want to know before you start.",
+      "items": {
+        "whatIsJapp": {
+          "question": "What is JAPP?",
+          "answer": "JAPP is a job application management workspace that brings your CV, saved jobs, companies, AI-generated cover letters, and application tracking together in one place."
+        },
+        "pricing": {
+          "question": "Is JAPP free to try?",
+          "answer": "JAPP is currently in open beta. Send a message through the contact form below and you'll hear back about getting access."
+        },
+        "stack": {
+          "question": "What technology powers JAPP?",
+          "answer": "JAPP runs on an Angular frontend and a Spring Boot backend with a PostgreSQL database, secured with JWT-based authentication."
+        },
+        "coverLetters": {
+          "question": "Can JAPP generate cover letters for me?",
+          "answer": "Yes. Connect an AI provider and JAPP generates a cover letter tailored to a specific job description and your CV."
+        },
+        "privacy": {
+          "question": "How is my data protected?",
+          "answer": "Your CV, jobs, companies, and applications are tied to your account and protected behind JWT-based authentication."
+        }
+      }
+    },
     "closingCta": {
       "title": "Ready to organize your job search?",
       "subtitle": "Create your free account and add your first job in minutes.",
       "cta": "Get Started"
     },
+    "contact": {
+      "title": "Want to try the beta?",
+      "subtitle": "Send a message and I'll get back to you about early access.",
+      "form": {
+        "name": "Name",
+        "nameError": "Name is required.",
+        "email": "Email",
+        "emailError": "Enter a valid email address.",
+        "message": "Message",
+        "messageError": "Message is required.",
+        "submit": "Request beta access",
+        "hint": "Opens your email client with this message pre-filled.",
+        "mailSubject": "JAPP beta test request",
+        "mailBody": "Name: {{name}}\nEmail: {{email}}\n\n{{message}}",
+        "sentConfirmation": "Your email client should now be open with the message ready to send."
+      }
+    },
     "footer": {
-      "linksNav": "Footer",
-      "copyright": "© {{year}} JAPP"
+      "copyright": "© {{year}} JAPP",
+      "badge": "Beta",
+      "builtWith": "A personal project, built to learn and to make my own job hunt less chaotic.",
+      "about": {
+        "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua — replace this with a couple of sentences about yourself.",
+        "tech": "Built with Angular, Spring Boot & PostgreSQL."
+      },
+      "nav": {
+        "title": "Quick links",
+        "contact": "Contact"
+      },
+      "social": {
+        "title": "Connect",
+        "nav": "Social links",
+        "github": "GitHub profile",
+        "linkedin": "LinkedIn profile",
+        "xing": "Xing profile"
+      }
     }
   },
   "dashboard": {

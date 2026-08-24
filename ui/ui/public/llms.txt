@@ -1,0 +1,31 @@
+# JAPP
+
+> JAPP is a job application management workspace: manage your CV, save job opportunities and
+> companies, generate tailored cover letters with AI, and track every application from applied
+> to offer.
+
+JAPP brings together five things that are usually scattered across spreadsheets, email threads,
+and browser tabs during a job search:
+
+- **CV management** — upload and reuse your CV across cover letters and applications.
+- **Jobs** — save job postings with the role, location, and details that matter.
+- **Companies** — keep track of the companies you're applying to.
+- **Applications** — turn a saved job into a real application and follow it from applied to offer.
+- **Cover letters** — generate a cover letter tailored to a job description and your CV, using a
+  configured AI provider.
+
+## Tech stack
+
+Angular (frontend), Spring Boot (backend, Java, multi-module Maven), PostgreSQL (database),
+JWT-based authentication.
+
+## Status
+
+JAPP is a personal project, currently in open beta. Use the contact form on the site to request
+early access.
+
+## Pages
+
+- [/](https://japp.example.com/) — marketing/landing page, product overview, FAQ, contact form.
+- [/login](https://japp.example.com/login) — sign in.
+- [/register](https://japp.example.com/register) — create an account.

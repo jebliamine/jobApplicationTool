@@ -2,9 +2,36 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>JAPP</title>
+  <title>JAPP — Organize your job search: CVs, jobs, companies, cover letters, and applications</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!--
+    JAPP is client-rendered only (no SSR/prerendering yet), so this static
+    head — not the Angular Meta/Title service, which only runs after JS
+    boots — is what a crawler that doesn't execute JavaScript actually sees.
+    Several AI/LLM crawlers (e.g. GPTBot, ClaudeBot, PerplexityBot) are
+    reported to fetch raw HTML without running JS, so these tags plus the
+    <noscript> block below are the real "AI can find it" surface until this
+    app gets SSR/prerendering.
+  -->
+  <meta name="description" content="JAPP is a job application management workspace: manage your CV, save job opportunities and companies, generate tailored cover letters with AI, and track every application from applied to offer.">
+  <meta name="keywords" content="job application tracker, job search organizer, CV manager, cover letter generator, AI cover letter, job application management, track job applications">
+  <meta name="robots" content="index, follow">
+
+  <!-- TODO: replace with the real production URL once JAPP is deployed. -->
+  <link rel="canonical" href="https://japp.example.com/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="JAPP">
+  <meta property="og:title" content="JAPP — Organize your job search">
+  <meta property="og:description" content="Manage your CV, save job opportunities and companies, generate tailored cover letters with AI, and track every application from applied to offer.">
+  <meta property="og:url" content="https://japp.example.com/">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="JAPP — Organize your job search">
+  <meta name="twitter:description" content="Manage your CV, save job opportunities and companies, generate tailored cover letters with AI, and track every application from applied to offer.">
+
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +39,68 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700&display=swap"
     rel="stylesheet"
   >
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebApplication",
+        "name": "JAPP",
+        "url": "https://japp.example.com/",
+        "description": "JAPP is a job application management workspace: manage your CV, save job opportunities and companies, generate tailored cover letters with AI, and track every application from applied to offer.",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is JAPP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "JAPP is a job application management workspace that brings your CV, saved jobs, companies, AI-generated cover letters, and application tracking together in one place."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is JAPP free to try?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "JAPP is currently in open beta. Send a message through the contact form on the site and you'll hear back about getting access."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What technology powers JAPP?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "JAPP runs on an Angular frontend and a Spring Boot backend with a PostgreSQL database, secured with JWT-based authentication."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can JAPP generate cover letters for me?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. Connect an AI provider and JAPP generates a cover letter tailored to a specific job description and your CV."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How is my data protected?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Your CV, jobs, companies, and applications are tied to your account and protected behind JWT-based authentication."
+            }
+          }
+        ]
+      }
+    ]
+  }
+  </script>
+
   <script>
     // Applies the persisted/OS theme before first paint, so there is no
     // flash of the wrong theme while Angular boots. ThemeService takes over
@@ -30,5 +119,40 @@
 </head>
 <body>
   <app-root></app-root>
+
+  <!--
+    Seen only by crawlers/agents that don't execute JavaScript (see the
+    comment above the <meta> tags) — mirrors the public landing page's
+    real content so there's still something meaningful to read/index.
+  -->
+  <noscript>
+    <main>
+      <h1>JAPP — Organize your entire job search in one place</h1>
+      <p>
+        JAPP brings your CV, saved jobs, companies, AI-generated cover letters, and application
+        tracking together, so nothing about your job search falls through the cracks.
+      </p>
+      <h2>What JAPP does</h2>
+      <ul>
+        <li>CV management: upload and reuse your CV across cover letters and applications.</li>
+        <li>Jobs: save job postings with the role, location, and details that matter.</li>
+        <li>Companies: keep track of the companies you're applying to.</li>
+        <li>Applications: turn a saved job into a real application and follow it to an offer.</li>
+        <li>Cover letters: generate a cover letter tailored to the job and your CV with an AI provider.</li>
+      </ul>
+      <h2>Frequently asked questions</h2>
+      <h3>What is JAPP?</h3>
+      <p>JAPP is a job application management workspace that brings your CV, saved jobs, companies, AI-generated cover letters, and application tracking together in one place.</p>
+      <h3>Is JAPP free to try?</h3>
+      <p>JAPP is currently in open beta. Send a message through the contact form on the site and you'll hear back about getting access.</p>
+      <h3>What technology powers JAPP?</h3>
+      <p>JAPP runs on an Angular frontend and a Spring Boot backend with a PostgreSQL database, secured with JWT-based authentication.</p>
+      <h3>Can JAPP generate cover letters for me?</h3>
+      <p>Yes. Connect an AI provider and JAPP generates a cover letter tailored to a specific job description and your CV.</p>
+      <h3>How is my data protected?</h3>
+      <p>Your CV, jobs, companies, and applications are tied to your account and protected behind JWT-based authentication.</p>
+      <p>Enable JavaScript to use the full JAPP application.</p>
+    </main>
+  </noscript>
 </body>
 </html>

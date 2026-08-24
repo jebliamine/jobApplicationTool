@@ -6,6 +6,7 @@
         <span class="landing__brand-name">JAPP</span>
       </a>
       <nav class="landing__header-actions" [attr.aria-label]="'landing.header.accountNav' | translate">
+        <app-theme-toggle />
         <a mat-button routerLink="/login">{{ 'landing.header.login' | translate }}</a>
         <a mat-flat-button color="primary" routerLink="/register">{{ 'landing.header.getStarted' | translate }}</a>
       </nav>
@@ -81,6 +82,24 @@
       </ol>
     </section>
 
+    <section class="landing__section" id="faq" aria-labelledby="faq-heading">
+      <div class="landing__section-header">
+        <h2 id="faq-heading" class="landing__section-title">{{ 'landing.faq.title' | translate }}</h2>
+        <p class="landing__section-subtitle">{{ 'landing.faq.subtitle' | translate }}</p>
+      </div>
+
+      <mat-accordion class="landing__faq">
+        @for (item of faqItems; track item.questionKey) {
+          <mat-expansion-panel class="landing__faq-panel">
+            <mat-expansion-panel-header>
+              <mat-panel-title>{{ item.questionKey | translate }}</mat-panel-title>
+            </mat-expansion-panel-header>
+            <p class="landing__faq-answer">{{ item.answerKey | translate }}</p>
+          </mat-expansion-panel>
+        }
+      </mat-accordion>
+    </section>
+
     <section class="landing__cta-band" aria-labelledby="cta-heading">
       <h2 id="cta-heading" class="landing__cta-title">{{ 'landing.closingCta.title' | translate }}</h2>
       <p class="landing__cta-subtitle">{{ 'landing.closingCta.subtitle' | translate }}</p>
@@ -88,16 +107,123 @@
         {{ 'landing.closingCta.cta' | translate }}
       </a>
     </section>
+
+    <section class="landing__section landing__section--elevated" id="contact" aria-labelledby="contact-heading">
+      <div class="landing__section-header landing__section-header--center">
+        <h2 id="contact-heading" class="landing__section-title">{{ 'landing.contact.title' | translate }}</h2>
+        <p class="landing__section-subtitle">{{ 'landing.contact.subtitle' | translate }}</p>
+      </div>
+
+      <form class="landing__contact-form" [formGroup]="contactForm" (ngSubmit)="submitContactForm()" novalidate>
+        <div class="landing__contact-row">
+          <mat-form-field appearance="outline" class="landing__contact-field">
+            <mat-label>{{ 'landing.contact.form.name' | translate }}</mat-label>
+            <input matInput formControlName="name" autocomplete="name" required />
+            @if (contactForm.controls.name.invalid && contactForm.controls.name.touched) {
+              <mat-error>{{ 'landing.contact.form.nameError' | translate }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="landing__contact-field">
+            <mat-label>{{ 'landing.contact.form.email' | translate }}</mat-label>
+            <input matInput type="email" formControlName="email" autocomplete="email" required />
+            @if (contactForm.controls.email.invalid && contactForm.controls.email.touched) {
+              <mat-error>{{ 'landing.contact.form.emailError' | translate }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="landing__contact-field landing__contact-field--full">
+          <mat-label>{{ 'landing.contact.form.message' | translate }}</mat-label>
+          <textarea matInput formControlName="message" rows="4" required></textarea>
+          @if (contactForm.controls.message.invalid && contactForm.controls.message.touched) {
+            <mat-error>{{ 'landing.contact.form.messageError' | translate }}</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="landing__contact-actions">
+          <button mat-flat-button color="primary" type="submit">
+            {{ 'landing.contact.form.submit' | translate }}
+          </button>
+          <p class="landing__contact-hint">{{ 'landing.contact.form.hint' | translate }}</p>
+        </div>
+
+        @if (contactSent()) {
+          <p class="landing__contact-confirmation" role="status">
+            {{ 'landing.contact.form.sentConfirmation' | translate }}
+          </p>
+        }
+      </form>
+    </section>
   </main>
 
   <footer class="landing__footer">
-    <div class="landing__footer-bar">
-      <span class="landing__footer-brand">JAPP</span>
-      <nav class="landing__footer-links" [attr.aria-label]="'landing.footer.linksNav' | translate">
+    <div class="landing__footer-content">
+      <div class="landing__footer-about">
+        <div class="landing__footer-brand-row">
+          <span class="landing__footer-brand">JAPP</span>
+          <span class="landing__footer-badge">{{ 'landing.footer.badge' | translate }}</span>
+        </div>
+        <p class="landing__footer-about-text">{{ 'landing.footer.about.text' | translate }}</p>
+        <p class="landing__footer-tech">{{ 'landing.footer.about.tech' | translate }}</p>
+      </div>
+
+      <nav class="landing__footer-nav" [attr.aria-label]="'landing.footer.nav.title' | translate">
+        <span class="landing__footer-col-title">{{ 'landing.footer.nav.title' | translate }}</span>
         <a routerLink="/login">{{ 'landing.header.login' | translate }}</a>
         <a routerLink="/register">{{ 'landing.header.getStarted' | translate }}</a>
+        <a href="#contact">{{ 'landing.footer.nav.contact' | translate }}</a>
       </nav>
+
+      <div class="landing__footer-connect">
+        <span class="landing__footer-col-title">{{ 'landing.footer.social.title' | translate }}</span>
+        <nav class="landing__footer-social" [attr.aria-label]="'landing.footer.social.nav' | translate">
+        <a
+          href="https://github.com/your-username"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="landing__footer-social-link"
+          [attr.aria-label]="'landing.footer.social.github' | translate"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path
+              d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://www.linkedin.com/in/your-profile"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="landing__footer-social-link"
+          [attr.aria-label]="'landing.footer.social.linkedin' | translate"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path
+              d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"
+            />
+          </svg>
+        </a>
+        <a
+          href="https://www.xing.com/profile/your-profile"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="landing__footer-social-link"
+          [attr.aria-label]="'landing.footer.social.xing' | translate"
+        >
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
+            <path
+              d="M18.188 0c-.517 0-.741.325-.927.66 0 0-7.455 13.224-7.702 13.657.015.024 4.919 9.023 4.919 9.023.17.308.436.66.967.66h3.454c.211 0 .375-.078.463-.22.089-.151.089-.346-.009-.536l-4.879-8.916c-.004-.006-.004-.016 0-.022L22.139.756c.095-.191.097-.387.006-.535C22.056.078 21.894 0 21.686 0h-3.498zM3.648 4.74c-.211 0-.385.074-.473.216-.09.149-.078.339.02.531l2.34 4.05c.004.01.004.016 0 .022L1.86 16.051c-.099.188-.093.381 0 .529.085.142.239.234.45.234h3.461c.518 0 .766-.348.945-.667l3.734-6.609-2.378-4.155c-.172-.315-.434-.653-.962-.653H3.648z"
+            />
+          </svg>
+        </a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="landing__footer-bar">
       <span class="landing__footer-copyright">{{ 'landing.footer.copyright' | translate: { year: currentYear } }}</span>
+      <span class="landing__footer-meta">{{ 'landing.footer.builtWith' | translate }}</span>
     </div>
   </footer>
 </div>
