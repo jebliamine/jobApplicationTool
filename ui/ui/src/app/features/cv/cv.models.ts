@@ -17,3 +17,26 @@ export interface DownloadedCv {
   blob: Blob;
   filename: string;
 }
+
+export type ProfileGenerationStatus = 'NOT_ATTEMPTED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED';
+
+/** Mirrors ExperienceResponse. */
+export interface ExperienceResponse {
+  id: string;
+  company: string | null;
+  title: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  description: string | null;
+}
+
+/** Mirrors the response body of GET/POST /api/v1/cv/{id}/profile. */
+export interface CvProfileResponse {
+  id: string | null;
+  fullName: string | null;
+  summary: string | null;
+  experiences: ExperienceResponse[];
+  status: ProfileGenerationStatus;
+  errorMessage: string | null;
+  generatedAt: string | null;
+}

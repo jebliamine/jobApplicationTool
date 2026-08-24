@@ -8,12 +8,21 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ToastService } from '../../../core/ui/toast.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { LucideCircleAlert, LucideDownload, LucideEye, LucideFileText, LucideInbox, LucideTrash2 } from '@lucide/angular';
+import {
+  LucideCircleAlert,
+  LucideDownload,
+  LucideEye,
+  LucideFileText,
+  LucideInbox,
+  LucideSparkles,
+  LucideTrash2,
+} from '@lucide/angular';
 import { finalize } from 'rxjs';
 import {
   ConfirmDialog,
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { CvProfileDialog, CvProfileDialogData } from '../cv-profile-dialog/cv-profile-dialog';
 import { CvResponse } from '../cv.models';
 import { CvService } from '../cv.service';
 
@@ -37,6 +46,7 @@ const CONTENT_TYPE_LABELS: Record<string, string> = {
     LucideEye,
     LucideFileText,
     LucideInbox,
+    LucideSparkles,
     LucideTrash2,
   ],
   templateUrl: './cv-list.html',
@@ -75,6 +85,13 @@ export class CvList {
 
   protected formatType(contentType: string): string {
     return CONTENT_TYPE_LABELS[contentType] ?? contentType;
+  }
+
+  protected openProfile(cv: CvResponse): void {
+    this.dialog.open<CvProfileDialog, CvProfileDialogData>(CvProfileDialog, {
+      data: { cv },
+      width: '480px',
+    });
   }
 
   protected view(cv: CvResponse): void {

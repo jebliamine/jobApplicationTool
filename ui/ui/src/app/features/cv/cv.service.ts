@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CvResponse, DownloadedCv } from './cv.models';
+import { CvProfileResponse, CvResponse, DownloadedCv } from './cv.models';
 
 @Injectable({ providedIn: 'root' })
 export class CvService {
@@ -46,6 +46,17 @@ export class CvService {
   /** DELETE /cv/{id} */
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  /** GET /cv/{id}/profile — NOT_ATTEMPTED (not a 404) if generation has never been triggered. */
+  getProfile(id: string): Observable<CvProfileResponse> {
+    return this.http.get<CvProfileResponse>(`${this.baseUrl}/${id}/profile`);
+  }
+
+  /** POST /cv/{id}/profile — triggers (or re-triggers) AI-based structured profile extraction. */
+  generateProfile(id: string, providerId?: string): Observable<CvProfileResponse> {
+    const params = providerId ? { providerId } : undefined;
+    return this.http.post<CvProfileResponse>(`${this.baseUrl}/${id}/profile`, null, { params });
   }
 }
 

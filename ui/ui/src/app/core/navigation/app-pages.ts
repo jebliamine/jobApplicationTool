@@ -6,7 +6,8 @@ export type AppPageIcon =
   | 'applications'
   | 'cover-letters'
   | 'ai-providers'
-  | 'admin-dashboard';
+  | 'admin-dashboard'
+  | 'users';
 
 export interface AppPage {
   /** A translation key (see public/i18n/*.json under `nav.*`), not display text — render via `| translate`. */
@@ -32,5 +33,6 @@ export const USER_APP_PAGES: readonly AppPage[] = [
 /** The admin-only operational pages — rendered by AdminShell's sidebar and searched by its own NavSearch instance. */
 export const ADMIN_APP_PAGES: readonly AppPage[] = [
   { label: 'nav.adminDashboard', path: '/admin/dashboard', icon: 'admin-dashboard' },
+  { label: 'nav.users', path: '/admin/users', icon: 'users' },
   { label: 'nav.aiProviders', path: '/admin/ai-providers', icon: 'ai-providers' },
 ];

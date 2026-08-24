@@ -9,6 +9,7 @@ import de.jeb.japp.model.user.dto.RegisterRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -36,6 +37,9 @@ public class AuthServiceImpl implements AuthServiceInterface {
             )) {
                 throw new RuntimeException("Invalid credentials");
             }
+            if (!user.isEnabled()) {
+                throw new RuntimeException("This account has been disabled.");
+            }
 
             return new AuthResponse(
                     jwt.generateToken(user.getEmail())
@@ -59,6 +63,7 @@ public class AuthServiceImpl implements AuthServiceInterface {
                 encoder.encode(registerRequest.getPassword())
         );
         user.setRole(UserRole.USER);
+        user.setCreatedAt(LocalDateTime.now());
         return new AuthResponse(jwt.generateToken(userDao.registerUser(user).getEmail()));
 
     }

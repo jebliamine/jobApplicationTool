@@ -4,7 +4,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatListModule } from '@angular/material/list';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslatePipe } from '@ngx-translate/core';
-import { LucideArrowLeftRight, LucideBrainCircuit, LucideLayoutDashboard } from '@lucide/angular';
+import { LucideArrowLeftRight, LucideBrainCircuit, LucideLayoutDashboard, LucideUsers } from '@lucide/angular';
 import { ADMIN_APP_PAGES, AppPage } from '../../core/navigation/app-pages';
 
 /**
@@ -24,6 +24,7 @@ import { ADMIN_APP_PAGES, AppPage } from '../../core/navigation/app-pages';
     LucideArrowLeftRight,
     LucideBrainCircuit,
     LucideLayoutDashboard,
+    LucideUsers,
   ],
   templateUrl: './admin-sidebar.html',
   styleUrl: './admin-sidebar.scss',

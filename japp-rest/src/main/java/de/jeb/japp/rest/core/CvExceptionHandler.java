@@ -1,5 +1,6 @@
 package de.jeb.japp.rest.core;
 
+import de.jeb.japp.commons.exceptions.ai.AiProviderNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVStorageException;
@@ -24,8 +25,8 @@ public class CvExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 
-    @ExceptionHandler(CVNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleNotFound(CVNotFoundException ex) {
+    @ExceptionHandler({CVNotFoundException.class, AiProviderNotFoundException.class})
+    public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
     }
 

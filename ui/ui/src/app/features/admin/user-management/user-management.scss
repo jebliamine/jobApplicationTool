@@ -1,0 +1,94 @@
+:host {
+  display: block;
+}
+
+.user-management__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--japp-spacing-md);
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.user-management__add-button {
+  flex: none;
+
+  svg {
+    margin-right: var(--japp-spacing-xs);
+  }
+}
+
+.user-management__title {
+  margin: 0 0 var(--japp-spacing-sm);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--japp-text-primary);
+}
+
+.user-management__subtitle {
+  margin: 0;
+  color: var(--japp-text-secondary);
+}
+
+.user-management__card {
+  border-radius: var(--japp-radius-lg);
+}
+
+.user-management__state {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-md);
+  padding: var(--japp-spacing-lg) var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+}
+
+.user-management__state--error {
+  color: var(--japp-color-error);
+
+  svg {
+    flex: none;
+  }
+
+  button {
+    margin-left: auto;
+  }
+}
+
+.user-management__state--empty {
+  flex-direction: column;
+  text-align: center;
+  padding: var(--japp-spacing-xl) var(--japp-spacing-md);
+
+  p {
+    margin: 0;
+  }
+}
+
+.user-management__table-wrap {
+  overflow-x: auto;
+}
+
+.user-management__table {
+  width: 100%;
+  background: transparent;
+
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell {
+    color: var(--japp-text-primary);
+  }
+
+  th.mat-mdc-header-cell {
+    color: var(--japp-text-secondary);
+    font-weight: 600;
+  }
+}
+
+.user-management__role-field {
+  width: 140px;
+  margin-bottom: -1.25em;
+}
+
+.user-management__delete-button {
+  color: var(--japp-color-error);
+}

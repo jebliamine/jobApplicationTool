@@ -80,6 +80,18 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef>Actions</th>
               <td mat-cell *matCellDef="let job">
+                @if (job.url) {
+                  <a
+                    mat-icon-button
+                    matTooltip="Open posting"
+                    [attr.aria-label]="'Open posting for ' + job.title"
+                    [href]="job.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
+                  </a>
+                }
                 <button
                   mat-icon-button
                   type="button"
@@ -157,6 +169,18 @@
                 }
               </dl>
               <div class="job-list__card-actions">
+                @if (job.url) {
+                  <a
+                    mat-icon-button
+                    matTooltip="Open posting"
+                    [attr.aria-label]="'Open posting for ' + job.title"
+                    [href]="job.url"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
+                  </a>
+                }
                 <button
                   mat-icon-button
                   type="button"

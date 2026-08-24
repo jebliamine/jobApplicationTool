@@ -69,7 +69,8 @@ public class JwtFilter extends OncePerRequestFilter {
                         .getUserByEmail(email);
 
                 if (user.isPresent() &&
-                        jwtService.isValid(token)) {
+                        jwtService.isValid(token) &&
+                        user.get().isEnabled()) {
 
                     var authorities = List.of(
                             new SimpleGrantedAuthority(

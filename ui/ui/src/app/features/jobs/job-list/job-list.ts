@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
   LucideBriefcase,
   LucideCircleAlert,
+  LucideExternalLink,
   LucideEye,
   LucideInbox,
   LucidePencil,
@@ -55,6 +56,7 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
     MatTooltipModule,
     LucideBriefcase,
     LucideCircleAlert,
+    LucideExternalLink,
     LucideEye,
     LucideInbox,
     LucidePencil,

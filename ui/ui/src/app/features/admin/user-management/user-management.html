@@ -1,0 +1,105 @@
+<div class="user-management">
+  <header class="user-management__header">
+    <div>
+      <h1 class="user-management__title">Users</h1>
+      <p class="user-management__subtitle">Manage roles and account access for everyone registered in JAPP.</p>
+    </div>
+    <button mat-flat-button color="primary" type="button" class="user-management__add-button" (click)="addUser()">
+      <svg lucidePlus [size]="16" aria-hidden="true"></svg>
+      Add user
+    </button>
+  </header>
+
+  <mat-card appearance="outlined" class="user-management__card">
+    <mat-card-content>
+      @if (loading()) {
+        <div class="user-management__state">
+          <mat-progress-spinner diameter="28" mode="indeterminate" />
+          <span>Loading users…</span>
+        </div>
+      } @else if (error()) {
+        <div class="user-management__state user-management__state--error" role="alert">
+          <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+          <span>We could not load users.</span>
+          <button mat-stroked-button type="button" (click)="load()">Retry</button>
+        </div>
+      } @else if (users().length === 0) {
+        <div class="user-management__state user-management__state--empty">
+          <svg lucideInbox [size]="24" aria-hidden="true"></svg>
+          <p>No users found.</p>
+        </div>
+      } @else {
+        <div class="user-management__table-wrap">
+          <table mat-table [dataSource]="users()" class="user-management__table">
+            <ng-container matColumnDef="fullName">
+              <th mat-header-cell *matHeaderCellDef>Name</th>
+              <td mat-cell *matCellDef="let user">{{ user.fullName || '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>Role</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-form-field appearance="outline" class="user-management__role-field">
+                  <mat-select
+                    [value]="user.role"
+                    [disabled]="isSelf(user) || updatingId() === user.id"
+                    (selectionChange)="changeRole(user, $event.value)"
+                  >
+                    <mat-option value="USER">User</mat-option>
+                    <mat-option value="ADMIN">Admin</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="enabled">
+              <th mat-header-cell *matHeaderCellDef>Active</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-slide-toggle
+                  [checked]="user.enabled"
+                  [disabled]="isSelf(user) || updatingId() === user.id"
+                  [attr.aria-label]="(user.enabled ? 'Disable ' : 'Enable ') + user.email"
+                  (change)="toggleEnabled(user, $event)"
+                />
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Joined</th>
+              <td mat-cell *matCellDef="let user">{{ user.createdAt | date: 'medium' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let user">
+                <button
+                  mat-icon-button
+                  type="button"
+                  matTooltip="Delete"
+                  class="user-management__delete-button"
+                  [attr.aria-label]="'Delete ' + user.email"
+                  [disabled]="isSelf(user) || !!deletingId()"
+                  (click)="confirmDelete(user)"
+                >
+                  @if (deletingId() === user.id) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate" />
+                  } @else {
+                    <svg lucideTrash2 [size]="18" aria-hidden="true"></svg>
+                  }
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+</div>

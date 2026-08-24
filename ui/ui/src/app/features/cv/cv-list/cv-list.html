@@ -60,6 +60,15 @@
               <button
                 mat-icon-button
                 type="button"
+                matTooltip="Profile"
+                [attr.aria-label]="'View AI profile for ' + cv.title"
+                (click)="openProfile(cv)"
+              >
+                <svg lucideSparkles [size]="18" aria-hidden="true"></svg>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
                 matTooltip="View"
                 [attr.aria-label]="'View ' + cv.title"
                 [disabled]="!!viewingId()"
@@ -140,6 +149,15 @@
               }
             </dl>
             <div class="cv-list__card-actions">
+              <button
+                mat-icon-button
+                type="button"
+                matTooltip="Profile"
+                [attr.aria-label]="'View AI profile for ' + cv.title"
+                (click)="openProfile(cv)"
+              >
+                <svg lucideSparkles [size]="18" aria-hidden="true"></svg>
+              </button>
               <button
                 mat-icon-button
                 type="button"

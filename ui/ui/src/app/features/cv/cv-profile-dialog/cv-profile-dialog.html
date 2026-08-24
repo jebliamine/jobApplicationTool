@@ -1,0 +1,86 @@
+<h2 mat-dialog-title>CV Profile</h2>
+
+<mat-dialog-content class="cv-profile-dialog__content">
+  <p class="cv-profile-dialog__subtitle">{{ data.cv.title }}</p>
+
+  @if (loading()) {
+    <div class="cv-profile-dialog__state">
+      <mat-progress-spinner diameter="24" mode="indeterminate" />
+      <span>Loading…</span>
+    </div>
+  } @else if (loadError()) {
+    <div class="cv-profile-dialog__error" role="alert">
+      <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+      <span>{{ loadError() }}</span>
+    </div>
+  } @else if (profile(); as profile) {
+    <app-status-badge [label]="statusLabel(profile.status)" [severity]="statusSeverity(profile.status)" />
+
+    @if (profile.status === 'COMPLETED') {
+      <div class="cv-profile-dialog__section">
+        <span class="cv-profile-dialog__label">Name</span>
+        <p>{{ profile.fullName || '—' }}</p>
+      </div>
+      <div class="cv-profile-dialog__section">
+        <span class="cv-profile-dialog__label">Summary</span>
+        <p>{{ profile.summary || '—' }}</p>
+      </div>
+      <div class="cv-profile-dialog__section">
+        <span class="cv-profile-dialog__label">Experience</span>
+        @if (profile.experiences.length === 0) {
+          <p>No experience entries found.</p>
+        } @else {
+          <ul class="cv-profile-dialog__experiences">
+            @for (experience of profile.experiences; track experience.id) {
+              <li class="cv-profile-dialog__experience">
+                <div class="cv-profile-dialog__experience-header">
+                  <strong>{{ experience.title || 'Untitled role' }}</strong>
+                  <span>{{ experience.company || 'Unknown company' }}</span>
+                </div>
+                <div class="cv-profile-dialog__experience-dates">
+                  {{ experience.startDate ? (experience.startDate | date: 'MMM y') : '?' }}
+                  –
+                  {{ experience.endDate ? (experience.endDate | date: 'MMM y') : 'Present' }}
+                </div>
+                @if (experience.description) {
+                  <p>{{ experience.description }}</p>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    } @else if (profile.status === 'FAILED') {
+      <div class="cv-profile-dialog__error" role="alert">
+        <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+        <span>{{ profile.errorMessage || 'Generation failed.' }}</span>
+      </div>
+    } @else {
+      <p class="cv-profile-dialog__hint">
+        Generate a structured profile (name, summary, experience) from this CV's extracted text using an AI
+        provider.
+      </p>
+    }
+
+    @if (generateError()) {
+      <div class="cv-profile-dialog__error" role="alert">
+        <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+        <span>{{ generateError() }}</span>
+      </div>
+    }
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  @if (!loading() && !loadError()) {
+    <button mat-stroked-button type="button" [disabled]="generating()" (click)="generate()">
+      @if (generating()) {
+        <mat-progress-spinner diameter="16" mode="indeterminate" />
+      } @else {
+        <svg lucideSparkles [size]="16" aria-hidden="true"></svg>
+      }
+      {{ profile()?.status === 'COMPLETED' || profile()?.status === 'FAILED' ? 'Regenerate' : 'Generate profile' }}
+    </button>
+  }
+  <button mat-button type="button" (click)="close()">Close</button>
+</mat-dialog-actions>

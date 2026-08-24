@@ -2,6 +2,7 @@ package de.jeb.japp.model.user;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,6 +22,13 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    /** Defaults true so every existing new User(...) call site (registration, AdminSeeder) keeps working unchanged. */
+    @Column(nullable = false)
+    private boolean enabled = true;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
 
     public String getEmail() {
@@ -61,5 +69,21 @@ public class User {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

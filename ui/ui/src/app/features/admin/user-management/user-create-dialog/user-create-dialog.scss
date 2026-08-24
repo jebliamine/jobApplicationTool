@@ -1,0 +1,31 @@
+.user-create-dialog__error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--japp-spacing-sm);
+  margin-bottom: var(--japp-spacing-md);
+  padding: var(--japp-spacing-sm) var(--japp-spacing-md);
+  border-radius: var(--japp-radius-sm);
+  background: color-mix(in srgb, var(--japp-color-error) 12%, var(--japp-surface));
+  color: var(--japp-color-error);
+  font-size: 0.875rem;
+
+  svg {
+    flex: none;
+    margin-top: 1px;
+  }
+}
+
+.user-create-dialog__form {
+  display: flex;
+  flex-direction: column;
+  min-width: 320px;
+}
+
+.user-create-dialog__field {
+  width: 100%;
+}
+
+mat-progress-spinner {
+  display: inline-flex;
+  --mdc-circular-progress-active-indicator-color: var(--japp-color-on-primary);
+}

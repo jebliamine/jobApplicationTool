@@ -1,7 +1,9 @@
 package de.jeb.japp.rest.core;
 
 import de.jeb.japp.cv.service.CVServiceInterface;
+import de.jeb.japp.generation.service.CvProfileExtractionService;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.cv.dto.CVProfileResponse;
 import de.jeb.japp.model.cv.dto.CVResponse;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
@@ -23,9 +25,11 @@ import java.util.UUID;
 public class CvController {
 
     private final CVServiceInterface cvService;
+    private final CvProfileExtractionService cvProfileExtractionService;
 
-    public CvController(CVServiceInterface cvService) {
+    public CvController(CVServiceInterface cvService, CvProfileExtractionService cvProfileExtractionService) {
         this.cvService = cvService;
+        this.cvProfileExtractionService = cvProfileExtractionService;
     }
 
     @GetMapping("/{id}")
@@ -85,5 +89,21 @@ public class CvController {
     public ResponseEntity<Void> deleteCv(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         cvService.deleteCv(id, user);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{id}/profile")
+    public CVProfileResponse getCvProfile(@PathVariable UUID id, @AuthenticationPrincipal User user) {
+        return cvProfileExtractionService.get(id, user)
+                .map(CVProfileResponse::from)
+                .orElseGet(CVProfileResponse::notAttempted);
+    }
+
+    @PostMapping("/{id}/profile")
+    public CVProfileResponse generateCvProfile(
+            @PathVariable UUID id,
+            @RequestParam(required = false) UUID providerId,
+            @AuthenticationPrincipal User user
+    ) {
+        return CVProfileResponse.from(cvProfileExtractionService.generate(id, providerId, user));
     }
 }

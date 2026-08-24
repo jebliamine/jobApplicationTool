@@ -1,0 +1,50 @@
+<h2 mat-dialog-title>New user</h2>
+<mat-dialog-content>
+  @if (serverError()) {
+    <div class="user-create-dialog__error" role="alert">
+      <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+      <span>{{ serverError() }}</span>
+    </div>
+  }
+
+  <form class="user-create-dialog__form" [formGroup]="form" novalidate>
+    <mat-form-field appearance="outline" class="user-create-dialog__field">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" formControlName="fullName" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="user-create-dialog__field">
+      <mat-label>Email</mat-label>
+      <input matInput type="email" formControlName="email" required />
+      @if (form.controls.email.invalid && form.controls.email.touched) {
+        <mat-error>A valid email is required.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="user-create-dialog__field">
+      <mat-label>Password</mat-label>
+      <input matInput type="password" formControlName="password" required />
+      @if (form.controls.password.invalid && form.controls.password.touched) {
+        <mat-error>Password must be at least 8 characters.</mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="user-create-dialog__field">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role" required>
+        <mat-option value="USER">User</mat-option>
+        <mat-option value="ADMIN">Admin</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-stroked-button type="button" [disabled]="submitting()" (click)="cancel()">Cancel</button>
+  <button mat-flat-button color="primary" type="button" [disabled]="submitting()" (click)="submit()">
+    @if (submitting()) {
+      <mat-progress-spinner diameter="18" mode="indeterminate" />
+    } @else {
+      Create
+    }
+  </button>
+</mat-dialog-actions>

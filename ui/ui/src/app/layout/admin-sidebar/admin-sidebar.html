@@ -27,6 +27,9 @@
           @case ('ai-providers') {
             <svg lucideBrainCircuit [size]="20" matListItemIcon aria-hidden="true"></svg>
           }
+          @case ('users') {
+            <svg lucideUsers [size]="20" matListItemIcon aria-hidden="true"></svg>
+          }
         }
         @if (!collapsed()) {
           <span matListItemTitle>{{ page.label | translate }}</span>

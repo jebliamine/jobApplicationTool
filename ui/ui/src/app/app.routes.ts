@@ -167,6 +167,11 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/admin/ai-providers/ai-provider-list/ai-provider-list').then((m) => m.AiProviderList),
       },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/admin/user-management/user-management').then((m) => m.UserManagement),
+      },
     ],
   },
   { path: '**', redirectTo: '' },
