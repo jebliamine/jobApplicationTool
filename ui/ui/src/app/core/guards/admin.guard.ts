@@ -1,5 +1,7 @@
 import { inject } from '@angular/core';
+import { toObservable } from '@angular/core/rxjs-interop';
 import { CanActivateFn, Router } from '@angular/router';
+import { filter, map, take } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { UserService } from '../user/user.service';
 
@@ -20,5 +22,15 @@ export const adminGuard: CanActivateFn = () => {
     return router.createUrlTree(['/login']);
   }
 
-  return userService.currentUser()?.role === 'ADMIN' ? true : router.createUrlTree(['/dashboard']);
+  // authGuard already triggered UserService.ensureLoaded(), but that fetch is
+  // async — on a fresh load of an admin URL (bookmark, reload), currentUser()
+  // can still be null here even for a real admin, incorrectly bouncing them
+  // to /dashboard. Wait for the profile fetch to settle before deciding,
+  // instead of reading a signal that might still be mid-request. Resolves
+  // immediately (no extra wait) once the profile is already loaded.
+  return toObservable(userService.loading).pipe(
+    filter((loading) => !loading),
+    take(1),
+    map(() => (userService.currentUser()?.role === 'ADMIN' ? true : router.createUrlTree(['/dashboard']))),
+  );
 };

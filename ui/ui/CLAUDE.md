@@ -2,1023 +2,299 @@
 
 ## 1. Purpose
 
-This directory contains the Angular frontend for JAPP.
+This directory (`ui/ui`) contains the Angular frontend for JAPP, a full-stack application for managing job applications, companies, job descriptions, CVs, cover letters, AI-generated application documents, and user settings.
 
-JAPP is a full-stack application for managing:
+The frontend communicates with the Spring Boot backend through REST APIs under `/api/v1/**`. The backend is the authoritative source of truth — see the root `CLAUDE.md` for backend module structure, the AI provider/generation architecture, and API-contract rules.
 
-- Job applications
-- Companies
-- Job descriptions
-- CVs
-- Cover letters
-- AI-generated application documents
-- User settings
-
-The frontend communicates with the Spring Boot backend through REST APIs.
-
-The backend API is the authoritative source of truth.
-
-The frontend MUST NOT invent:
-
-- API endpoints
-- DTO fields
-- request structures
-- response structures
-- validation rules
-- authentication behavior
-- authorization behavior
-- business logic
-
-Before implementing API-related functionality, inspect the corresponding backend implementation.
+The frontend MUST NOT invent API endpoints, DTO fields, request/response structures, validation rules, authentication/authorization behavior, or business logic. Before implementing API-related functionality, inspect the corresponding backend controller/DTO/service.
 
 ---
 
-# 2. Technology Stack
+## 2. Technology Stack
 
-The frontend uses:
+Confirmed current stack (Angular 22.x, TypeScript ~6.0):
 
-- Angular
-- TypeScript
-- Angular Material
-- Angular CDK
+- Angular (standalone components, no NgModules)
+- Angular Material (M3) + Angular CDK
 - SCSS
 - RxJS
 - Angular Signals
-- Angular Reactive Forms
-- Lucide Angular
-- Playwright
+- Angular Reactive Forms (typed)
+- Lucide Angular (`@lucide/angular`)
+- `@ngx-translate/core` + `@ngx-translate/http-loader` for i18n (see §11 below)
+- Playwright MCP server (browser verification tool — see §31; there is currently **no** Playwright test suite/config committed in this repo, only the MCP tool)
 
-## Explicitly prohibited UI frameworks
+### Explicitly prohibited UI frameworks
 
-Do NOT introduce:
+Do NOT introduce Tailwind CSS, Bootstrap, PrimeNG, DaisyUI, Materialize, another CSS framework, or another component library, unless explicitly requested by the project owner.
 
-- Tailwind CSS
-- Bootstrap
-- PrimeNG
-- DaisyUI
-- Materialize
-- another CSS framework
-- another component library
-
-unless explicitly requested by the project owner.
-
-Angular Material is the primary component library.
-
-SCSS is the primary custom styling technology.
+Angular Material is the primary component library. SCSS is the primary custom styling technology.
 
 ---
 
-# 3. UI Philosophy
+## 3. UI Philosophy
 
-JAPP should look like a modern professional SaaS application.
+JAPP should look like a modern, professional SaaS application: clean, minimal, consistent, responsive, accessible, visually calm, information-focused. Avoid the generic Angular Material demo look.
 
-The visual design should be:
-
-- modern
-- clean
-- professional
-- minimal
-- consistent
-- responsive
-- accessible
-- visually calm
-- information-focused
-
-Avoid making the application look like a generic Angular Material demo.
-
-Angular Material provides the component foundation.
-
-The JAPP design system must provide the application's own:
-
-- color system
-- typography
-- spacing
-- elevation
-- border radius
-- component styling
-- layout patterns
-- navigation patterns
-
-The goal is:
-
-```text
-Angular Material
-       +
-JAPP Design System
-       +
-SCSS
-       =
-Modern JAPP UI
 ```
----
-
-# 4. Component Library
-
-Angular Material is the primary component library.
-
-Prefer Angular Material components for standard interactive UI elements.
-
-Examples:
-
-Buttons
-Inputs
-Form fields
-Selects
-Checkboxes
-Radio buttons
-Date pickers
-Dialogs
-Menus
-Toolbars
-Sidenav
-Tables
-Paginator
-Tabs
-Cards
-Snackbars
-Progress indicators
-Tooltips
-
-Use Angular CDK when functionality is not directly provided by Angular Material.
-
-Do not recreate standard UI components manually when Angular Material already provides an appropriate component.
+Angular Material + JAPP Design System + SCSS = Modern JAPP UI
+```
 
 ---
 
-# 5. Icons
+## 4. Component Library
 
-Use Lucide Angular for application icons.
+Prefer Angular Material components for standard interactive elements (buttons, inputs, form fields, selects, checkboxes, radio buttons, date pickers, dialogs, menus, toolbars, sidenav, tables, paginator, tabs, cards, snackbars, progress indicators, tooltips). Use Angular CDK when Material doesn't provide the needed functionality. Do not hand-roll a component Material already provides.
 
-Prefer recognizable, simple icons.
+---
 
-Do not use:
+## 5. Icons
 
-emoji as UI icons
-arbitrary Unicode symbols
-manually drawn SVG icons when an appropriate Lucide icon exists
+Use Lucide Angular (`@lucide/angular`) for icons — confirmed in active use across the app (~40 components import individual tree-shaken icon components, e.g. `LucideCircleAlert`). Do not use emoji or arbitrary Unicode as UI icons, and don't hand-draw SVG icons when a Lucide icon exists. For icon-only buttons, always provide an accessible label:
 
-Icons should have consistent sizing and visual weight.
-
-Icons must not replace accessible text when the meaning is ambiguous.
-
-For icon-only buttons, provide an accessible label.
-
-Example:
-
-<button
-  mat-icon-button
-  aria-label="Delete application"
->
+```html
+<button mat-icon-button aria-label="Delete application">
   <lucide-icon name="trash-2" />
 </button>
+```
 
 ---
 
-# 6. SCSS
+## 6. SCSS
 
-SCSS is the primary custom styling technology.
-
-Do not use Tailwind CSS.
-
-Do not introduce utility-class CSS frameworks.
-
-Prefer:
-
-component-scoped SCSS
-shared SCSS variables
-CSS custom properties
-Angular Material theming
-reusable layout classes only where genuinely useful
-
-Avoid excessive global CSS.
-
-A component should own its component-specific styling.
+SCSS is the primary custom styling technology. No Tailwind, no utility-class frameworks. Prefer component-scoped SCSS, shared SCSS variables, CSS custom properties, and Angular Material theming. A component owns its component-specific styling; avoid excessive global CSS.
 
 ---
 
-# 7. Design System
+## 7. Design System / Design Tokens
 
-JAPP must have a consistent design system.
+The app uses a two-layer token system, already implemented — extend it, don't replace it:
 
-Centralize important design decisions such as:
+- `_tokens.scss` defines `--japp-*` semantic tokens layered on top of Material's own `--mat-sys-*` M3 tokens (`mat.theme()` in `styles.scss`), plus independent spacing/radius/shadow/transition/layout tokens.
+- `_theme-colors.scss` holds a hand-tuned dark palette that intentionally overrides the raw M3-generated dark surfaces (there's a comment in the code explaining why — read it before changing dark-mode colors).
 
-colors
-typography
-spacing
-border radius
-shadows
-transitions
-layout dimensions
+Example token style:
 
-Prefer CSS custom properties for values that need to change between themes.
-
-Example:
-
+```scss
 :root {
   --japp-spacing-xs: 4px;
   --japp-spacing-sm: 8px;
   --japp-spacing-md: 16px;
-  --japp-spacing-lg: 24px;
-  --japp-spacing-xl: 32px;
-
-
   --japp-radius-sm: 6px;
   --japp-radius-md: 10px;
-  --japp-radius-lg: 16px;
 }
+```
 
-Do not create an unnecessarily complicated design-token system.
-
-Expand the design system as the application grows.
-
----
-
-# 8. Modern Visual Design
-
-Avoid the default "Angular starter application" appearance.
-
-Avoid excessive:
-
-gradients
-shadows
-rounded cards
-animations
-decorative elements
-visual noise
-
-Use whitespace and hierarchy to organize information.
-
-Prefer:
-
-clear page titles
-meaningful sections
-subtle elevation
-consistent spacing
-restrained borders
-clear primary actions
-strong typography hierarchy
-
-UI should feel like a production SaaS application rather than a component showcase.
+Do not create an unnecessarily complicated token system, but do keep new colors/spacing centralized here rather than hard-coded in components.
 
 ---
 
-# 9. Color System
+## 8. Modern Visual Design
 
-Define a JAPP-specific color system.
-
-The color system must support:
-
-primary color
-secondary/accent color
-success
-warning
-error
-informational states
-background
-surface
-text
-muted text
-borders
-
-Do not hard-code arbitrary colors throughout components.
-
-Prefer centralized theme variables.
-
-Ensure sufficient contrast in both light and dark themes.
+Avoid the default "Angular starter application" look and excessive gradients/shadows/rounded cards/animations/visual noise. Use whitespace and hierarchy. Prefer clear page titles, meaningful sections, subtle elevation, consistent spacing, restrained borders, clear primary actions, strong typography hierarchy.
 
 ---
 
-# 10. Light and Dark Mode
+## 9. Color System
 
-JAPP MUST support:
-
-Light mode
-Dark mode
-System mode
-
-The default behavior should respect the user's operating-system preference.
-
-The user must be able to explicitly select:
-
-Light
-Dark
-System
-
-The explicit selection should be persisted.
-
-Theme switching must not require a page reload.
-
-Both themes must be treated as first-class designs.
-
-Do not design the light theme first and "fix dark mode later."
+A JAPP-specific color system covers primary, secondary/accent, success, warning, error, informational, background, surface, text, muted text, and borders — centralized as theme variables (see §7), not hard-coded per component. Ensure sufficient contrast in both light and dark themes.
 
 ---
 
-# 11. Dark Mode Requirements
+## 10. Light, Dark, and System Mode
 
-Every major UI element must be checked in both themes.
-
-This includes:
-
-navigation
-cards
-forms
-dialogs
-tables
-dropdowns
-menus
-buttons
-inputs
-validation messages
-loading states
-empty states
-error states
-success states
-
-Do not use fixed colors that become unreadable in dark mode.
-
-Prefer semantic theme variables.
-
-For example:
-
-background: var(--japp-surface);
-color: var(--japp-text-primary);
-border-color: var(--japp-border);
-
-rather than arbitrary hard-coded colors.
-
- ---
-
-# 12. Responsive Design
-
-JAPP MUST be fully usable on:
-
-desktop
-laptop
-tablet
-mobile
-
-Responsive behavior must be considered when implementing the component, not added afterward.
-
-Use:
-
-CSS Flexbox
-CSS Grid
-CSS media queries
-Angular CDK BreakpointObserver where behavioral changes are required
-
-Do not use JavaScript for simple CSS layout problems.
+Implemented via `ThemeService` (`core/theme/theme.service.ts`): a signal-based `mode` (`light | dark | system`) persisted to `localStorage['japp-theme']`, an `effectiveTheme` computed against `matchMedia('(prefers-color-scheme: dark)')`, applied via an `effect()` that sets `document.documentElement.dataset.theme` — no reload required. Default respects OS preference; explicit selection persists. Both themes are first-class — check every major UI element (nav, cards, forms, dialogs, tables, dropdowns, menus, inputs, validation/loading/empty/error/success states) in both themes. Use semantic theme variables (`var(--japp-surface)`, `var(--japp-text-primary)`, `var(--japp-border)`), never fixed colors that break in dark mode.
 
 ---
 
-# 13. Mobile Design
+## 11. Localization (i18n)
 
-Mobile is a first-class platform.
+The app uses `@ngx-translate/core` + `@ngx-translate/http-loader`. Translation files: `ui/ui/public/i18n/{en,de}.json`. `LanguageService` (`core/language/language.service.ts`) mirrors `ThemeService`'s pattern exactly — signal + `effect()` + `localStorage` persistence — and falls back to the browser's language if unset. Currently supported: `en`, `de`.
 
-Do not simply shrink the desktop UI.
-
-When necessary, redesign the layout for smaller screens.
-
-Example:
-
-Desktop:
-
-┌──────────────┬──────────────────────────┐
-│              │                          │
-│   Sidebar    │       Main Content       │
-│              │                          │
-└──────────────┴──────────────────────────┘
-
-Mobile:
-
-┌──────────────────────────┐
-│       Top Navigation     │
-├──────────────────────────┤
-│                          │
-│       Main Content       │
-│                          │
-└──────────────────────────┘
-
-Navigation should become appropriate for mobile.
-
-Large desktop tables should have an explicit mobile strategy.
-
-Possible strategies:
-
-responsive columns
-horizontal scrolling when justified
-alternative card/list presentation
-hiding secondary information
-opening detail views
-
-Never allow important information to become inaccessible on mobile.
+When adding user-facing text, add translation keys to both `en.json` and `de.json` rather than hard-coding strings, following the existing key structure in those files.
 
 ---
 
-# 14. Accessibility
+## 12. Responsive Design
 
-Accessibility is mandatory.
-
-Use semantic HTML.
-
-Support:
-
-keyboard navigation
-visible focus states
-screen readers
-sufficient color contrast
-accessible form labels
-accessible dialogs
-accessible navigation
-accessible icon buttons
-
-Use ARIA only when necessary.
-
-Prefer native semantic HTML.
-
-Do not use color alone to communicate important information.
-
-For example, an error should not be communicated only by a red border.
+JAPP must be fully usable on desktop, laptop, tablet, and mobile. Consider responsive behavior while implementing a component, not afterward. Use CSS Flexbox/Grid/media queries, and `BreakpointObserver` (Angular CDK) only where actual behavioral changes (not just layout) are required.
 
 ---
 
-# 15. Angular Architecture
+## 13. Mobile Design
 
-Use modern Angular architecture.
-
-Prefer:
-
-standalone components
-standalone directives
-standalone pipes
-dependency injection
-Signals
-RxJS
-
-Avoid introducing NgModules unless required by the project or a dependency.
-
-Components should primarily handle:
-
-presentation
-user interaction
-local UI state
-
-Business logic should live in services.
-
-API communication should live in dedicated services.
+Mobile is a first-class platform, not a shrunk desktop UI. Redesign layout for smaller screens when necessary (e.g. sidebar → top navigation). Large desktop tables need an explicit mobile strategy (responsive columns, horizontal scroll when justified, card/list presentation, or detail views) — never let important information become inaccessible on mobile.
 
 ---
 
-# 16. Feature-Based Structure
+## 14. Accessibility
 
-Prefer feature-oriented organization.
+Mandatory. Use semantic HTML; support keyboard navigation, visible focus states, screen readers, sufficient color contrast, accessible form labels/dialogs/navigation/icon buttons. Use ARIA only when native semantic HTML isn't enough. Never communicate important information with color alone (e.g. an error needs more than a red border).
 
-Recommended structure:
+---
 
+## 15. Angular Architecture
+
+Standalone components/directives/pipes only — no NgModules unless a dependency requires one (none currently do; the entire `src/app` tree is standalone). Use `inject()`-style DI, Signals, and RxJS where appropriate. Components handle presentation, user interaction, and local UI state; business logic and API calls live in services.
+
+---
+
+## 16–17. Structure
+
+Feature-oriented organization (guideline, not a rigid requirement):
+
+```
 src/app/
-
-
-├── core/
-│   ├── auth/
-│   ├── guards/
-│   ├── interceptors/
-│   ├── services/
-│   └── models/
-│
-├── shared/
-│   ├── components/
-│   ├── directives/
-│   ├── pipes/
-│   └── models/
-│
-├── layout/
-│   ├── shell/
-│   ├── navbar/
-│   ├── sidebar/
-│   └── footer/
-│
-├── features/
-│   ├── auth/
-│   ├── dashboard/
-│   ├── cv/
-│   ├── jobs/
-│   ├── applications/
-│   ├── cover-letters/
-│   └── settings/
-│
+├── core/        (auth, guards, interceptors, services, models, theme, language, http)
+├── shared/      (genuinely reusable components/directives/pipes/models only)
+├── layout/      (user-shell, admin-shell, topbar, admin-sidebar, user-nav, user-menu, nav-search, notification-bell, theme-toggle)
+├── features/    (auth, dashboard, cv, jobs, companies, applications, cover-letters, settings, admin/*)
 ├── app.config.ts
 ├── app.routes.ts
 └── app.ts
+```
 
-This structure is a guideline, not an absolute requirement.
-
-Do not create unnecessary abstractions merely to follow the structure.
-
----
-
-# 17. Feature Structure
-
-A feature can contain its own:
-
-components
-models
-services
-routes
-state
-
-Example:
-
-features/
-└── applications/
-
-
-    ├── application-list/
-    ├── application-detail/
-    ├── application-form/
-    ├── applications.service.ts
-    └── applications.models.ts
-
-Keep feature-specific code inside the feature.
-
-Do not put feature-specific functionality into shared.
-
-shared should contain genuinely reusable functionality.
+Two routed shells exist today, split at the route level (not conditional rendering): `layout/user-shell/` for authenticated user routes, `layout/admin-shell/` for admin routes. Keep feature-specific code inside its feature; `shared/` is for things genuinely reused across features, not a dumping ground.
 
 ---
 
-# 18. TypeScript
+## 18. TypeScript
 
-Use strict TypeScript.
-
-Never use:
-
-any
-
-unless absolutely unavoidable and explicitly documented.
-
-Avoid:
-
-as any
-
-Do not use type assertions to bypass compiler errors.
-
-Prefer:
-
-interfaces
-type aliases
-strongly typed observables
-strongly typed forms
-typed API responses
-
+Use strict typing. Never use `any` unless truly unavoidable and explicitly documented. Never use `as any` or type assertions to bypass compiler errors. Prefer interfaces/type aliases, strongly typed observables, typed reactive forms (`FormGroup<...>`, `FormControl<T>` with `nonNullable: true`), and typed API responses.
 
 ---
 
-# 19. Backend Contract
+## 19. Backend Contract
 
-The Spring Boot backend is the source of truth.
-
-Before implementing an API integration:
-
-Read the controller.
-Read the request DTO.
-Read the response DTO.
-Read validation annotations.
-Read service behavior.
-Check authentication requirements.
-Check relevant persistence models if necessary.
-
-Do not invent endpoints.
-
-Do not invent fields.
-
-Do not rename API fields for convenience.
-
-If frontend and backend disagree, stop and identify the mismatch.
-
-Do not silently compensate for the mismatch.
+The Spring Boot backend is the source of truth (see root `CLAUDE.md` §6–9 for the current controller list and AI provider architecture). Before implementing an API integration: read the controller, request DTO, response DTO, validation annotations, service behavior, auth requirements, and relevant persistence model if needed. Never invent endpoints or fields, never rename API fields for convenience. If frontend and backend disagree, stop and identify the mismatch rather than silently compensating for it.
 
 ---
 
-# 20. API Services
+## 20. API Services
 
-Keep HTTP calls inside services.
+```
+Component → Feature Service → HttpClient → REST API
+```
 
-Preferred architecture:
+One service per feature (`ApplicationService`, `GenerationService`, `CoverLetterService`, `AiProviderService`, `UserService`, etc.), each building its URL from `environment.apiUrl` + resource path. Keep substantial HTTP logic out of components. Use the shared `describeApiError()` helper (`core/http/describe-api-error.ts`) for consistent user-facing error text rather than inlining error parsing per component.
 
-Component
-    ↓
-Feature Service
-    ↓
-HttpClient
-    ↓
-REST API
-
-Do not place substantial HTTP logic directly inside components.
-
-Use strongly typed HTTP requests.
+`environment.ts` currently has no `environment.prod.ts` counterpart — a single environment file is in use; don't assume a prod/dev split exists without checking `angular.json`'s configurations first.
 
 ---
 
-# 21. Authentication
+## 21. Authentication
 
-Authentication uses JWT.
+JWT. Backend endpoints: `POST /api/v1/auth/login`, `POST /api/v1/auth/register`. Header: `Authorization: Bearer <token>`.
 
-Backend endpoints:
+A single functional `authInterceptor` (`core/interceptors/auth.interceptor.ts`) attaches the token and handles session-expiry redirects centrally — don't duplicate token-attachment logic in individual services.
 
-POST /api/v1/auth/login
-POST /api/v1/auth/register
+**Known backend quirk, already handled — don't "fix" it without understanding why**: the backend has no `AuthenticationEntryPoint` configured, so both an anonymous/invalid-token request and an authenticated-but-forbidden (ownership) request can return HTTP 403. The interceptor distinguishes them by response body shape: a bodyless 403 is treated as session-expired (triggers logout + redirect to `/login`); a 403 carrying `{message}` is treated as a normal forbidden-action error and shown to the user. If you touch this interceptor, preserve that distinction.
 
-Authorization:
-
-Authorization: Bearer <token>
-
-Use an HTTP interceptor for attaching the JWT.
-
-Do not duplicate token logic throughout API services.
-
-Handle authentication errors centrally where appropriate.
+Route guards (`core/guards/`) are UX convenience only, not the security boundary — the server enforces auth/role checks independently (see root `CLAUDE.md` §7). `authGuard` checks `AuthService.isAuthenticated()` and triggers `UserService.ensureLoaded()`; `guestGuard`/`publicGuard` redirect authenticated users away from public/auth pages; `adminGuard` waits on `UserService`'s loading signal before reading `currentUser()?.role === 'ADMIN'`, to avoid a race on fresh page loads where the profile hasn't loaded yet.
 
 ---
 
-# 22. Forms
+## 22. Forms
 
-Use Angular Reactive Forms.
-
-Prefer strongly typed forms.
-
-Forms must:
-
-match backend DTOs
-reproduce relevant backend validation
-show clear validation messages
-show loading state
-prevent duplicate submissions
-display server validation errors
-
-Frontend validation does not replace backend validation.
+Angular Reactive Forms, strongly typed, matching backend request DTOs closely. Forms must reproduce relevant backend validation, show clear validation messages and loading state, prevent duplicate submissions, and display server validation errors. Frontend validation does not replace backend validation.
 
 ---
 
-# 23. Loading States
+## 23–25. Loading / Error / Empty States
 
-All asynchronous user operations should provide appropriate feedback.
-
-Examples:
-
-Loading
-Saving
-Uploading
-Generating
-Deleting
-
-Prevent duplicate actions where appropriate.
-
-Avoid blocking the entire application for a small local operation.
+No shared global loading/error/empty component exists — the current, consistent pattern is per-component: a local `signal<boolean>` for loading/submitting, a `signal<string|null>` for `serverError`, `ToastService` (`core/ui/toast.service.ts`) for transient success/error messages, and `describeApiError()` for turning `HttpErrorResponse` into user-facing text. Follow this pattern for new features rather than introducing a different one. Every important list needs a meaningful empty state with a clear call-to-action where appropriate; never expose stack traces or internal backend details to users.
 
 ---
 
-# 24. Error States
+## 26. Component Design
 
-Handle:
-
-validation errors
-network errors
-authentication errors
-authorization errors
-server errors
-unexpected errors
-
-Present errors in user-friendly language.
-
-Do not expose stack traces or internal backend details to users.
+Keep components focused on presentation, interaction, and local state. Extract logic (into a service) when a component starts accumulating substantial API calls, business logic, complex state, and validation together — but don't prematurely extract before that complexity actually shows up.
 
 ---
 
-# 25. Empty States
+## 27. State Management
 
-Every important list should have a meaningful empty state.
-
-Example:
-
-No job applications yet.
-
-
-Create your first application to get started.
-
-Where appropriate, provide a clear call-to-action.
-
-Do not leave users with an unexplained empty screen.
+Signals + services + RxJS is the current and sufficient approach — no NgRx or other global state library is in use. Don't introduce one merely because it's popular; only when complexity genuinely justifies it, and discuss it first.
 
 ---
 
-# 26. Component Design
+## 28. Routing
 
-Keep components focused.
-
-Avoid components containing all of:
-
-API communication
-business logic
-complex state
-validation
-navigation
-large templates
-
-Extract logic when complexity increases.
-
-Do not prematurely create abstractions.
+Angular Router, feature-oriented, fully lazy-loaded via `loadComponent()` (confirmed — every route in `app.routes.ts` lazy-loads). Route guards protect authenticated/admin areas (see §21). Don't duplicate authorization logic inside components that a guard already covers.
 
 ---
 
-# 27. State Management
+## 29. Performance
 
-Do not introduce a global state-management library unless necessary.
-
-Start with:
-
-Angular Signals
-services
-RxJS
-
-Do not introduce NgRx merely because it is popular.
-
-Introduce global state management only when the application's complexity justifies it.
+Lazy-loaded routes, efficient observables, Signals where appropriate, pagination for large datasets, optimized images, avoiding unnecessary subscriptions. Don't prematurely optimize — only when there's a real performance requirement.
 
 ---
 
-# 28. Routing
+## 30. Testing
 
-Use Angular Router.
+Test runner: **`@angular/build:unit-test`** (esbuild/Vitest-based, via `angular.json`'s `test` target — not Karma), with Jasmine-style BDD syntax (`describe`/`it`/`expect`, `TestBed`) and `HttpTestingController` for HTTP-service specs. Run with `npm test` (`ng test`).
 
-Use feature-oriented routes.
+There is currently no committed Playwright test suite or config in this repo (no `playwright.config.*`, no e2e spec files) — Playwright is available only as an MCP tool for ad hoc browser verification (§31), not as an automated regression suite. Do not claim "Playwright tests pass" — there are none to run. If the project owner asks for a real e2e suite, that's a separate, explicit task (adding `@playwright/test`, config, and spec files), not something to assume already exists.
 
-Use route guards for protected areas.
-
-Prefer lazy-loaded feature routes where appropriate.
-
-Do not duplicate authorization logic throughout components.
+For UI changes, verify the affected user flow manually via the Playwright MCP tool when it's available and useful (see §31), and say explicitly whether you did or didn't.
 
 ---
 
-# 29. Performance
+## 31. Playwright MCP
 
-Prefer:
-
-lazy-loaded routes
-efficient observables
-Signals where appropriate
-pagination for large datasets
-optimized images
-avoiding unnecessary subscriptions
-
-Do not prematurely optimize.
-
-Optimize when there is a real performance requirement.
-
-30. UI Testing
-
-Use Playwright for end-to-end browser testing.
-
-Test real user workflows.
-
-Important workflows include:
-
-registration
-login
-logout
-CV upload
-job creation
-application creation
-cover-letter generation
-settings
-theme switching
-responsive/mobile behavior
-
-Do not test implementation details when user-level behavior can be tested instead.
+Use the Playwright MCP server when browser interaction or UI verification provides real value: inspecting the current UI, verifying a new page, checking responsive behavior, testing forms/navigation, checking dark/light mode, reproducing a browser-specific problem. Don't use it for backend-only tasks, and don't invoke it unnecessarily (it costs context/tokens per call). Don't claim browser verification happened if it wasn't actually used in this session.
 
 ---
 
-# 31. Playwright MCP
+## 32. MCP Efficiency
 
-Use the Playwright MCP server when browser interaction or UI verification provides value.
-
-Examples:
-
-inspecting the current UI
-verifying a new page
-checking responsive behavior
-testing forms
-testing navigation
-checking dark/light mode
-reproducing browser-specific problems
-
-Do not use Playwright MCP for backend-only tasks.
-
-Do not invoke it unnecessarily.
+Available MCP servers for this repo (`.mcp.json`): `playwright`, `github` (via Docker), `postgres`. Locally, only `playwright` is currently enabled (`.claude/settings.local.json`) — `github` and `postgres` are configured but not enabled in this environment; verify availability before assuming either is reachable. Use only the MCP server relevant to the task at hand.
 
 ---
 
-# 32. MCP Efficiency
+## 33. Dependency Rules
 
-Available MCP servers may include:
+Before installing a new npm package: check whether Angular, Angular Material/CDK, or an existing dependency already covers it; determine whether it's genuinely necessary; explain the reason before adding it. Don't add UI libraries casually.
 
-GitHub
-Playwright
-Angular
-
-Use only the MCP server relevant to the task.
-
-Examples:
-
-Backend-only task:
-
-Do not use Playwright.
-
-GitHub-only task:
-
-Use GitHub MCP if repository information is required.
-
-UI task:
-
-Use Playwright when browser verification is useful.
-
-Avoid unnecessary MCP tool calls because they increase context and token usage.
+Approved primary stack: Angular, Angular Material, Angular CDK, SCSS, RxJS, Angular Signals, Reactive Forms, Lucide Angular, `@ngx-translate`. No Tailwind, Bootstrap, PrimeNG, or competing UI/component frameworks.
 
 ---
 
-# 33. Dependency Rules
+## 34. Development Workflow
 
-Before installing a new npm package:
-
-Check whether Angular already provides the functionality.
-Check Angular Material/CDK.
-Check whether an existing project dependency provides it.
-Determine whether the dependency is genuinely necessary.
-Explain the reason before adding it.
-
-Do not add UI libraries casually.
-
-The approved primary UI stack is:
-
-Angular
-Angular Material
-Angular CDK
-SCSS
-RxJS
-Angular Signals
-Reactive Forms
-Lucide Angular
-Playwright
-
-Do not add Tailwind CSS.
-
-Do not add Bootstrap.
-
-Do not add PrimeNG.
-
-Do not add competing UI frameworks.
+1. **Inspect** — understand existing implementation before changing it.
+2. **Backend contract** — if the feature touches the backend, inspect the controller, DTO, service, persistence layer, and migrations where relevant (root `CLAUDE.md` has the current module map).
+3. **Plan** — for significant changes, state files to modify, architecture, API interaction, UI structure, testing strategy.
+4. **Implement** — incrementally; don't touch unrelated files or do unrelated refactoring.
+5. **Verify** — run the Angular build, TypeScript checks, and unit tests (`npm test`); use Playwright MCP for a real UI flow when useful and available.
+6. **Review** — inspect `git diff`, ensure no unrelated changes.
 
 ---
 
-# 34. Development Workflow
+## 35. Existing Code Has Priority
 
-For every feature:
-
-Step 1 — Inspect
-
-Understand existing implementation before changing it.
-
-Step 2 — Backend Contract
-
-If the feature communicates with the backend:
-
-inspect controller
-inspect DTO
-inspect service
-inspect persistence layer
-inspect migrations where relevant
-Step 3 — Plan
-
-Before significant changes, describe:
-
-files to modify
-architecture
-API interaction
-UI structure
-testing strategy
-Step 4 — Implement
-
-Implement incrementally.
-
-Do not modify unrelated files.
-
-Do not perform unrelated refactoring.
-
-Step 5 — Verify
-
-Run appropriate:
-
-Angular build
-TypeScript checks
-unit tests
-Playwright tests
-Step 6 — Review
-
-Inspect:
-
-git diff
-
-Ensure there are no unrelated changes.
+Search existing code, reuse existing services/components, follow established conventions, avoid duplicate implementations. Don't build a new solution when an appropriate one already exists.
 
 ---
 
-# 35. Existing Code Has Priority
+## 36. Do Not Invent Requirements
 
-Before creating new functionality:
-
-Search existing code.
-Reuse existing services.
-Reuse existing components.
-Follow established project conventions.
-Avoid duplicate implementations.
-
-Do not create a new solution when an appropriate existing solution already exists.
+If requirements are unclear: inspect existing code, backend contracts, and docs; identify reasonable assumptions and state them clearly. Don't silently invent business behavior. For major architectural decisions, explain trade-offs before implementing.
 
 ---
 
-# 36. Do Not Invent Requirements
+## 37. Current Project State
 
-If requirements are unclear:
+The frontend is well past an early scaffold: it has full auth flows, two routed shells (user + admin), a working theme system, i18n, and feature areas covering dashboard, CV, jobs, companies, applications (including a board view), cover letters (including AI generation), and settings/admin (including AI provider management). The backend it talks to is a mature 13-module system with a real AI provider/generation architecture (see root `CLAUDE.md`).
 
-Inspect existing code.
-Inspect backend contracts.
-Inspect documentation.
-Identify reasonable assumptions.
-Clearly state assumptions.
-
-Do not silently invent business behavior.
-
-For major architectural decisions, explain trade-offs before implementation.
+This means: don't assume backend endpoints are missing or "not implemented yet" — check first. It's still appropriate to build new features incrementally and keep the backend contract authoritative, but "the backend is only partially implemented" is no longer a safe default assumption for this project — verify against the actual controller before assuming an endpoint doesn't exist.
 
 ---
 
-# 37. Current Project State
+## 38. Critical Rule
 
-The Angular frontend is currently in an early development stage.
+Understand → Inspect existing code → Verify backend contract → Plan → Implement → Test → Review.
 
-The backend is only partially implemented.
-
-Therefore:
-
-do not build the entire frontend at once
-do not invent missing backend APIs
-build features incrementally
-establish reusable UI patterns
-establish the design system early
-keep the backend contract authoritative
-avoid premature abstraction
-
-Build JAPP as incremental vertical features.
-
-Example:
-
-Feature
-   │
-   ├── Backend
-   │
-   ├── API contract
-   │
-   ├── Angular UI
-   │
-   └── Tests
-
-
----
-
-# 38. Critical Rule
-
-When implementing a feature, always prefer:
-
-Understand
-    ↓
-Inspect existing code
-    ↓
-Verify backend contract
-    ↓
-Plan
-    ↓
-Implement
-    ↓
-Test
-    ↓
-Review
-
-Never:
-
-Guess
-  ↓
-Generate large amounts of code
-  ↓
-Hope it works
+Never: Guess → Generate large amounts of code → Hope it works.
 
 The goal is a maintainable, professional, modern Angular SaaS application.
