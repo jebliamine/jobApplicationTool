@@ -3,6 +3,7 @@ package de.jeb.japp.rest.application;
 import de.jeb.japp.application.service.ApplicationService;
 import de.jeb.japp.model.application.dto.ApplicationRequest;
 import de.jeb.japp.model.application.dto.ApplicationResponse;
+import de.jeb.japp.model.application.dto.InterviewStageRequest;
 import de.jeb.japp.model.user.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,6 +47,43 @@ public class ApplicationController {
             @AuthenticationPrincipal User user
     ) {
         return ApplicationResponse.from(applicationService.update(id, request, user));
+    }
+
+    @PutMapping("/{id}/tags")
+    public ApplicationResponse setApplicationTags(
+            @PathVariable UUID id,
+            @RequestBody List<UUID> tagIds,
+            @AuthenticationPrincipal User user
+    ) {
+        return ApplicationResponse.from(applicationService.setTags(id, tagIds, user));
+    }
+
+    @PostMapping("/{id}/interview-stages")
+    public ApplicationResponse addInterviewStage(
+            @PathVariable UUID id,
+            @RequestBody InterviewStageRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        return ApplicationResponse.from(applicationService.addInterviewStage(id, request, user));
+    }
+
+    @PutMapping("/{id}/interview-stages/{stageId}")
+    public ApplicationResponse updateInterviewStage(
+            @PathVariable UUID id,
+            @PathVariable UUID stageId,
+            @RequestBody InterviewStageRequest request,
+            @AuthenticationPrincipal User user
+    ) {
+        return ApplicationResponse.from(applicationService.updateInterviewStage(id, stageId, request, user));
+    }
+
+    @DeleteMapping("/{id}/interview-stages/{stageId}")
+    public ApplicationResponse removeInterviewStage(
+            @PathVariable UUID id,
+            @PathVariable UUID stageId,
+            @AuthenticationPrincipal User user
+    ) {
+        return ApplicationResponse.from(applicationService.removeInterviewStage(id, stageId, user));
     }
 
     @DeleteMapping("/{id}")

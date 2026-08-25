@@ -20,7 +20,9 @@ import {
   APPLICATION_STATUSES,
   ApplicationResponse,
   ApplicationStatus,
+  InterviewStageResponse,
   buildStatusChangeRequest,
+  nextInterviewStage,
 } from '../application.models';
 import { ApplicationService } from '../application.service';
 import {
@@ -92,6 +94,10 @@ export class ApplicationBoard {
 
   protected columnApplications(status: ApplicationStatus): ApplicationResponse[] {
     return this.columns().get(status) ?? [];
+  }
+
+  protected nextInterviewStage(application: ApplicationResponse): InterviewStageResponse | null {
+    return nextInterviewStage(application);
   }
 
   protected load(): void {

@@ -99,12 +99,13 @@
               <mat-label>Follow-up date</mat-label>
               <input matInput type="date" formControlName="followUpDate" />
             </mat-form-field>
-
-            <mat-form-field appearance="outline" class="application-form-page__field">
-              <mat-label>Interview date</mat-label>
-              <input matInput type="date" formControlName="interviewDate" />
-            </mat-form-field>
           </div>
+
+          @if (isEditMode) {
+            <p class="application-form-page__hint">
+              Interview stages (phone screen, onsite, etc.) are managed from the application's detail page.
+            </p>
+          }
 
           <mat-form-field appearance="outline" class="application-form-page__field">
             <mat-label>Contact person</mat-label>

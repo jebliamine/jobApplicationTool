@@ -27,7 +27,11 @@ import {
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
-import { ApplicationResponse, ApplicationStatus } from '../application.models';
+import { TagEditor } from '../../../shared/components/tag-editor/tag-editor';
+import { TagResponse } from '../../../core/tags/tag.models';
+import { TagService } from '../../../core/tags/tag.service';
+import { InterviewStageEditor } from '../interview-stage-editor/interview-stage-editor';
+import { ApplicationResponse, ApplicationStatus, InterviewStageRequest } from '../application.models';
 import { ApplicationService } from '../application.service';
 import {
   APPLICATION_STATUS_LABELS,
@@ -57,6 +61,8 @@ type LoadState = 'loading' | 'loaded' | 'error';
     LucideTrash2,
     LucideUser,
     StatusBadge,
+    TagEditor,
+    InterviewStageEditor,
   ],
   templateUrl: './application-detail.html',
   styleUrl: './application-detail.scss',
@@ -68,12 +74,16 @@ export class ApplicationDetail {
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly toast = inject(ToastService);
+  private readonly tagService = inject(TagService);
 
   private readonly applicationId = this.route.snapshot.paramMap.get('id')!;
 
   private readonly state = signal<LoadState>('loading');
   private readonly _application = signal<ApplicationResponse | null>(null);
   protected readonly deleting = signal(false);
+  protected readonly allTags = signal<TagResponse[]>([]);
+  protected readonly tagSaving = signal(false);
+  protected readonly stageSaving = signal(false);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
@@ -82,6 +92,7 @@ export class ApplicationDetail {
 
   constructor() {
     this.load();
+    this.tagService.list().subscribe((tags) => this.allTags.set(tags));
   }
 
   protected statusLabel(status: ApplicationStatus): string {
@@ -100,6 +111,114 @@ export class ApplicationDetail {
         this.state.set('loaded');
       },
       error: () => this.state.set('error'),
+    });
+  }
+
+  protected onAddTag(tagId: string): void {
+    const application = this.application();
+    if (!application) {
+      return;
+    }
+    this.saveTags([...application.tags.map((tag) => tag.id), tagId]);
+  }
+
+  protected onRemoveTag(tagId: string): void {
+    const application = this.application();
+    if (!application) {
+      return;
+    }
+    this.saveTags(application.tags.map((tag) => tag.id).filter((id) => id !== tagId));
+  }
+
+  protected onCreateTag(name: string): void {
+    this.tagService.create({ name }).subscribe({
+      next: (tag) => {
+        this.allTags.update((tags) => [...tags, tag]);
+        this.onAddTag(tag.id);
+      },
+      error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
+    });
+  }
+
+  private saveTags(tagIds: string[]): void {
+    const application = this.application();
+    if (!application) {
+      return;
+    }
+    this.tagSaving.set(true);
+    this.applicationService.setTags(application.id, tagIds).subscribe({
+      next: (updated) => {
+        this._application.set(updated);
+        this.tagSaving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.tagSaving.set(false);
+        this.toast.error(describeApiError(error));
+      },
+    });
+  }
+
+  protected onAddStage(request: InterviewStageRequest): void {
+    const application = this.application();
+    if (!application) {
+      return;
+    }
+    this.stageSaving.set(true);
+    this.applicationService.addInterviewStage(application.id, request).subscribe({
+      next: (updated) => {
+        this._application.set(updated);
+        this.stageSaving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.stageSaving.set(false);
+        this.toast.error(describeApiError(error));
+      },
+    });
+  }
+
+  protected onToggleStageCompleted(event: { stageId: string; completed: boolean }): void {
+    const application = this.application();
+    const stage = application?.interviewStages.find((candidate) => candidate.id === event.stageId);
+    if (!application || !stage) {
+      return;
+    }
+    this.updateStage(application.id, stage.id, {
+      title: stage.title,
+      scheduledDate: stage.scheduledDate,
+      notes: stage.notes,
+      completed: event.completed,
+    });
+  }
+
+  protected onRemoveStage(stageId: string): void {
+    const application = this.application();
+    if (!application) {
+      return;
+    }
+    this.stageSaving.set(true);
+    this.applicationService.removeInterviewStage(application.id, stageId).subscribe({
+      next: (updated) => {
+        this._application.set(updated);
+        this.stageSaving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.stageSaving.set(false);
+        this.toast.error(describeApiError(error));
+      },
+    });
+  }
+
+  private updateStage(applicationId: string, stageId: string, request: InterviewStageRequest): void {
+    this.stageSaving.set(true);
+    this.applicationService.updateInterviewStage(applicationId, stageId, request).subscribe({
+      next: (updated) => {
+        this._application.set(updated);
+        this.stageSaving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.stageSaving.set(false);
+        this.toast.error(describeApiError(error));
+      },
     });
   }
 

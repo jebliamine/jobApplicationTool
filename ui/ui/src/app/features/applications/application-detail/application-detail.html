@@ -54,6 +54,17 @@
 
     <mat-card appearance="outlined" class="application-detail-page__card">
       <mat-card-content>
+        <div class="application-detail-page__tags">
+          <span class="application-detail-page__label">Tags</span>
+          <app-tag-editor
+            [tags]="application.tags"
+            [availableTags]="allTags()"
+            [saving]="tagSaving()"
+            (add)="onAddTag($event)"
+            (remove)="onRemoveTag($event)"
+            (create)="onCreateTag($event)"
+          />
+        </div>
         <dl class="application-detail-page__details">
           <div class="application-detail-page__row">
             <dt><svg lucideShieldCheck [size]="18" aria-hidden="true"></svg> Status</dt>
@@ -77,8 +88,16 @@
             <dd>{{ application.followUpDate ? (application.followUpDate | date: 'mediumDate') : '—' }}</dd>
           </div>
           <div class="application-detail-page__row">
-            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Interview date</dt>
-            <dd>{{ application.interviewDate ? (application.interviewDate | date: 'mediumDate') : '—' }}</dd>
+            <dt><svg lucideCalendar [size]="18" aria-hidden="true"></svg> Interview stages</dt>
+            <dd>
+              <app-interview-stage-editor
+                [stages]="application.interviewStages"
+                [saving]="stageSaving()"
+                (add)="onAddStage($event)"
+                (toggleCompleted)="onToggleStageCompleted($event)"
+                (remove)="onRemoveStage($event)"
+              />
+            </dd>
           </div>
           <div class="application-detail-page__row">
             <dt><svg lucideUser [size]="18" aria-hidden="true"></svg> Contact person</dt>

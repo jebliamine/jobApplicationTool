@@ -9,11 +9,14 @@ import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.job.dto.JobRequest;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.tag.service.TagService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -29,17 +32,20 @@ public class JobService {
     private final CompanyService companyService;
     private final ApplicationDao applicationDao;
     private final GenerationRequestDao generationRequestDao;
+    private final TagService tagService;
 
     public JobService(
             JobDao jobDao,
             CompanyService companyService,
             ApplicationDao applicationDao,
-            GenerationRequestDao generationRequestDao
+            GenerationRequestDao generationRequestDao,
+            TagService tagService
     ) {
         this.jobDao = jobDao;
         this.companyService = companyService;
         this.applicationDao = applicationDao;
         this.generationRequestDao = generationRequestDao;
+        this.tagService = tagService;
     }
 
     public Job create(JobRequest request, User owner) {
@@ -85,6 +91,19 @@ public class JobService {
         // job's actual owner — never the editor's own companies.
         Company company = companyService.getOwnedByExactly(request.getCompanyId(), job.getOwner());
         applyRequest(job, request, company);
+        job.setUpdatedAt(LocalDateTime.now());
+        return jobDao.saveJob(job);
+    }
+
+    /**
+     * Replaces the job's full tag set. Tags may only be resources owned by the job's actual
+     * owner (never the editor's own, when an admin is doing the editing) — same cross-domain
+     * ownership check as {@link CompanyService#getOwnedByExactly} for the job's company.
+     */
+    public Job setTags(UUID id, List<UUID> tagIds, User requester) {
+        Job job = get(id, requester);
+        List<Tag> tags = tagService.getOwnedByExactlyAll(tagIds, job.getOwner());
+        job.setTags(new LinkedHashSet<>(tags));
         job.setUpdatedAt(LocalDateTime.now());
         return jobDao.saveJob(job);
     }

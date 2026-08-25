@@ -12,6 +12,12 @@
   margin-bottom: var(--japp-spacing-lg);
 }
 
+.application-form-page__hint {
+  margin: calc(-1 * var(--japp-spacing-sm)) 0 var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+  font-size: 0.8125rem;
+}
+
 .application-form-page__title {
   margin: 0 0 var(--japp-spacing-sm);
   font-size: 1.75rem;

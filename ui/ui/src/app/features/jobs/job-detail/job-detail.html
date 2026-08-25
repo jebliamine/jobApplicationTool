@@ -54,6 +54,17 @@
 
     <mat-card appearance="outlined" class="job-detail-page__card">
       <mat-card-content>
+        <div class="job-detail-page__tags">
+          <span class="job-detail-page__label">Tags</span>
+          <app-tag-editor
+            [tags]="job.tags"
+            [availableTags]="allTags()"
+            [saving]="tagSaving()"
+            (add)="onAddTag($event)"
+            (remove)="onRemoveTag($event)"
+            (create)="onCreateTag($event)"
+          />
+        </div>
         <dl class="job-detail-page__details">
           <div class="job-detail-page__row">
             <dt><svg lucideMapPin [size]="18" aria-hidden="true"></svg> Location</dt>

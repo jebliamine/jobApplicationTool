@@ -5,7 +5,7 @@ import { environment } from '../../../environments/environment';
 import { CompanyResponse } from '../companies/company.models';
 import { CvResponse } from '../cv/cv.models';
 import { JobResponse } from '../jobs/job.models';
-import { ApplicationRequest, ApplicationResponse } from './application.models';
+import { ApplicationRequest, ApplicationResponse, InterviewStageRequest } from './application.models';
 import { ApplicationService } from './application.service';
 
 const OWNER = { fullName: 'Jane Doe', email: 'jane@example.com', role: 'USER' as const };
@@ -35,6 +35,7 @@ const JOB: JobResponse = {
   owner: OWNER,
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
+  tags: [],
 };
 
 const CV: CvResponse = {
@@ -57,12 +58,13 @@ const APPLICATION: ApplicationResponse = {
   appliedAt: '2026-01-01',
   deadline: null,
   followUpDate: null,
-  interviewDate: null,
   contactPerson: null,
   notes: 'Applied via referral.',
   owner: OWNER,
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
+  tags: [],
+  interviewStages: [],
 };
 
 const REQUEST: ApplicationRequest = {
@@ -73,7 +75,6 @@ const REQUEST: ApplicationRequest = {
   appliedAt: '2026-01-01',
   deadline: null,
   followUpDate: null,
-  interviewDate: null,
   contactPerson: null,
   notes: 'Applied via referral.',
 };
@@ -127,5 +128,47 @@ describe('ApplicationService', () => {
     const req = httpMock.expectOne(`${environment.apiUrl}/applications/${APPLICATION.id}`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
+  });
+
+  it('setTags() PUTs the tag id list to /applications/{id}/tags', () => {
+    const tagIds = ['tag-1', 'tag-2'];
+    service.setTags(APPLICATION.id, tagIds).subscribe((application) => expect(application).toEqual(APPLICATION));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/applications/${APPLICATION.id}/tags`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(tagIds);
+    req.flush(APPLICATION);
+  });
+
+  it('addInterviewStage() POSTs to /applications/{id}/interview-stages', () => {
+    const request: InterviewStageRequest = { title: 'Phone Screen', scheduledDate: '2026-02-01', notes: null, completed: false };
+    service.addInterviewStage(APPLICATION.id, request).subscribe((application) => expect(application).toEqual(APPLICATION));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/applications/${APPLICATION.id}/interview-stages`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual(request);
+    req.flush(APPLICATION);
+  });
+
+  it('updateInterviewStage() PUTs to /applications/{id}/interview-stages/{stageId}', () => {
+    const request: InterviewStageRequest = { title: 'Onsite', scheduledDate: '2026-03-01', notes: null, completed: true };
+    service
+      .updateInterviewStage(APPLICATION.id, 'stage-1', request)
+      .subscribe((application) => expect(application).toEqual(APPLICATION));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/applications/${APPLICATION.id}/interview-stages/stage-1`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(request);
+    req.flush(APPLICATION);
+  });
+
+  it('removeInterviewStage() DELETEs /applications/{id}/interview-stages/{stageId}', () => {
+    service
+      .removeInterviewStage(APPLICATION.id, 'stage-1')
+      .subscribe((application) => expect(application).toEqual(APPLICATION));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/applications/${APPLICATION.id}/interview-stages/stage-1`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(APPLICATION);
   });
 });

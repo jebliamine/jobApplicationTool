@@ -33,9 +33,10 @@
     "collapseNavigation": "Collapse navigation",
     "searchPages": "Search pages",
     "searchApplicationPages": "Search application pages",
-    "searchPlaceholder": "Search pages…",
+    "searchPlaceholder": "Search…",
     "closeSearch": "Close search",
-    "noMatchingPages": "No matching pages"
+    "noMatchingPages": "No matching pages",
+    "pagesGroup": "Pages"
   },
   "userNav": {
     "openMenu": "Open menu",
@@ -58,7 +59,18 @@
     "overdue": "Overdue by {{count}} days",
     "dueToday": "Due today",
     "dueTomorrow": "Due tomorrow",
-    "dueInDays": "Due in {{count}} days"
+    "dueInDays": "Due in {{count}} days",
+    "dismiss": "Dismiss",
+    "snooze": "Snooze 1 day"
+  },
+  "search": {
+    "resultsGroup": "Results",
+    "types": {
+      "JOB": "Job",
+      "COMPANY": "Company",
+      "APPLICATION": "Application",
+      "COVER_LETTER": "Cover letter"
+    }
   },
   "landing": {
     "header": {

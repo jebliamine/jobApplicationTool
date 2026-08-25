@@ -31,6 +31,7 @@ const JOB: JobResponse = {
   owner: { fullName: 'Jane Doe', email: 'jane@example.com', role: 'USER' },
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
+  tags: [],
 };
 
 const REQUEST: JobRequest = {
@@ -93,5 +94,15 @@ describe('JobService', () => {
     const req = httpMock.expectOne(`${environment.apiUrl}/jobs/${JOB.id}`);
     expect(req.request.method).toBe('DELETE');
     req.flush(null);
+  });
+
+  it('setTags() PUTs the tag id list to /jobs/{id}/tags', () => {
+    const tagIds = ['tag-1', 'tag-2'];
+    service.setTags(JOB.id, tagIds).subscribe((job) => expect(job).toEqual(JOB));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/jobs/${JOB.id}/tags`);
+    expect(req.request.method).toBe('PUT');
+    expect(req.request.body).toEqual(tagIds);
+    req.flush(JOB);
   });
 });

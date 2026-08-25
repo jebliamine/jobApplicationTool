@@ -29,9 +29,29 @@
       }
     </mat-form-field>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onOptionSelected($event)">
-      @for (page of results(); track page.path) {
-        <mat-option [value]="page.label">{{ page.label | translate }}</mat-option>
-      } @empty {
+      @if (pageResults().length > 0) {
+        <mat-optgroup [label]="'topbar.pagesGroup' | translate">
+          @for (page of pageResults(); track page.path) {
+            <mat-option [value]="page.label">{{ page.label | translate }}</mat-option>
+          }
+        </mat-optgroup>
+      }
+      @if (contentSearch() && contentResults().length > 0) {
+        <mat-optgroup [label]="'search.resultsGroup' | translate">
+          @for (result of contentResults(); track result.type + result.id) {
+            <mat-option [value]="result">
+              <span class="nav-search__result-title">{{ result.title }}</span>
+              <span class="nav-search__result-meta">
+                {{ resultTypeLabel(result) }}
+                @if (result.subtitle) {
+                  · {{ result.subtitle }}
+                }
+              </span>
+            </mat-option>
+          }
+        </mat-optgroup>
+      }
+      @if (pageResults().length === 0 && (!contentSearch() || contentResults().length === 0)) {
         <mat-option disabled>{{ 'topbar.noMatchingPages' | translate }}</mat-option>
       }
     </mat-autocomplete>

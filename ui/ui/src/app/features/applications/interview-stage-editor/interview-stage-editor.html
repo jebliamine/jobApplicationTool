@@ -1,0 +1,53 @@
+<div class="interview-stage-editor">
+  @if (stages().length === 0) {
+    <p class="interview-stage-editor__empty">No interview stages yet.</p>
+  } @else {
+    <ul class="interview-stage-editor__list">
+      @for (stage of stages(); track stage.id) {
+        <li class="interview-stage-editor__stage" [class.interview-stage-editor__stage--completed]="stage.completed">
+          <mat-checkbox
+            [checked]="stage.completed"
+            [disabled]="saving()"
+            [attr.aria-label]="'Mark ' + stage.title + ' as ' + (stage.completed ? 'not completed' : 'completed')"
+            (change)="onToggleCompleted(stage)"
+          />
+          <div class="interview-stage-editor__stage-body">
+            <span class="interview-stage-editor__stage-title">{{ stage.title }}</span>
+            <span class="interview-stage-editor__stage-date">
+              {{ stage.scheduledDate ? (stage.scheduledDate | date: 'mediumDate') : 'Not scheduled' }}
+            </span>
+            @if (stage.notes) {
+              <p class="interview-stage-editor__stage-notes">{{ stage.notes }}</p>
+            }
+          </div>
+          <button
+            type="button"
+            mat-icon-button
+            [disabled]="saving()"
+            [attr.aria-label]="'Remove ' + stage.title"
+            (click)="onRemove(stage.id)"
+          >
+            <svg lucideX [size]="16" aria-hidden="true"></svg>
+          </button>
+        </li>
+      }
+    </ul>
+  }
+
+  <form class="interview-stage-editor__form" [formGroup]="form" (ngSubmit)="submitNewStage()">
+    <mat-form-field appearance="outline" class="interview-stage-editor__title-field">
+      <mat-label>Stage title</mat-label>
+      <input matInput type="text" formControlName="title" placeholder="e.g. Phone Screen, Onsite" [disabled]="saving()" />
+      @if (form.controls.title.invalid && form.controls.title.touched) {
+        <mat-error>A title is required.</mat-error>
+      }
+    </mat-form-field>
+    <mat-form-field appearance="outline" class="interview-stage-editor__date-field">
+      <mat-label>Date</mat-label>
+      <input matInput type="date" formControlName="scheduledDate" [disabled]="saving()" />
+    </mat-form-field>
+    <button mat-icon-button type="submit" [disabled]="saving()" aria-label="Add interview stage">
+      <svg lucidePlus [size]="18" aria-hidden="true"></svg>
+    </button>
+  </form>
+</div>

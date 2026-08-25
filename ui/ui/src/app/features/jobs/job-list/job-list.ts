@@ -83,7 +83,7 @@ export class JobList {
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   protected readonly displayedColumns = computed(() => {
-    const base = ['title', 'company', 'location', 'employmentType', 'workMode', 'createdAt'];
+    const base = ['title', 'company', 'location', 'employmentType', 'workMode', 'tags', 'createdAt'];
     return [...base, ...(this.isAdmin() ? ['owner'] : []), 'actions'];
   });
 

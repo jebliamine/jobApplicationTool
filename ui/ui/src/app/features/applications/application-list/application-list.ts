@@ -132,7 +132,7 @@ export class ApplicationList {
   });
 
   protected readonly displayedColumns = computed(() => {
-    const base = ['job', 'company', 'status', 'appliedAt', 'cv'];
+    const base = ['job', 'company', 'status', 'appliedAt', 'cv', 'tags'];
     return [...base, ...(this.isAdmin() ? ['owner'] : []), 'actions'];
   });
 

@@ -1,0 +1,45 @@
+<div class="tag-editor">
+  @if (tags().length > 0) {
+    <ul class="tag-editor__chips">
+      @for (tag of tags(); track tag.id) {
+        <li class="tag-editor__chip">
+          <span>{{ tag.name }}</span>
+          <button
+            type="button"
+            class="tag-editor__remove"
+            [attr.aria-label]="'Remove tag ' + tag.name"
+            [disabled]="saving()"
+            (click)="onRemove(tag.id)"
+          >
+            <svg lucideX [size]="12" aria-hidden="true"></svg>
+          </button>
+        </li>
+      }
+    </ul>
+  } @else {
+    <p class="tag-editor__empty">No tags yet.</p>
+  }
+
+  <div class="tag-editor__controls">
+    @if (unassignedTags().length > 0) {
+      <mat-form-field appearance="outline" class="tag-editor__select-field">
+        <mat-label>Add existing tag</mat-label>
+        <mat-select [formControl]="addTagControl" [disabled]="saving()" (selectionChange)="onAddSelected()">
+          @for (tag of unassignedTags(); track tag.id) {
+            <mat-option [value]="tag.id">{{ tag.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
+
+    <div class="tag-editor__create">
+      <mat-form-field appearance="outline" class="tag-editor__create-field">
+        <mat-label>New tag</mat-label>
+        <input matInput [formControl]="newTagNameControl" [disabled]="saving()" (keydown.enter)="submitNewTag()" />
+      </mat-form-field>
+      <button mat-icon-button type="button" [disabled]="saving()" aria-label="Add new tag" (click)="submitNewTag()">
+        <svg lucidePlus [size]="18" aria-hidden="true"></svg>
+      </button>
+    </div>
+  </div>
+</div>

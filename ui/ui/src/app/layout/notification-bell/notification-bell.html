@@ -28,7 +28,7 @@
       {{ 'notifications.empty' | translate }}
     </div>
   } @else {
-    @for (reminder of reminders(); track reminder.applicationId + reminder.kind) {
+    @for (reminder of reminders(); track reminderKey(reminder)) {
       <a mat-menu-item class="notification-bell__item" [routerLink]="'/applications/' + reminder.applicationId">
         <div class="notification-bell__item-icon">
           @switch (reminder.kind) {
@@ -47,7 +47,31 @@
           <span class="notification-bell__item-title">{{ reminder.jobTitle }} · {{ reminder.companyName }}</span>
           <span class="notification-bell__item-meta">{{ kindLabel(reminder.kind) }}</span>
         </div>
-        <app-status-badge [label]="dueLabel(reminder)" [severity]="reminder.severity" />
+        <app-status-badge [label]="dueLabel(reminder)" [severity]="severityBadge(reminder.severity)" />
+        <div class="notification-bell__item-actions">
+          @if (pendingKey() === reminderKey(reminder)) {
+            <mat-progress-spinner diameter="14" mode="indeterminate" />
+          } @else {
+            <button
+              type="button"
+              mat-icon-button
+              [matTooltip]="'notifications.snooze' | translate"
+              [attr.aria-label]="'notifications.snooze' | translate"
+              (click)="snooze(reminder, $event)"
+            >
+              <svg lucideClock [size]="14" aria-hidden="true"></svg>
+            </button>
+            <button
+              type="button"
+              mat-icon-button
+              [matTooltip]="'notifications.dismiss' | translate"
+              [attr.aria-label]="'notifications.dismiss' | translate"
+              (click)="dismiss(reminder, $event)"
+            >
+              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
+            </button>
+          }
+        </div>
       </a>
     }
   }

@@ -1,10 +1,13 @@
 package de.jeb.japp.model.job;
 
 import de.jeb.japp.model.company.Company;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -48,6 +51,14 @@ public class Job {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @ManyToMany
+    @JoinTable(
+            name = "job_tag",
+            joinColumns = @JoinColumn(name = "job_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new LinkedHashSet<>();
 
     public UUID getId() {
         return id;
@@ -147,5 +158,13 @@ public class Job {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 }

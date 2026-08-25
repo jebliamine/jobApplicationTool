@@ -33,9 +33,10 @@
     "collapseNavigation": "Navigation einklappen",
     "searchPages": "Seiten durchsuchen",
     "searchApplicationPages": "Anwendungsseiten durchsuchen",
-    "searchPlaceholder": "Seiten durchsuchen…",
+    "searchPlaceholder": "Suchen…",
     "closeSearch": "Suche schließen",
-    "noMatchingPages": "Keine passenden Seiten"
+    "noMatchingPages": "Keine passenden Seiten",
+    "pagesGroup": "Seiten"
   },
   "userNav": {
     "openMenu": "Menü öffnen",
@@ -58,7 +59,18 @@
     "overdue": "Seit {{count}} Tagen überfällig",
     "dueToday": "Heute fällig",
     "dueTomorrow": "Morgen fällig",
-    "dueInDays": "In {{count}} Tagen fällig"
+    "dueInDays": "In {{count}} Tagen fällig",
+    "dismiss": "Ausblenden",
+    "snooze": "1 Tag später erinnern"
+  },
+  "search": {
+    "resultsGroup": "Ergebnisse",
+    "types": {
+      "JOB": "Stelle",
+      "COMPANY": "Unternehmen",
+      "APPLICATION": "Bewerbung",
+      "COVER_LETTER": "Anschreiben"
+    }
   },
   "landing": {
     "header": {

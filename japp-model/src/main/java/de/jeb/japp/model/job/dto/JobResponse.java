@@ -4,10 +4,13 @@ import de.jeb.japp.model.company.dto.CompanyResponse;
 import de.jeb.japp.model.job.EmploymentType;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.job.WorkMode;
+import de.jeb.japp.model.tag.dto.TagResponse;
 import de.jeb.japp.model.user.dto.UserDto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+import java.util.Comparator;
 
 /** Safe Job response DTO — Job must never be serialized directly (its owner is a full User entity). */
 public class JobResponse {
@@ -24,6 +27,7 @@ public class JobResponse {
     private UserDto owner;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<TagResponse> tags;
 
     public JobResponse() {
     }
@@ -43,6 +47,12 @@ public class JobResponse {
         response.owner = UserDto.from(job.getOwner());
         response.createdAt = job.getCreatedAt();
         response.updatedAt = job.getUpdatedAt();
+        response.tags = job.getTags() == null
+                ? List.of()
+                : job.getTags().stream()
+                        .map(TagResponse::from)
+                        .sorted(Comparator.comparing(TagResponse::getName, String.CASE_INSENSITIVE_ORDER))
+                        .toList();
         return response;
     }
 
@@ -96,5 +106,9 @@ public class JobResponse {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public List<TagResponse> getTags() {
+        return tags;
     }
 }

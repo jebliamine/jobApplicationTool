@@ -5,24 +5,31 @@ import de.jeb.japp.commons.exceptions.application.ApplicationNotFoundException;
 import de.jeb.japp.commons.exceptions.application.ApplicationValidationException;
 import de.jeb.japp.commons.exceptions.coverletter.CoverLetterAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
+import de.jeb.japp.commons.exceptions.application.InterviewStageNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.commons.exceptions.tag.TagNotFoundException;
 import de.jeb.japp.dao.application.ApplicationDao;
 import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.application.Application;
 import de.jeb.japp.model.application.ApplicationStatus;
+import de.jeb.japp.model.application.InterviewStage;
 import de.jeb.japp.model.application.dto.ApplicationRequest;
+import de.jeb.japp.model.application.dto.InterviewStageRequest;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.tag.service.TagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -45,6 +52,8 @@ class ApplicationServiceTest {
     private CVDao cvDao;
     @Mock
     private CoverLetterDao coverLetterDao;
+    @Mock
+    private TagService tagService;
 
     private ApplicationService applicationService;
 
@@ -58,7 +67,7 @@ class ApplicationServiceTest {
 
     @BeforeEach
     void setUp() {
-        applicationService = new ApplicationService(applicationDao, jobDao, cvDao, coverLetterDao);
+        applicationService = new ApplicationService(applicationDao, jobDao, cvDao, coverLetterDao, tagService);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -444,5 +453,156 @@ class ApplicationServiceTest {
         applicationService.delete(id, owner);
 
         verify(applicationDao).deleteApplication(application.getId());
+    }
+
+    @Test
+    void setTagsReplacesTheApplicationsTagSet() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        Tag tag = new Tag();
+        tag.setName("Dream job");
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner)).thenReturn(List.of(tag));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application result = applicationService.setTags(id, tagIds, owner);
+
+        assertThat(result.getTags()).containsExactly(tag);
+    }
+
+    @Test
+    void setTagsByAdminValidatesAgainstApplicationOwnerNotAdmin() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner)).thenReturn(List.of());
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        applicationService.setTags(id, tagIds, admin);
+
+        verify(tagService).getOwnedByExactlyAll(tagIds, owner);
+        verify(tagService, never()).getOwnedByExactlyAll(tagIds, admin);
+    }
+
+    @Test
+    void setTagsRejectsATagNotOwnedByTheApplicationsOwner() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner))
+                .thenThrow(new TagNotFoundException("One or more tags were not found."));
+
+        assertThatThrownBy(() -> applicationService.setTags(id, tagIds, owner))
+                .isInstanceOf(TagNotFoundException.class);
+
+        verify(applicationDao, never()).saveApplication(any());
+    }
+
+    private InterviewStageRequest stageRequest(String title, LocalDate scheduledDate, boolean completed) {
+        InterviewStageRequest request = new InterviewStageRequest();
+        request.setTitle(title);
+        request.setScheduledDate(scheduledDate);
+        request.setCompleted(completed);
+        return request;
+    }
+
+    @Test
+    void addInterviewStageAppendsANewStage() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application result = applicationService.addInterviewStage(
+                id, stageRequest("Phone Screen", LocalDate.of(2026, 2, 1), false), owner);
+
+        assertThat(result.getInterviewStages()).hasSize(1);
+        InterviewStage stage = result.getInterviewStages().get(0);
+        assertThat(stage.getTitle()).isEqualTo("Phone Screen");
+        assertThat(stage.getScheduledDate()).isEqualTo(LocalDate.of(2026, 2, 1));
+        assertThat(stage.getApplication()).isSameAs(application);
+        assertThat(stage.isCompleted()).isFalse();
+    }
+
+    @Test
+    void addInterviewStageRejectsABlankTitle() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() -> applicationService.addInterviewStage(id, stageRequest("  ", null, false), owner))
+                .isInstanceOf(ApplicationValidationException.class);
+
+        verify(applicationDao, never()).saveApplication(any());
+    }
+
+    @Test
+    void addInterviewStageRejectsAnApplicationOwnedBySomeoneElse() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() ->
+                applicationService.addInterviewStage(id, stageRequest("Onsite", null, false), otherUser))
+                .isInstanceOf(ApplicationAccessDeniedException.class);
+    }
+
+    @Test
+    void updateInterviewStageChangesTheExistingStageInPlace() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        InterviewStage stage = new InterviewStage();
+        stage.setApplication(application);
+        stage.setTitle("Phone Screen");
+        ReflectionTestUtils.setField(stage, "id", UUID.randomUUID());
+        application.getInterviewStages().add(stage);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application result = applicationService.updateInterviewStage(
+                id, stage.getId(), stageRequest("Onsite", LocalDate.of(2026, 3, 1), true), owner);
+
+        assertThat(result.getInterviewStages()).hasSize(1);
+        InterviewStage updated = result.getInterviewStages().get(0);
+        assertThat(updated).isSameAs(stage);
+        assertThat(updated.getTitle()).isEqualTo("Onsite");
+        assertThat(updated.getScheduledDate()).isEqualTo(LocalDate.of(2026, 3, 1));
+        assertThat(updated.isCompleted()).isTrue();
+    }
+
+    @Test
+    void updateInterviewStageRejectsAnUnknownStageId() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+
+        assertThatThrownBy(() ->
+                applicationService.updateInterviewStage(id, UUID.randomUUID(), stageRequest("Onsite", null, false), owner))
+                .isInstanceOf(InterviewStageNotFoundException.class);
+    }
+
+    @Test
+    void removeInterviewStageDeletesOnlyTheMatchingStage() {
+        UUID id = UUID.randomUUID();
+        Application application = applicationOwnedBy(owner);
+        InterviewStage keep = new InterviewStage();
+        keep.setApplication(application);
+        keep.setTitle("Onsite");
+        ReflectionTestUtils.setField(keep, "id", UUID.randomUUID());
+        InterviewStage remove = new InterviewStage();
+        remove.setApplication(application);
+        remove.setTitle("Phone Screen");
+        ReflectionTestUtils.setField(remove, "id", UUID.randomUUID());
+        application.getInterviewStages().add(keep);
+        application.getInterviewStages().add(remove);
+        when(applicationDao.getApplicationById(id)).thenReturn(Optional.of(application));
+        when(applicationDao.saveApplication(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Application result = applicationService.removeInterviewStage(id, remove.getId(), owner);
+
+        assertThat(result.getInterviewStages()).containsExactly(keep);
     }
 }

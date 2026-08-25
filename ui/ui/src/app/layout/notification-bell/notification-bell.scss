@@ -55,3 +55,16 @@
   font-size: 0.8125rem;
   color: var(--japp-text-secondary);
 }
+
+.notification-bell__item-actions {
+  display: flex;
+  align-items: center;
+  flex: none;
+  gap: 2px;
+
+  button {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
+  }
+}

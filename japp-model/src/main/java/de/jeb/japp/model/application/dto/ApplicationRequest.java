@@ -14,7 +14,6 @@ public class ApplicationRequest {
     private LocalDate appliedAt;
     private LocalDate deadline;
     private LocalDate followUpDate;
-    private LocalDate interviewDate;
     private String contactPerson;
     private String notes;
 
@@ -75,14 +74,6 @@ public class ApplicationRequest {
 
     public void setFollowUpDate(LocalDate followUpDate) {
         this.followUpDate = followUpDate;
-    }
-
-    public LocalDate getInterviewDate() {
-        return interviewDate;
-    }
-
-    public void setInterviewDate(LocalDate interviewDate) {
-        this.interviewDate = interviewDate;
     }
 
     public String getContactPerson() {

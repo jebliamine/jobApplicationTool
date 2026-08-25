@@ -46,12 +46,13 @@ const APPLICATION: ApplicationResponse = {
   appliedAt: '2026-01-01T00:00:00',
   deadline: null,
   followUpDate: null,
-  interviewDate: null,
   contactPerson: null,
   notes: null,
   owner: { fullName: 'Jane Doe', email: 'jane@example.com', role: 'USER' },
   createdAt: '2026-01-01T00:00:00',
   updatedAt: '2026-01-01T00:00:00',
+  tags: [],
+  interviewStages: [],
 };
 
 describe('Dashboard', () => {

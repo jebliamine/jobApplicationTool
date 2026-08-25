@@ -3,12 +3,15 @@ package de.jeb.japp.rest.application;
 import de.jeb.japp.commons.exceptions.application.ApplicationAccessDeniedException;
 import de.jeb.japp.commons.exceptions.application.ApplicationNotFoundException;
 import de.jeb.japp.commons.exceptions.application.ApplicationValidationException;
+import de.jeb.japp.commons.exceptions.application.InterviewStageNotFoundException;
 import de.jeb.japp.commons.exceptions.coverletter.CoverLetterAccessDeniedException;
 import de.jeb.japp.commons.exceptions.coverletter.CoverLetterNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
 import de.jeb.japp.commons.exceptions.cv.CVNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
+import de.jeb.japp.commons.exceptions.tag.TagAccessDeniedException;
+import de.jeb.japp.commons.exceptions.tag.TagNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,7 +37,9 @@ public class ApplicationExceptionHandler {
             ApplicationNotFoundException.class,
             JobNotFoundException.class,
             CVNotFoundException.class,
-            CoverLetterNotFoundException.class
+            CoverLetterNotFoundException.class,
+            TagNotFoundException.class,
+            InterviewStageNotFoundException.class
     })
     public ResponseEntity<Map<String, String>> handleNotFound(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", ex.getMessage()));
@@ -44,7 +49,8 @@ public class ApplicationExceptionHandler {
             ApplicationAccessDeniedException.class,
             JobAccessDeniedException.class,
             CVAccessDeniedException.class,
-            CoverLetterAccessDeniedException.class
+            CoverLetterAccessDeniedException.class,
+            TagAccessDeniedException.class
     })
     public ResponseEntity<Map<String, String>> handleAccessDenied(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));

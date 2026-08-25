@@ -3,6 +3,7 @@ package de.jeb.japp.model.application;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import jakarta.persistence.*;
 import org.hibernate.annotations.OnDelete;
@@ -10,6 +11,10 @@ import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -66,8 +71,6 @@ public class Application {
 
     private LocalDate followUpDate;
 
-    private LocalDate interviewDate;
-
     private String contactPerson;
 
     @Column(length = 4000)
@@ -75,6 +78,17 @@ public class Application {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "application", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InterviewStage> interviewStages = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "application_tag",
+            joinColumns = @JoinColumn(name = "application_id"),
+            inverseJoinColumns = @JoinColumn(name = "tag_id")
+    )
+    private Set<Tag> tags = new LinkedHashSet<>();
 
     public UUID getId() {
         return id;
@@ -144,12 +158,12 @@ public class Application {
         this.followUpDate = followUpDate;
     }
 
-    public LocalDate getInterviewDate() {
-        return interviewDate;
+    public List<InterviewStage> getInterviewStages() {
+        return interviewStages;
     }
 
-    public void setInterviewDate(LocalDate interviewDate) {
-        this.interviewDate = interviewDate;
+    public void setInterviewStages(List<InterviewStage> interviewStages) {
+        this.interviewStages = interviewStages;
     }
 
     public String getContactPerson() {
@@ -182,5 +196,13 @@ public class Application {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 }

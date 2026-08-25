@@ -94,6 +94,23 @@
   }
 }
 
+.job-detail-page__tags {
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-sm);
+  padding-bottom: var(--japp-spacing-md);
+  margin-bottom: var(--japp-spacing-md);
+  border-bottom: 1px solid var(--japp-border);
+}
+
+.job-detail-page__label {
+  color: var(--japp-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
 .job-detail-page__details {
   margin: 0;
   display: flex;

@@ -26,6 +26,11 @@ export class JobService {
     return this.http.put<JobResponse>(`${this.baseUrl}/${id}`, request);
   }
 
+  /** PUT /jobs/{id}/tags — replaces the job's full tag set with the given tag ids. */
+  setTags(id: string, tagIds: string[]): Observable<JobResponse> {
+    return this.http.put<JobResponse>(`${this.baseUrl}/${id}/tags`, tagIds);
+  }
+
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
   }

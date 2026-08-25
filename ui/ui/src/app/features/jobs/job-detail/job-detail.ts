@@ -24,7 +24,10 @@ import {
   ConfirmDialog,
   ConfirmDialogData,
 } from '../../../shared/components/confirm-dialog/confirm-dialog';
+import { TagEditor } from '../../../shared/components/tag-editor/tag-editor';
 import { describeApiError } from '../../../core/http/describe-api-error';
+import { TagResponse } from '../../../core/tags/tag.models';
+import { TagService } from '../../../core/tags/tag.service';
 import { EmploymentType, JobResponse, WorkMode } from '../job.models';
 import { JobService } from '../job.service';
 
@@ -52,6 +55,7 @@ const WORK_MODE_LABELS: Record<WorkMode, string> = {
     MatButtonModule,
     MatCardModule,
     MatProgressSpinnerModule,
+    TagEditor,
     LucideArrowLeft,
     LucideBriefcase,
     LucideCircleAlert,
@@ -73,12 +77,15 @@ export class JobDetail {
   private readonly userService = inject(UserService);
   private readonly dialog = inject(MatDialog);
   private readonly toast = inject(ToastService);
+  private readonly tagService = inject(TagService);
 
   private readonly jobId = this.route.snapshot.paramMap.get('id')!;
 
   private readonly state = signal<LoadState>('loading');
   private readonly _job = signal<JobResponse | null>(null);
   protected readonly deleting = signal(false);
+  protected readonly allTags = signal<TagResponse[]>([]);
+  protected readonly tagSaving = signal(false);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
@@ -87,6 +94,7 @@ export class JobDetail {
 
   constructor() {
     this.load();
+    this.tagService.list().subscribe((tags) => this.allTags.set(tags));
   }
 
   protected formatEmploymentType(type: EmploymentType | null): string {
@@ -105,6 +113,50 @@ export class JobDetail {
         this.state.set('loaded');
       },
       error: () => this.state.set('error'),
+    });
+  }
+
+  protected onAddTag(tagId: string): void {
+    const job = this.job();
+    if (!job) {
+      return;
+    }
+    this.saveTags([...job.tags.map((tag) => tag.id), tagId]);
+  }
+
+  protected onRemoveTag(tagId: string): void {
+    const job = this.job();
+    if (!job) {
+      return;
+    }
+    this.saveTags(job.tags.map((tag) => tag.id).filter((id) => id !== tagId));
+  }
+
+  protected onCreateTag(name: string): void {
+    this.tagService.create({ name }).subscribe({
+      next: (tag) => {
+        this.allTags.update((tags) => [...tags, tag]);
+        this.onAddTag(tag.id);
+      },
+      error: (error: HttpErrorResponse) => this.toast.error(describeApiError(error)),
+    });
+  }
+
+  private saveTags(tagIds: string[]): void {
+    const job = this.job();
+    if (!job) {
+      return;
+    }
+    this.tagSaving.set(true);
+    this.jobService.setTags(job.id, tagIds).subscribe({
+      next: (updated) => {
+        this._job.set(updated);
+        this.tagSaving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.tagSaving.set(false);
+        this.toast.error(describeApiError(error));
+      },
     });
   }
 

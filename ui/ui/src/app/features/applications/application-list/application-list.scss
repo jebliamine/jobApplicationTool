@@ -146,6 +146,24 @@
   line-height: 1.3;
 }
 
+.application-list__tags {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+
+  li {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--japp-text-primary) 6%, var(--japp-surface));
+    border: 1px solid var(--japp-border);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+}
+
 .application-list__owner-name {
   font-weight: 500;
 }

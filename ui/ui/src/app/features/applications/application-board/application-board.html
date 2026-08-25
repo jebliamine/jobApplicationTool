@@ -61,9 +61,9 @@
                       Deadline {{ application.deadline | date: 'MMM d' }}
                     </span>
                   }
-                  @if (application.interviewDate) {
+                  @if (nextInterviewStage(application); as stage) {
                     <span class="application-board__card-date application-board__card-date--interview">
-                      Interview {{ application.interviewDate | date: 'MMM d' }}
+                      {{ stage.title }} {{ stage.scheduledDate | date: 'MMM d' }}
                     </span>
                   }
                 </div>

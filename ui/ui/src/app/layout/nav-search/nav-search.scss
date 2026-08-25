@@ -45,3 +45,17 @@
 .nav-search--overlay .nav-search__field {
   max-width: none;
 }
+
+.nav-search__result-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-search__result-meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--japp-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

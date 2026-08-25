@@ -3,6 +3,7 @@ package de.jeb.japp.application.service;
 import de.jeb.japp.commons.exceptions.application.ApplicationAccessDeniedException;
 import de.jeb.japp.commons.exceptions.application.ApplicationNotFoundException;
 import de.jeb.japp.commons.exceptions.application.ApplicationValidationException;
+import de.jeb.japp.commons.exceptions.application.InterviewStageNotFoundException;
 import de.jeb.japp.commons.exceptions.coverletter.CoverLetterAccessDeniedException;
 import de.jeb.japp.commons.exceptions.coverletter.CoverLetterNotFoundException;
 import de.jeb.japp.commons.exceptions.cv.CVAccessDeniedException;
@@ -15,16 +16,21 @@ import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.application.Application;
 import de.jeb.japp.model.application.ApplicationStatus;
+import de.jeb.japp.model.application.InterviewStage;
 import de.jeb.japp.model.application.dto.ApplicationRequest;
+import de.jeb.japp.model.application.dto.InterviewStageRequest;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.job.Job;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.tag.service.TagService;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,6 +38,10 @@ import java.util.UUID;
 /**
  * Application is user-owned — a user's application to one of their own Jobs.
  * Same service-layer ownership-check pattern as CVDocument, Job, and Company.
+ * Interview stages (see {@link #addInterviewStage}) are the multi-round pipeline replacement for
+ * the old single {@code interviewDate} column — managed as their own sub-resource rather than
+ * through {@link #update}, the same way tags are managed via {@link #setTags} instead of
+ * {@link ApplicationRequest}.
  */
 @Service
 public class ApplicationService {
@@ -40,12 +50,20 @@ public class ApplicationService {
     private final JobDao jobDao;
     private final CVDao cvDao;
     private final CoverLetterDao coverLetterDao;
+    private final TagService tagService;
 
-    public ApplicationService(ApplicationDao applicationDao, JobDao jobDao, CVDao cvDao, CoverLetterDao coverLetterDao) {
+    public ApplicationService(
+            ApplicationDao applicationDao,
+            JobDao jobDao,
+            CVDao cvDao,
+            CoverLetterDao coverLetterDao,
+            TagService tagService
+    ) {
         this.applicationDao = applicationDao;
         this.jobDao = jobDao;
         this.cvDao = cvDao;
         this.coverLetterDao = coverLetterDao;
+        this.tagService = tagService;
     }
 
     public Application create(ApplicationRequest request, User owner) {
@@ -116,6 +134,69 @@ public class ApplicationService {
         return applicationDao.saveApplication(application);
     }
 
+    /**
+     * Replaces the application's full tag set. Tags may only be resources owned by the
+     * application's actual owner (never the editor's own, when an admin is doing the editing) —
+     * same cross-domain ownership check as {@link #getOwnedJob}/{@link #getOwnedCv}.
+     */
+    public Application setTags(UUID id, List<UUID> tagIds, User requester) {
+        Application application = get(id, requester);
+        List<Tag> tags = tagService.getOwnedByExactlyAll(tagIds, application.getUser());
+        application.setTags(new LinkedHashSet<>(tags));
+        application.setUpdatedAt(LocalDateTime.now());
+        return applicationDao.saveApplication(application);
+    }
+
+    /** Adds one new interview-stage round to the pipeline (e.g. "Phone Screen", "Onsite"). */
+    public Application addInterviewStage(UUID applicationId, InterviewStageRequest request, User requester) {
+        Application application = get(applicationId, requester);
+        validateStage(request);
+        InterviewStage stage = new InterviewStage();
+        stage.setApplication(application);
+        applyStageRequest(stage, request);
+        stage.setCreatedAt(LocalDateTime.now());
+        application.getInterviewStages().add(stage);
+        application.setUpdatedAt(LocalDateTime.now());
+        return applicationDao.saveApplication(application);
+    }
+
+    public Application updateInterviewStage(UUID applicationId, UUID stageId, InterviewStageRequest request, User requester) {
+        Application application = get(applicationId, requester);
+        validateStage(request);
+        InterviewStage stage = findStage(application, stageId);
+        applyStageRequest(stage, request);
+        application.setUpdatedAt(LocalDateTime.now());
+        return applicationDao.saveApplication(application);
+    }
+
+    public Application removeInterviewStage(UUID applicationId, UUID stageId, User requester) {
+        Application application = get(applicationId, requester);
+        InterviewStage stage = findStage(application, stageId);
+        application.getInterviewStages().remove(stage);
+        application.setUpdatedAt(LocalDateTime.now());
+        return applicationDao.saveApplication(application);
+    }
+
+    private InterviewStage findStage(Application application, UUID stageId) {
+        return application.getInterviewStages().stream()
+                .filter(stage -> stage.getId().equals(stageId))
+                .findFirst()
+                .orElseThrow(() -> new InterviewStageNotFoundException("Interview stage not found."));
+    }
+
+    private void applyStageRequest(InterviewStage stage, InterviewStageRequest request) {
+        stage.setTitle(request.getTitle().trim());
+        stage.setScheduledDate(request.getScheduledDate());
+        stage.setNotes(blankToNull(request.getNotes()));
+        stage.setCompleted(request.isCompleted());
+    }
+
+    private void validateStage(InterviewStageRequest request) {
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            throw new ApplicationValidationException("A title is required for an interview stage.");
+        }
+    }
+
     public void delete(UUID id, User requester) {
         Application application = get(id, requester);
         applicationDao.deleteApplication(application.getId());
@@ -165,7 +246,6 @@ public class ApplicationService {
         application.setAppliedAt(request.getAppliedAt() != null ? request.getAppliedAt() : LocalDate.now());
         application.setDeadline(request.getDeadline());
         application.setFollowUpDate(request.getFollowUpDate());
-        application.setInterviewDate(request.getInterviewDate());
         application.setContactPerson(blankToNull(request.getContactPerson()));
         application.setNotes(blankToNull(request.getNotes()));
     }

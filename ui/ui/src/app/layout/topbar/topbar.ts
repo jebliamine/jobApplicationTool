@@ -32,6 +32,7 @@ export class Topbar {
   readonly showMenuButton = input(false);
   readonly sidebarCollapsed = input(false);
   readonly searchPages = input.required<readonly AppPage[]>();
+  readonly contentSearch = input(false);
   readonly menuToggle = output<void>();
   readonly collapseToggle = output<void>();
 }

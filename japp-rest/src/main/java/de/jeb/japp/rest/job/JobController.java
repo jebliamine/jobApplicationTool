@@ -45,6 +45,15 @@ public class JobController {
         return JobResponse.from(jobService.update(id, request, user));
     }
 
+    @PutMapping("/{id}/tags")
+    public JobResponse setJobTags(
+            @PathVariable UUID id,
+            @RequestBody List<UUID> tagIds,
+            @AuthenticationPrincipal User user
+    ) {
+        return JobResponse.from(jobService.setTags(id, tagIds, user));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteJob(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         jobService.delete(id, user);

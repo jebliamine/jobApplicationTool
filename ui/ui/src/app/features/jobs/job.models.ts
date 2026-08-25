@@ -1,4 +1,5 @@
 import { UserProfile } from '../../core/models/user.models';
+import { TagResponse } from '../../core/tags/tag.models';
 import { CompanyResponse } from '../companies/company.models';
 
 export type EmploymentType = 'FULL_TIME' | 'PART_TIME' | 'CONTRACT' | 'INTERNSHIP' | 'FREELANCE';
@@ -29,6 +30,7 @@ export interface JobResponse {
   owner: UserProfile;
   createdAt: string;
   updatedAt: string;
+  tags: TagResponse[];
 }
 
 /** Request body for POST/PUT /api/v1/jobs. */

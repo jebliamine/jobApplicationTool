@@ -35,6 +35,9 @@
         <module>japp-security-Service</module>
         <module>japp-file-storage</module>
         <module>japp-job-service</module>
+        <module>japp-tag-service</module>
+        <module>japp-reminder-service</module>
+        <module>japp-search-service</module>
         <module>japp-commons</module>
         <module>japp-application-services</module>
         <module>japp-generation-services</module>

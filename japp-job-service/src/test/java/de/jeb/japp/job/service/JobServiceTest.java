@@ -4,20 +4,24 @@ import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
+import de.jeb.japp.commons.exceptions.tag.TagNotFoundException;
 import de.jeb.japp.dao.application.ApplicationDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.job.Job;
 import de.jeb.japp.model.job.dto.JobRequest;
+import de.jeb.japp.model.tag.Tag;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
+import de.jeb.japp.tag.service.TagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +41,8 @@ class JobServiceTest {
     private ApplicationDao applicationDao;
     @Mock
     private GenerationRequestDao generationRequestDao;
+    @Mock
+    private TagService tagService;
 
     private JobService jobService;
 
@@ -47,7 +53,7 @@ class JobServiceTest {
 
     @BeforeEach
     void setUp() {
-        jobService = new JobService(jobDao, companyService, applicationDao, generationRequestDao);
+        jobService = new JobService(jobDao, companyService, applicationDao, generationRequestDao, tagService);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -257,5 +263,51 @@ class JobServiceTest {
         // Must check the company against the job's actual owner, not the admin performing the edit.
         verify(companyService).getOwnedByExactly(request.getCompanyId(), owner);
         verify(companyService, never()).getOwnedByExactly(request.getCompanyId(), admin);
+    }
+
+    @Test
+    void setTagsReplacesTheJobsTagSet() {
+        UUID id = UUID.randomUUID();
+        Job job = jobOwnedBy(owner);
+        Tag tag = new Tag();
+        tag.setName("Remote");
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner)).thenReturn(List.of(tag));
+        when(jobDao.saveJob(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Job result = jobService.setTags(id, tagIds, owner);
+
+        assertThat(result.getTags()).containsExactly(tag);
+    }
+
+    @Test
+    void setTagsByAdminValidatesAgainstJobOwnerNotAdmin() {
+        UUID id = UUID.randomUUID();
+        Job job = jobOwnedBy(owner);
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner)).thenReturn(List.of());
+        when(jobDao.saveJob(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        jobService.setTags(id, tagIds, admin);
+
+        verify(tagService).getOwnedByExactlyAll(tagIds, owner);
+        verify(tagService, never()).getOwnedByExactlyAll(tagIds, admin);
+    }
+
+    @Test
+    void setTagsRejectsATagNotOwnedByTheJobsOwner() {
+        UUID id = UUID.randomUUID();
+        Job job = jobOwnedBy(owner);
+        List<UUID> tagIds = List.of(UUID.randomUUID());
+        when(jobDao.getJobById(id)).thenReturn(Optional.of(job));
+        when(tagService.getOwnedByExactlyAll(tagIds, owner))
+                .thenThrow(new TagNotFoundException("One or more tags were not found."));
+
+        assertThatThrownBy(() -> jobService.setTags(id, tagIds, owner))
+                .isInstanceOf(TagNotFoundException.class);
+
+        verify(jobDao, never()).saveJob(any());
     }
 }
