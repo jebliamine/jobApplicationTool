@@ -12,6 +12,8 @@ public class CVProfileResponse {
     private String fullName;
     private String summary;
     private List<ExperienceResponse> experiences;
+    private List<SkillResponse> skills;
+    private List<LanguageResponse> languages;
     private ProfileGenerationStatus status;
     private String errorMessage;
     private LocalDateTime generatedAt;
@@ -23,6 +25,8 @@ public class CVProfileResponse {
     public static CVProfileResponse notAttempted() {
         CVProfileResponse response = new CVProfileResponse();
         response.experiences = List.of();
+        response.skills = List.of();
+        response.languages = List.of();
         response.status = ProfileGenerationStatus.NOT_ATTEMPTED;
         return response;
     }
@@ -35,6 +39,12 @@ public class CVProfileResponse {
         response.experiences = profile.getExperiences() == null
                 ? List.of()
                 : profile.getExperiences().stream().map(ExperienceResponse::from).toList();
+        response.skills = profile.getSkills() == null
+                ? List.of()
+                : profile.getSkills().stream().map(SkillResponse::from).toList();
+        response.languages = profile.getLanguages() == null
+                ? List.of()
+                : profile.getLanguages().stream().map(LanguageResponse::from).toList();
         response.status = profile.getStatus();
         response.errorMessage = profile.getErrorMessage();
         response.generatedAt = profile.getGeneratedAt();
@@ -55,6 +65,14 @@ public class CVProfileResponse {
 
     public List<ExperienceResponse> getExperiences() {
         return experiences;
+    }
+
+    public List<SkillResponse> getSkills() {
+        return skills;
+    }
+
+    public List<LanguageResponse> getLanguages() {
+        return languages;
     }
 
     public ProfileGenerationStatus getStatus() {

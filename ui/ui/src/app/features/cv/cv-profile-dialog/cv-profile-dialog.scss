@@ -1,3 +1,9 @@
+.cv-profile-dialog__title {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+}
+
 .cv-profile-dialog__content {
   display: flex;
   flex-direction: column;
@@ -32,6 +38,11 @@
   svg {
     flex: none;
   }
+}
+
+.cv-profile-dialog__provider-field {
+  width: 100%;
+  margin-bottom: -12px;
 }
 
 .cv-profile-dialog__hint {
@@ -93,4 +104,36 @@
   margin-top: 2px;
   font-size: 0.8125rem;
   color: var(--japp-text-secondary);
+}
+
+.cv-profile-dialog__skills {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cv-profile-dialog__skill {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--japp-text-primary) 6%, var(--japp-surface));
+  border: 1px solid var(--japp-border);
+  font-size: 0.8125rem;
+}
+
+.cv-profile-dialog__languages {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.9375rem;
+}
+
+.cv-profile-dialog__language-level {
+  color: var(--japp-text-secondary);
+  font-size: 0.8125rem;
 }

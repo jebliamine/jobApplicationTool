@@ -6,6 +6,7 @@ import { provideRouter } from '@angular/router';
 import { Observable, of, throwError } from 'rxjs';
 import { AiProviderResponse } from '../ai-provider.models';
 import { AiProviderService } from '../ai-provider.service';
+import { CvProfileResponse } from '../../cv/cv.models';
 import { CvService } from '../../cv/cv.service';
 import { JobService } from '../../jobs/job.service';
 import { GenerationRequestResponse } from '../generation.models';
@@ -45,6 +46,30 @@ const DISABLED_GEMINI_PROVIDER: AiProviderResponse = {
   model: null,
 };
 
+const NOT_ATTEMPTED_PROFILE: CvProfileResponse = {
+  id: null,
+  fullName: null,
+  summary: null,
+  experiences: [],
+  skills: [],
+  languages: [],
+  status: 'NOT_ATTEMPTED',
+  errorMessage: null,
+  generatedAt: null,
+};
+
+const COMPLETED_PROFILE: CvProfileResponse = {
+  id: '55555555-5555-5555-5555-555555555555',
+  fullName: 'Jane Doe',
+  summary: 'Backend engineer with 5 years of experience.',
+  experiences: [],
+  skills: [],
+  languages: [],
+  status: 'COMPLETED',
+  errorMessage: null,
+  generatedAt: '2026-01-01T00:00:00',
+};
+
 const COMPLETED_RESPONSE: GenerationRequestResponse = {
   id: '66666666-6666-6666-6666-666666666666',
   job: JOB,
@@ -72,9 +97,14 @@ describe('GenerationForm', () => {
     options: {
       createResult?: Observable<GenerationRequestResponse>;
       providers?: AiProviderResponse[];
+      cvProfile?: CvProfileResponse;
     } = {},
   ) {
-    const { createResult = of(COMPLETED_RESPONSE), providers = [PLACEHOLDER_PROVIDER, GEMINI_PROVIDER] } = options;
+    const {
+      createResult = of(COMPLETED_RESPONSE),
+      providers = [PLACEHOLDER_PROVIDER, GEMINI_PROVIDER],
+      cvProfile = NOT_ATTEMPTED_PROFILE,
+    } = options;
     createSpy = vi.fn().mockReturnValue(createResult);
 
     TestBed.configureTestingModule({
@@ -84,7 +114,7 @@ describe('GenerationForm', () => {
         provideHttpClientTesting(),
         provideRouter([{ path: 'cover-letters/:id', component: DummyCoverLetterDetail }]),
         { provide: JobService, useValue: { list: () => of([JOB]) } },
-        { provide: CvService, useValue: { list: () => of([CV]) } },
+        { provide: CvService, useValue: { list: () => of([CV]), getProfile: () => of(cvProfile) } },
         { provide: AiProviderService, useValue: { list: () => of(providers) } },
         { provide: GenerationService, useValue: { create: createSpy, get: vi.fn() } },
       ],
@@ -134,7 +164,12 @@ describe('GenerationForm', () => {
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: PLACEHOLDER_ID });
+    expect(createSpy).toHaveBeenCalledWith({
+      jobId: JOB.id,
+      cvDocumentId: CV.id,
+      providerId: PLACEHOLDER_ID,
+      useStructuredCv: false,
+    });
   });
 
   it('sends the selected provider instance id', () => {
@@ -144,7 +179,12 @@ describe('GenerationForm', () => {
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: GEMINI_ID });
+    expect(createSpy).toHaveBeenCalledWith({
+      jobId: JOB.id,
+      cvDocumentId: CV.id,
+      providerId: GEMINI_ID,
+      useStructuredCv: false,
+    });
   });
 
   it('can explicitly select the Placeholder instance again after selecting another provider', () => {
@@ -155,7 +195,45 @@ describe('GenerationForm', () => {
 
     component['submit']();
 
-    expect(createSpy).toHaveBeenCalledWith({ jobId: JOB.id, cvDocumentId: CV.id, providerId: PLACEHOLDER_ID });
+    expect(createSpy).toHaveBeenCalledWith({
+      jobId: JOB.id,
+      cvDocumentId: CV.id,
+      providerId: PLACEHOLDER_ID,
+      useStructuredCv: false,
+    });
+  });
+
+  it('keeps the structured CV option disabled and unchecked when no profile has been generated', () => {
+    setup();
+    fillJobAndCv();
+    fixture.detectChanges();
+
+    expect(component['form'].controls.useStructuredCv.disabled).toBe(true);
+    expect(component['form'].controls.useStructuredCv.value).toBe(false);
+  });
+
+  it('enables the structured CV option once a completed profile exists for the selected CV', () => {
+    setup({ cvProfile: COMPLETED_PROFILE });
+    fillJobAndCv();
+    fixture.detectChanges();
+
+    expect(component['form'].controls.useStructuredCv.disabled).toBe(false);
+  });
+
+  it('sends useStructuredCv true when the user checks it for a CV with a completed profile', () => {
+    setup({ cvProfile: COMPLETED_PROFILE });
+    fillJobAndCv();
+    fixture.detectChanges();
+    component['form'].controls.useStructuredCv.setValue(true);
+
+    component['submit']();
+
+    expect(createSpy).toHaveBeenCalledWith({
+      jobId: JOB.id,
+      cvDocumentId: CV.id,
+      providerId: PLACEHOLDER_ID,
+      useStructuredCv: true,
+    });
   });
 
   it('displays a generation error returned by the backend', () => {
@@ -170,5 +248,56 @@ describe('GenerationForm', () => {
 
     expect(component['serverError']()).toBe('Gemini is not configured.');
     expect(component['generating']()).toBe(false);
+  });
+
+  it('shows a friendly retry notice instead of the raw message when the provider is rate-limited', () => {
+    setup({
+      createResult: of({
+        ...COMPLETED_RESPONSE,
+        status: 'FAILED',
+        coverLetter: null,
+        errorMessage: "Gemini's rate limit was exceeded (HTTP 429). Please try again later.",
+      }),
+    });
+    fillJobAndCv();
+
+    component['submit']();
+
+    expect(component['retryNotice']()).toContain('Wait a moment');
+    expect(component['serverError']()).toBeNull();
+  });
+
+  it('shows a friendly retry notice when the provider is temporarily unavailable', () => {
+    setup({
+      createResult: of({
+        ...COMPLETED_RESPONSE,
+        status: 'FAILED',
+        coverLetter: null,
+        errorMessage: 'Gemini is currently unavailable (HTTP 503). Please try again later.',
+      }),
+    });
+    fillJobAndCv();
+
+    component['submit']();
+
+    expect(component['retryNotice']()).toContain('Wait a moment');
+    expect(component['serverError']()).toBeNull();
+  });
+
+  it('still shows the raw error for a non-capacity failure like a missing configuration', () => {
+    setup({
+      createResult: of({
+        ...COMPLETED_RESPONSE,
+        status: 'FAILED',
+        coverLetter: null,
+        errorMessage: 'This Gemini instance is not configured or is currently disabled.',
+      }),
+    });
+    fillJobAndCv();
+
+    component['submit']();
+
+    expect(component['serverError']()).toBe('This Gemini instance is not configured or is currently disabled.');
+    expect(component['retryNotice']()).toBeNull();
   });
 });

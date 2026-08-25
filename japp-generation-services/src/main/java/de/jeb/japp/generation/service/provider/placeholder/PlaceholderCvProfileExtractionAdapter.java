@@ -34,6 +34,8 @@ public class PlaceholderCvProfileExtractionAdapter implements CvProfileExtractio
                 null,
                 "Configure a real AI provider to generate an actual profile summary. "
                         + "[This is a placeholder result generated without an AI provider.]",
+                List.of(),
+                List.of(),
                 List.of());
     }
 }

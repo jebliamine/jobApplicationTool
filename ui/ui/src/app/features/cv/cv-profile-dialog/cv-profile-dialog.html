@@ -1,4 +1,7 @@
-<h2 mat-dialog-title>CV Profile</h2>
+<h2 mat-dialog-title class="cv-profile-dialog__title">
+  CV Profile
+  <app-status-badge label="Beta" severity="info" />
+</h2>
 
 <mat-dialog-content class="cv-profile-dialog__content">
   <p class="cv-profile-dialog__subtitle">{{ data.cv.title }}</p>
@@ -15,6 +18,17 @@
     </div>
   } @else if (profile(); as profile) {
     <app-status-badge [label]="statusLabel(profile.status)" [severity]="statusSeverity(profile.status)" />
+
+    @if (providers().length > 0) {
+      <mat-form-field appearance="outline" class="cv-profile-dialog__provider-field">
+        <mat-label>AI provider</mat-label>
+        <mat-select [value]="selectedProviderId()" (selectionChange)="selectedProviderId.set($event.value)">
+          @for (provider of providers(); track provider.id) {
+            <mat-option [value]="provider.id">{{ provider.displayName }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+    }
 
     @if (profile.status === 'COMPLETED') {
       <div class="cv-profile-dialog__section">
@@ -50,6 +64,35 @@
           </ul>
         }
       </div>
+      <div class="cv-profile-dialog__section">
+        <span class="cv-profile-dialog__label">Skills</span>
+        @if (profile.skills.length === 0) {
+          <p>No skills found.</p>
+        } @else {
+          <ul class="cv-profile-dialog__skills">
+            @for (skill of profile.skills; track skill.id) {
+              <li class="cv-profile-dialog__skill">{{ skill.name }}</li>
+            }
+          </ul>
+        }
+      </div>
+      <div class="cv-profile-dialog__section">
+        <span class="cv-profile-dialog__label">Languages</span>
+        @if (profile.languages.length === 0) {
+          <p>No languages found.</p>
+        } @else {
+          <ul class="cv-profile-dialog__languages">
+            @for (language of profile.languages; track language.id) {
+              <li>
+                {{ language.name }}
+                @if (language.level) {
+                  <span class="cv-profile-dialog__language-level">— {{ language.level }}</span>
+                }
+              </li>
+            }
+          </ul>
+        }
+      </div>
     } @else if (profile.status === 'FAILED') {
       <div class="cv-profile-dialog__error" role="alert">
         <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
@@ -57,8 +100,8 @@
       </div>
     } @else {
       <p class="cv-profile-dialog__hint">
-        Generate a structured profile (name, summary, experience) from this CV's extracted text using an AI
-        provider.
+        Generate a structured profile (name, summary, experience, skills, and languages) from this CV's extracted
+        text using an AI provider.
       </p>
     }
 

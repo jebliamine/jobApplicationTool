@@ -12,11 +12,14 @@ import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapter;
 import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapterRegistry;
 import de.jeb.japp.generation.service.provider.CvProfileExtractionResult;
 import de.jeb.japp.generation.service.provider.ExperienceData;
+import de.jeb.japp.generation.service.provider.LanguageData;
 import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.cv.CVProfile;
+import de.jeb.japp.model.cv.Language;
 import de.jeb.japp.model.cv.ProfileGenerationStatus;
+import de.jeb.japp.model.cv.Skill;
 import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
 import org.junit.jupiter.api.BeforeEach;
@@ -98,7 +101,9 @@ class CvProfileExtractionServiceTest {
         CvProfileExtractionResult result = new CvProfileExtractionResult(
                 "Jane Doe",
                 "An experienced engineer.",
-                List.of(new ExperienceData("Acme", "Engineer", "2020-01-01", null, "Built things.")));
+                List.of(new ExperienceData("Acme", "Engineer", "2020-01-01", null, "Built things.")),
+                List.of("Java", "Kubernetes"),
+                List.of(new LanguageData("English", "native"), new LanguageData("German", "B2")));
         when(adapter.extract(any(), any())).thenReturn(result);
 
         CVProfile profile = service.generate(cv.getId(), null, owner);
@@ -111,19 +116,43 @@ class CvProfileExtractionServiceTest {
         assertThat(profile.getExperiences()).hasSize(1);
         assertThat(profile.getExperiences().get(0).getStartDate()).isEqualTo(LocalDate.of(2020, 1, 1));
         assertThat(profile.getExperiences().get(0).getCvProfile()).isSameAs(profile);
+        assertThat(profile.getSkills()).extracting(Skill::getName).containsExactly("Java", "Kubernetes");
+        assertThat(profile.getSkills().get(0).getCvProfile()).isSameAs(profile);
+        assertThat(profile.getLanguages()).extracting(Language::getName, Language::getLevel)
+                .containsExactly(org.assertj.core.groups.Tuple.tuple("English", "native"),
+                        org.assertj.core.groups.Tuple.tuple("German", "B2"));
     }
 
     @Test
-    void generateReplacesExperiencesFromAPreviousRunInsteadOfAccumulatingThem() {
+    void generateReplacesExperiencesSkillsAndLanguagesFromAPreviousRunInsteadOfAccumulatingThem() {
         CVProfile existing = new CVProfile();
         existing.setCvDocument(cv);
         existing.setExperiences(new java.util.ArrayList<>(List.of(staleExperience(existing))));
+        existing.setSkills(new java.util.ArrayList<>(List.of(staleSkill(existing))));
+        existing.setLanguages(new java.util.ArrayList<>(List.of(staleLanguage(existing))));
         when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.of(existing));
-        when(adapter.extract(any(), any())).thenReturn(new CvProfileExtractionResult("Jane", "Summary", List.of()));
+        when(adapter.extract(any(), any()))
+                .thenReturn(new CvProfileExtractionResult("Jane", "Summary", List.of(), List.of(), List.of()));
 
         CVProfile profile = service.generate(cv.getId(), null, owner);
 
         assertThat(profile.getExperiences()).isEmpty();
+        assertThat(profile.getSkills()).isEmpty();
+        assertThat(profile.getLanguages()).isEmpty();
+    }
+
+    @Test
+    void blankSkillAndLanguageNamesAreDropped() {
+        lenient().when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.empty());
+        when(adapter.extract(any(), any())).thenReturn(new CvProfileExtractionResult(
+                "Jane", "Summary", List.of(),
+                java.util.Arrays.asList("Java", "  ", null),
+                List.of(new LanguageData("  ", "native"), new LanguageData("French", "A1"))));
+
+        CVProfile profile = service.generate(cv.getId(), null, owner);
+
+        assertThat(profile.getSkills()).extracting(Skill::getName).containsExactly("Java");
+        assertThat(profile.getLanguages()).extracting(Language::getName).containsExactly("French");
     }
 
     @Test
@@ -170,5 +199,19 @@ class CvProfileExtractionServiceTest {
         experience.setCvProfile(owner);
         experience.setCompany("Old Co");
         return experience;
+    }
+
+    private Skill staleSkill(CVProfile owner) {
+        Skill skill = new Skill();
+        skill.setCvProfile(owner);
+        skill.setName("Old Skill");
+        return skill;
+    }
+
+    private Language staleLanguage(CVProfile owner) {
+        Language language = new Language();
+        language.setCvProfile(owner);
+        language.setName("Old Language");
+        return language;
     }
 }

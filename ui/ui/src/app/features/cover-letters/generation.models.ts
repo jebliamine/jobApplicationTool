@@ -26,10 +26,14 @@ export interface GenerationRequestResponse {
  * accepted from the client. providerId is the id of an AiProviderConfiguration
  * instance (one of the ids returned by GET /api/v1/ai/providers — see
  * ../ai-provider.models.ts); omitting it defaults to the built-in Placeholder
- * instance on the backend.
+ * instance on the backend. useStructuredCv requests the CV's AI-extracted
+ * profile (see ../cv/cv.models.ts CvProfileResponse) as context instead of
+ * the CV's raw text — the backend falls back to the raw text on its own if
+ * no COMPLETED profile exists, so this is always safe to send.
  */
 export interface GenerationRequestCreateRequest {
   jobId: string;
   cvDocumentId: string;
   providerId?: string;
+  useStructuredCv?: boolean;
 }

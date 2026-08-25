@@ -76,6 +76,25 @@
   width: 100%;
 }
 
+.generation-form-page__structured-cv {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: calc(-1 * var(--japp-spacing-sm)) 0 var(--japp-spacing-sm);
+}
+
+.generation-form-page__structured-cv-label {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+}
+
+.generation-form-page__structured-cv-hint {
+  margin: 0 0 0 var(--japp-spacing-xl);
+  font-size: 0.8125rem;
+  color: var(--japp-text-secondary);
+}
+
 .generation-form-page__actions {
   display: flex;
   gap: var(--japp-spacing-sm);

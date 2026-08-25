@@ -25,6 +25,32 @@ class CvProfileResponseParserTest {
     }
 
     @Test
+    void parsesSkillsAndLanguages() {
+        String json = """
+                {"fullName":"Jane Doe","summary":"A summary.","experiences":[],
+                 "skills":["Java","Kubernetes"],
+                 "languages":[{"name":"English","level":"native"},{"name":"German","level":"B2"}]}""";
+
+        CvProfileExtractionResult result = CvProfileResponseParser.parse(json);
+
+        assertThat(result.skills()).containsExactly("Java", "Kubernetes");
+        assertThat(result.languages()).hasSize(2);
+        assertThat(result.languages().get(0).name()).isEqualTo("English");
+        assertThat(result.languages().get(0).level()).isEqualTo("native");
+    }
+
+    @Test
+    void skillsAndLanguagesAreNullWhenAbsentFromTheResponse() {
+        String json = """
+                {"fullName":null,"summary":null,"experiences":[]}""";
+
+        CvProfileExtractionResult result = CvProfileResponseParser.parse(json);
+
+        assertThat(result.skills()).isNull();
+        assertThat(result.languages()).isNull();
+    }
+
+    @Test
     void stripsAMarkdownCodeFenceAroundTheJson() {
         String fenced = "```json\n{\"fullName\":null,\"summary\":null,\"experiences\":[]}\n```";
 

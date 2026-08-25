@@ -11,6 +11,7 @@ import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
 import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
+import de.jeb.japp.dao.cv.CVProfileDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
@@ -22,6 +23,11 @@ import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.company.Company;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.cv.CVProfile;
+import de.jeb.japp.model.cv.Experience;
+import de.jeb.japp.model.cv.Language;
+import de.jeb.japp.model.cv.ProfileGenerationStatus;
+import de.jeb.japp.model.cv.Skill;
 import de.jeb.japp.model.generation.GenerationRequest;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.generation.dto.GenerationRequestCreateRequest;
@@ -57,6 +63,8 @@ class GenerationRequestServiceTest {
     @Mock
     private CVDao cvDao;
     @Mock
+    private CVProfileDao cvProfileDao;
+    @Mock
     private AiProviderConfigurationDao providerDao;
     @Mock
     private ProviderSettingsResolver providerSettingsResolver;
@@ -81,7 +89,8 @@ class GenerationRequestServiceTest {
     @BeforeEach
     void setUp() {
         generationRequestService = new GenerationRequestService(
-                generationRequestDao, coverLetterDao, jobDao, cvDao, providerDao, providerSettingsResolver, adapterRegistry);
+                generationRequestDao, coverLetterDao, jobDao, cvDao, cvProfileDao, providerDao, providerSettingsResolver,
+                adapterRegistry);
 
         owner = new User();
         owner.setId(UUID.randomUUID());
@@ -110,6 +119,7 @@ class GenerationRequestServiceTest {
         cv.setOwner(owner);
         cv.setTitle("My Resume");
         cv.setExtractedText("Extracted CV content.");
+        ReflectionTestUtils.setField(cv, "id", UUID.randomUUID());
 
         placeholderInstance = providerInstance(AdapterType.PLACEHOLDER, "Placeholder");
         geminiInstance = providerInstance(AdapterType.GEMINI_GENERATE_CONTENT, "Google Gemini");
@@ -203,6 +213,126 @@ class GenerationRequestServiceTest {
         ArgumentCaptor<GenerationInput> captor = ArgumentCaptor.forClass(GenerationInput.class);
         verify(placeholderAdapter).generate(any(), captor.capture());
         assertThat(captor.getValue().cvText()).isEqualTo(cv.getExtractedText());
+    }
+
+    private CVProfile completedProfile(String fullName, String summary, Experience... experiences) {
+        CVProfile profile = new CVProfile();
+        profile.setCvDocument(cv);
+        profile.setFullName(fullName);
+        profile.setSummary(summary);
+        profile.setExperiences(List.of(experiences));
+        profile.setStatus(ProfileGenerationStatus.COMPLETED);
+        return profile;
+    }
+
+    private Experience experience(String title, String company, String description) {
+        Experience experience = new Experience();
+        experience.setTitle(title);
+        experience.setCompany(company);
+        experience.setDescription(description);
+        return experience;
+    }
+
+    private Skill skill(String name) {
+        Skill skill = new Skill();
+        skill.setName(name);
+        return skill;
+    }
+
+    private Language language(String name, String level) {
+        Language language = new Language();
+        language.setName(name);
+        language.setLevel(level);
+        return language;
+    }
+
+    @Test
+    void structuredCvProfileIsUsedWhenRequestedAndCompleted() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setUseStructuredCv(true);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.of(
+                completedProfile("Jane Doe", "Backend engineer with 5 years of experience.",
+                        experience("Software Engineer", "Acme Corp", "Built and maintained backend services."))));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot())
+                .contains("Jane Doe")
+                .contains("Backend engineer with 5 years of experience.")
+                .contains("Software Engineer")
+                .contains("Acme Corp")
+                .contains("Built and maintained backend services.")
+                .doesNotContain(cv.getExtractedText());
+
+        ArgumentCaptor<GenerationInput> captor = ArgumentCaptor.forClass(GenerationInput.class);
+        verify(placeholderAdapter).generate(any(), captor.capture());
+        assertThat(captor.getValue().cvText()).isEqualTo(result.getCvTextSnapshot());
+    }
+
+    @Test
+    void structuredCvTextIncludesSkillsAndLanguages() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setUseStructuredCv(true);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        CVProfile profile = completedProfile("Jane Doe", "Backend engineer.",
+                experience("Software Engineer", "Acme Corp", "Built things."));
+        profile.setSkills(List.of(skill("Java"), skill("Kubernetes")));
+        profile.setLanguages(List.of(language("English", "native"), language("German", "B2")));
+        when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.of(profile));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot())
+                .contains("Java")
+                .contains("Kubernetes")
+                .contains("English")
+                .contains("native")
+                .contains("German")
+                .contains("B2");
+    }
+
+    @Test
+    void rawCvTextIsUsedWhenStructuredCvIsNotRequested() {
+        GenerationRequestCreateRequest request = validRequest();
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot()).isEqualTo(cv.getExtractedText());
+        verifyNoInteractions(cvProfileDao);
+    }
+
+    @Test
+    void fallsBackToRawTextWhenNoProfileHasEverBeenGenerated() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setUseStructuredCv(true);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.empty());
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot()).isEqualTo(cv.getExtractedText());
+    }
+
+    @Test
+    void fallsBackToRawTextWhenTheProfileFailedOrIsStillGenerating() {
+        GenerationRequestCreateRequest request = validRequest();
+        request.setUseStructuredCv(true);
+        when(jobDao.getJobById(request.getJobId())).thenReturn(Optional.of(job));
+        when(cvDao.getCVById(request.getCvDocumentId())).thenReturn(Optional.of(cv));
+        CVProfile failedProfile = completedProfile("Jane Doe", "Summary");
+        failedProfile.setStatus(ProfileGenerationStatus.FAILED);
+        when(cvProfileDao.getByCvDocumentId(cv.getId())).thenReturn(Optional.of(failedProfile));
+
+        GenerationRequest result = generationRequestService.create(request, owner);
+
+        assertThat(result.getCvTextSnapshot()).isEqualTo(cv.getExtractedText());
     }
 
     @Test

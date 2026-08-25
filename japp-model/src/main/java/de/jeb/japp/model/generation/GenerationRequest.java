@@ -47,7 +47,12 @@ public class GenerationRequest {
     @Column(length = 8000)
     private String jobDescriptionSnapshot;
 
-    /** Copy of the CV's extracted text at request time, same reproducibility reasoning as {@link #jobDescriptionSnapshot}. Null when the CV has no extracted text (extraction failed, or predates the extraction feature). */
+    /**
+     * The CV context text actually used at request time, same reproducibility reasoning as
+     * {@link #jobDescriptionSnapshot} — either the CV's raw extracted text, or a formatted rendering
+     * of its structured {@code CVProfile} when {@code useStructuredCv} was requested and available
+     * (see GenerationRequestService#resolveCvText). Null when neither was available.
+     */
     @Column(length = 8000)
     private String cvTextSnapshot;
 

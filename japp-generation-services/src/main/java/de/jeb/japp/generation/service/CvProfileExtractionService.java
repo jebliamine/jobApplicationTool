@@ -14,12 +14,15 @@ import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapterRegistr
 import de.jeb.japp.generation.service.provider.CvProfileExtractionInput;
 import de.jeb.japp.generation.service.provider.CvProfileExtractionResult;
 import de.jeb.japp.generation.service.provider.ExperienceData;
+import de.jeb.japp.generation.service.provider.LanguageData;
 import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.cv.CVDocument;
 import de.jeb.japp.model.cv.CVProfile;
 import de.jeb.japp.model.cv.Experience;
+import de.jeb.japp.model.cv.Language;
 import de.jeb.japp.model.cv.ProfileGenerationStatus;
+import de.jeb.japp.model.cv.Skill;
 import de.jeb.japp.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,10 +40,11 @@ import java.util.UUID;
  * Runs the CV-profile-generation workflow: validates ownership of the CV,
  * resolves the requested (or default Placeholder) provider, calls the
  * matching {@link CvProfileExtractionAdapter}, and persists the result onto
- * that CV's {@link CVProfile} (NOT_ATTEMPTED → IN_PROGRESS → COMPLETED/FAILED
- * — mirrors GenerationRequestService's status lifecycle, but simpler since
- * this is a single entity rather than a separate request-log table: there's
- * only ever one profile per CV, and regenerating overwrites it).
+ * that CV's {@link CVProfile} — name, summary, experience, skills, and
+ * languages — (NOT_ATTEMPTED → IN_PROGRESS → COMPLETED/FAILED — mirrors
+ * GenerationRequestService's status lifecycle, but simpler since this is a
+ * single entity rather than a separate request-log table: there's only ever
+ * one profile per CV, and regenerating overwrites it).
  */
 @Service
 public class CvProfileExtractionService {
@@ -102,24 +106,31 @@ public class CvProfileExtractionService {
         CVProfile profile = new CVProfile();
         profile.setCvDocument(cv);
         profile.setExperiences(new ArrayList<>());
+        profile.setSkills(new ArrayList<>());
+        profile.setLanguages(new ArrayList<>());
         return profile;
     }
 
     private void applyResult(CVProfile profile, CvProfileExtractionResult result) {
         profile.setFullName(result.fullName());
         profile.setSummary(result.summary());
+        applyExperiences(profile, result.experiences());
+        applySkills(profile, result.skills());
+        applyLanguages(profile, result.languages());
+    }
 
+    // Each of these mutates the existing managed collection in place (rather than assigning a
+    // new List) so Hibernate's orphanRemoval correctly deletes rows from a previous generation
+    // instead of just detaching them from the FK.
+
+    private void applyExperiences(CVProfile profile, List<ExperienceData> data) {
         List<Experience> experiences = profile.getExperiences();
         if (experiences == null) {
             experiences = new ArrayList<>();
             profile.setExperiences(experiences);
         }
-        // Mutate the existing managed collection in place (rather than assigning a new
-        // List) so Hibernate's orphanRemoval correctly deletes rows from a previous
-        // generation instead of just detaching them from the FK.
         experiences.clear();
-        List<ExperienceData> data = result.experiences() != null ? result.experiences() : List.of();
-        for (ExperienceData item : data) {
+        for (ExperienceData item : data != null ? data : List.<ExperienceData>of()) {
             Experience experience = new Experience();
             experience.setCvProfile(profile);
             experience.setCompany(item.company());
@@ -128,6 +139,43 @@ public class CvProfileExtractionService {
             experience.setEndDate(parseDateOrNull(item.endDate()));
             experience.setDescription(item.description());
             experiences.add(experience);
+        }
+    }
+
+    private void applySkills(CVProfile profile, List<String> data) {
+        List<Skill> skills = profile.getSkills();
+        if (skills == null) {
+            skills = new ArrayList<>();
+            profile.setSkills(skills);
+        }
+        skills.clear();
+        for (String name : data != null ? data : List.<String>of()) {
+            if (name == null || name.isBlank()) {
+                continue;
+            }
+            Skill skill = new Skill();
+            skill.setCvProfile(profile);
+            skill.setName(name);
+            skills.add(skill);
+        }
+    }
+
+    private void applyLanguages(CVProfile profile, List<LanguageData> data) {
+        List<Language> languages = profile.getLanguages();
+        if (languages == null) {
+            languages = new ArrayList<>();
+            profile.setLanguages(languages);
+        }
+        languages.clear();
+        for (LanguageData item : data != null ? data : List.<LanguageData>of()) {
+            if (item.name() == null || item.name().isBlank()) {
+                continue;
+            }
+            Language language = new Language();
+            language.setCvProfile(profile);
+            language.setName(item.name());
+            language.setLevel(item.level());
+            languages.add(language);
         }
     }
 

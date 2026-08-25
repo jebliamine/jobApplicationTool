@@ -14,6 +14,7 @@ import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
 import de.jeb.japp.dao.coverletter.CoverLetterDao;
 import de.jeb.japp.dao.cv.CVDao;
+import de.jeb.japp.dao.cv.CVProfileDao;
 import de.jeb.japp.dao.generation.GenerationRequestDao;
 import de.jeb.japp.dao.job.JobDao;
 import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
@@ -24,6 +25,11 @@ import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.coverLetter.CoverLetter;
 import de.jeb.japp.model.cv.CVDocument;
+import de.jeb.japp.model.cv.CVProfile;
+import de.jeb.japp.model.cv.Experience;
+import de.jeb.japp.model.cv.Language;
+import de.jeb.japp.model.cv.ProfileGenerationStatus;
+import de.jeb.japp.model.cv.Skill;
 import de.jeb.japp.model.generation.GenerationRequest;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.generation.dto.GenerationRequestCreateRequest;
@@ -32,11 +38,13 @@ import de.jeb.japp.model.user.User;
 import de.jeb.japp.model.user.UserRole;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Runs the cover-letter generation workflow: validates ownership of the
@@ -48,6 +56,10 @@ import java.util.UUID;
  * Placeholder instance) — this service has no knowledge of any adapter's
  * implementation, and adding a new admin-configured provider instance never
  * requires changing this class, the REST API, or Angular.
+ * <p>
+ * The CV context fed into the prompt comes from either the CV's raw extracted
+ * text or its AI-structured {@code CVProfile}, selected per-request via
+ * {@code useStructuredCv} — see {@link #resolveCvText}.
  */
 @Service
 public class GenerationRequestService {
@@ -56,6 +68,7 @@ public class GenerationRequestService {
     private final CoverLetterDao coverLetterDao;
     private final JobDao jobDao;
     private final CVDao cvDao;
+    private final CVProfileDao cvProfileDao;
     private final AiProviderConfigurationDao providerDao;
     private final ProviderSettingsResolver providerSettingsResolver;
     private final CoverLetterGenerationAdapterRegistry adapterRegistry;
@@ -65,6 +78,7 @@ public class GenerationRequestService {
             CoverLetterDao coverLetterDao,
             JobDao jobDao,
             CVDao cvDao,
+            CVProfileDao cvProfileDao,
             AiProviderConfigurationDao providerDao,
             ProviderSettingsResolver providerSettingsResolver,
             CoverLetterGenerationAdapterRegistry adapterRegistry
@@ -73,6 +87,7 @@ public class GenerationRequestService {
         this.coverLetterDao = coverLetterDao;
         this.jobDao = jobDao;
         this.cvDao = cvDao;
+        this.cvProfileDao = cvProfileDao;
         this.providerDao = providerDao;
         this.providerSettingsResolver = providerSettingsResolver;
         this.adapterRegistry = adapterRegistry;
@@ -88,13 +103,14 @@ public class GenerationRequestService {
         // so the referenced job and CV must belong to that same requester.
         Job job = getOwnedJob(request.getJobId(), owner);
         CVDocument cv = getOwnedCv(request.getCvDocumentId(), owner);
+        String cvText = resolveCvText(cv, request.isUseStructuredCv());
 
         GenerationRequest generationRequest = new GenerationRequest();
         generationRequest.setUser(owner);
         generationRequest.setJob(job);
         generationRequest.setCvDocument(cv);
         generationRequest.setJobDescriptionSnapshot(job.getDescription());
-        generationRequest.setCvTextSnapshot(cv.getExtractedText());
+        generationRequest.setCvTextSnapshot(cvText);
         generationRequest.setProviderInstance(providerInstance);
         generationRequest.setProvider(providerInstance.getDisplayName());
         generationRequest.setModel(resolvedConfig.getModel());
@@ -102,7 +118,111 @@ public class GenerationRequestService {
         generationRequest.setCreatedAt(LocalDateTime.now());
         generationRequest = generationRequestDao.saveGenerationRequest(generationRequest);
 
-        return process(generationRequest, adapter, resolvedConfig, job, cv, owner);
+        return process(generationRequest, adapter, resolvedConfig, job, cv, cvText, owner);
+    }
+
+    /**
+     * Chooses the CV context text for the prompt: the AI-extracted {@link CVProfile} (formatted as
+     * plain text) when {@code useStructuredCv} was requested and that profile reached COMPLETED,
+     * otherwise the CV's raw extracted text — the same source used when the flag isn't set at all.
+     * A requested-but-unavailable profile (never generated, still running, or failed) silently
+     * falls back to the raw text rather than failing the request: both are genuine CV content, so
+     * there's nothing to warn about here — the frontend is what decides whether to offer the
+     * choice based on the profile's actual status.
+     */
+    private String resolveCvText(CVDocument cv, boolean useStructuredCv) {
+        if (cv == null) {
+            return null;
+        }
+        if (useStructuredCv) {
+            Optional<CVProfile> profile = cvProfileDao.getByCvDocumentId(cv.getId());
+            if (profile.isPresent() && profile.get().getStatus() == ProfileGenerationStatus.COMPLETED) {
+                return formatStructuredCvText(profile.get());
+            }
+        }
+        return cv.getExtractedText();
+    }
+
+    /** cvTextSnapshot is a varchar(8000) column; see {@link #truncateToColumnLimit}. */
+    private static final int CV_TEXT_SNAPSHOT_MAX_LENGTH = 7997;
+
+    private String formatStructuredCvText(CVProfile profile) {
+        StringBuilder text = new StringBuilder();
+        if (profile.getFullName() != null && !profile.getFullName().isBlank()) {
+            text.append("Name: ").append(profile.getFullName()).append('\n');
+        }
+        if (profile.getSummary() != null && !profile.getSummary().isBlank()) {
+            text.append("Zusammenfassung: ").append(profile.getSummary()).append('\n');
+        }
+        List<Experience> experiences = profile.getExperiences();
+        if (experiences != null && !experiences.isEmpty()) {
+            text.append("\nBerufserfahrung:\n");
+            for (Experience experience : experiences) {
+                text.append(formatExperience(experience)).append('\n');
+            }
+        }
+        List<Skill> skills = profile.getSkills();
+        if (skills != null && !skills.isEmpty()) {
+            String names = skills.stream()
+                    .map(Skill::getName)
+                    .filter(name -> name != null && !name.isBlank())
+                    .collect(Collectors.joining(", "));
+            if (!names.isBlank()) {
+                text.append("\nFähigkeiten: ").append(names).append('\n');
+            }
+        }
+        List<Language> languages = profile.getLanguages();
+        if (languages != null && !languages.isEmpty()) {
+            text.append("\nSprachen:\n");
+            for (Language language : languages) {
+                text.append("- ").append(language.getName());
+                if (language.getLevel() != null && !language.getLevel().isBlank()) {
+                    text.append(" (").append(language.getLevel()).append(")");
+                }
+                text.append('\n');
+            }
+        }
+        return truncateToColumnLimit(text.toString());
+    }
+
+    /**
+     * Unlike the per-experience descriptions ({@link CvProfilePromptBuilder} deliberately asks the
+     * model to preserve those in full), the formatted CV text as a whole still has to fit the
+     * cvTextSnapshot column (varchar(8000)). Truncating the tail here trades a small amount of
+     * detail from whichever section happens to run last for the request always completing, rather
+     * than failing to save because a very detailed profile is a few characters over.
+     */
+    private String truncateToColumnLimit(String text) {
+        return text.length() <= CV_TEXT_SNAPSHOT_MAX_LENGTH
+                ? text
+                : text.substring(0, CV_TEXT_SNAPSHOT_MAX_LENGTH) + "…";
+    }
+
+    private String formatExperience(Experience experience) {
+        StringBuilder line = new StringBuilder("- ");
+        if (experience.getTitle() != null && !experience.getTitle().isBlank()) {
+            line.append(experience.getTitle());
+        }
+        if (experience.getCompany() != null && !experience.getCompany().isBlank()) {
+            line.append(line.length() > 2 ? " bei " : "").append(experience.getCompany());
+        }
+        String range = formatDateRange(experience.getStartDate(), experience.getEndDate());
+        if (!range.isBlank()) {
+            line.append(" (").append(range).append(")");
+        }
+        if (experience.getDescription() != null && !experience.getDescription().isBlank()) {
+            line.append(": ").append(experience.getDescription());
+        }
+        return line.toString();
+    }
+
+    private String formatDateRange(LocalDate startDate, LocalDate endDate) {
+        if (startDate == null && endDate == null) {
+            return "";
+        }
+        String start = startDate != null ? startDate.toString() : "?";
+        String end = endDate != null ? endDate.toString() : "heute";
+        return start + " – " + end;
     }
 
     public GenerationRequest get(UUID id, User requester) {
@@ -148,6 +268,7 @@ public class GenerationRequestService {
             ResolvedProviderConfig resolvedConfig,
             Job job,
             CVDocument cv,
+            String cvText,
             User owner
     ) {
         generationRequest.setStatus(GenerationStatus.IN_PROGRESS);
@@ -155,7 +276,7 @@ public class GenerationRequestService {
         generationRequestDao.saveGenerationRequest(generationRequest);
 
         try {
-            GenerationResult result = adapter.generate(resolvedConfig, buildInput(job, cv, owner));
+            GenerationResult result = adapter.generate(resolvedConfig, buildInput(job, cv, cvText, owner));
 
             CoverLetter coverLetter = new CoverLetter();
             coverLetter.setOwner(owner);
@@ -178,9 +299,11 @@ public class GenerationRequestService {
     }
 
     /**
-     * Translates the resolved Job/CV/User entities into the plain-value input the adapter operates on.
+     * Translates the resolved Job/CV/User entities into the plain-value input the adapter operates
+     * on. {@code cvText} is whatever {@link #resolveCvText} already decided (raw extracted text or
+     * the formatted structured profile) — this method never re-derives it from {@code cv}.
      */
-    private GenerationInput buildInput(Job job, CVDocument cv, User owner) {
+    private GenerationInput buildInput(Job job, CVDocument cv, String cvText, User owner) {
         String applicantName = (owner.getFullName() != null && !owner.getFullName().isBlank())
                 ? owner.getFullName()
                 : owner.getEmail();
@@ -189,7 +312,7 @@ public class GenerationRequestService {
                 job.getCompany().getName(),
                 job.getDescription(),
                 cv != null ? cv.getTitle() : null,
-                cv != null ? cv.getExtractedText() : null,
+                cvText,
                 applicantName
         );
     }

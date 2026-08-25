@@ -8,10 +8,11 @@ import java.util.UUID;
 
 /**
  * AI-extracted structured profile for one {@link CVDocument} (1:1) — name,
- * summary, and work experience, produced from the document's extractedText
- * by a CvProfileExtractionAdapter (see japp-generation-services). Distinct
- * from CVDocument's own extraction bookkeeping: that tracks raw text
- * extraction (Tika/OCR), this tracks the later AI structuring step.
+ * summary, work experience, skills, and languages, produced from the
+ * document's extractedText by a CvProfileExtractionAdapter (see
+ * japp-generation-services). Distinct from CVDocument's own extraction
+ * bookkeeping: that tracks raw text extraction (Tika/OCR), this tracks the
+ * later AI structuring step.
  */
 @Entity
 public class CVProfile {
@@ -31,6 +32,12 @@ public class CVProfile {
 
     @OneToMany(mappedBy = "cvProfile", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Experience> experiences;
+
+    @OneToMany(mappedBy = "cvProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Skill> skills;
+
+    @OneToMany(mappedBy = "cvProfile", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Language> languages;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
@@ -75,6 +82,22 @@ public class CVProfile {
 
     public void setExperiences(List<Experience> experiences) {
         this.experiences = experiences;
+    }
+
+    public List<Skill> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<Skill> skills) {
+        this.skills = skills;
+    }
+
+    public List<Language> getLanguages() {
+        return languages;
+    }
+
+    public void setLanguages(List<Language> languages) {
+        this.languages = languages;
     }
 
     public ProfileGenerationStatus getStatus() {

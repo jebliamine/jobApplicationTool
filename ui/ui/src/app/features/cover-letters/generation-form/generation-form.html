@@ -26,6 +26,13 @@
           </div>
         }
 
+        @if (retryNotice()) {
+          <div class="generation-form-page__warning" role="status">
+            <svg lucideClock [size]="18" aria-hidden="true"></svg>
+            <span>{{ retryNotice() }}</span>
+          </div>
+        }
+
         @if (jobs().length === 0) {
           <div class="generation-form-page__warning" role="alert">
             <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
@@ -67,6 +74,16 @@
               <mat-error>A CV is required.</mat-error>
             }
           </mat-form-field>
+
+          @if (form.controls.cvDocumentId.value) {
+            <div class="generation-form-page__structured-cv">
+              <div class="generation-form-page__structured-cv-label">
+                <mat-checkbox formControlName="useStructuredCv">Use structured CV profile</mat-checkbox>
+                <app-status-badge label="Beta" severity="info" />
+              </div>
+              <p class="generation-form-page__structured-cv-hint">{{ structuredCvHint() }}</p>
+            </div>
+          }
 
           <mat-form-field appearance="outline" class="generation-form-page__field">
             <mat-label>Provider</mat-label>
