@@ -26,20 +26,38 @@
             {{ 'landing.hero.secondaryCta' | translate }}
           </a>
         </div>
+        <ul class="landing__trust-strip">
+          @for (item of trustItems; track item.icon) {
+            <li class="landing__trust-item">
+              @switch (item.icon) {
+                @case ('auth') {
+                  <svg lucideLock [size]="15" aria-hidden="true"></svg>
+                }
+                @case ('encryption') {
+                  <svg lucideShieldCheck [size]="15" aria-hidden="true"></svg>
+                }
+                @case ('stack') {
+                  <svg lucideServer [size]="15" aria-hidden="true"></svg>
+                }
+              }
+              <span>{{ item.labelKey | translate }}</span>
+            </li>
+          }
+        </ul>
       </div>
       <div class="landing__hero-visual">
         <app-hero-illustration />
       </div>
     </section>
 
-    <section class="landing__section" aria-labelledby="pillars-heading">
-      <div class="landing__section-header">
+    <section class="landing__section" id="pillars" aria-labelledby="pillars-heading">
+      <div class="landing__section-header" appRevealOnScroll>
         <h2 id="pillars-heading" class="landing__section-title">{{ 'landing.pillars.title' | translate }}</h2>
         <p class="landing__section-subtitle">{{ 'landing.pillars.subtitle' | translate }}</p>
       </div>
       <ul class="landing__pillars">
-        @for (pillar of pillars; track pillar.titleKey) {
-          <li class="landing__pillar">
+        @for (pillar of pillars; track pillar.titleKey; let i = $index) {
+          <li class="landing__pillar" [class.landing__pillar--featured]="i === 0" [appRevealOnScroll]="i * 60">
             <div class="landing__pillar-icon">
               @switch (pillar.icon) {
                 @case ('cv') {
@@ -66,14 +84,47 @@
       </ul>
     </section>
 
-    <section class="landing__section landing__section--muted" aria-labelledby="how-it-works-heading">
-      <div class="landing__section-header">
+    <section class="landing__section landing__section--muted" id="ai-providers" aria-labelledby="ai-providers-heading">
+      <div class="landing__ai-providers">
+        <div class="landing__ai-providers-intro" appRevealOnScroll>
+          <h2 id="ai-providers-heading" class="landing__section-title">{{ 'landing.aiProviders.title' | translate }}</h2>
+          <p class="landing__section-subtitle">{{ 'landing.aiProviders.subtitle' | translate }}</p>
+        </div>
+        <ul class="landing__provider-grid">
+          @for (provider of aiProviders; track provider.titleKey; let i = $index) {
+            <li class="landing__provider" [appRevealOnScroll]="i * 60">
+              <div class="landing__provider-icon">
+                @switch (provider.icon) {
+                  @case ('gemini') {
+                    <svg lucideSparkles [size]="20" aria-hidden="true"></svg>
+                  }
+                  @case ('openai-compatible') {
+                    <svg lucidePlug [size]="20" aria-hidden="true"></svg>
+                  }
+                  @case ('anthropic') {
+                    <svg lucideBrainCircuit [size]="20" aria-hidden="true"></svg>
+                  }
+                  @case ('placeholder') {
+                    <svg lucideCircleDashed [size]="20" aria-hidden="true"></svg>
+                  }
+                }
+              </div>
+              <h3 class="landing__provider-title">{{ provider.titleKey | translate }}</h3>
+              <p class="landing__provider-description">{{ provider.descriptionKey | translate }}</p>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="landing__section" id="how-it-works" aria-labelledby="how-it-works-heading">
+      <div class="landing__section-header" appRevealOnScroll>
         <h2 id="how-it-works-heading" class="landing__section-title">{{ 'landing.howItWorks.title' | translate }}</h2>
         <p class="landing__section-subtitle">{{ 'landing.howItWorks.subtitle' | translate }}</p>
       </div>
       <ol class="landing__steps">
-        @for (item of workflowSteps; track item.step) {
-          <li class="landing__step">
+        @for (item of workflowSteps; track item.step; let i = $index) {
+          <li class="landing__step" [appRevealOnScroll]="i * 80">
             <span class="landing__step-number" aria-hidden="true">{{ item.step }}</span>
             <h3 class="landing__step-title">{{ item.titleKey | translate }}</h3>
             <p class="landing__step-description">{{ item.descriptionKey | translate }}</p>
@@ -82,13 +133,13 @@
       </ol>
     </section>
 
-    <section class="landing__section" id="faq" aria-labelledby="faq-heading">
-      <div class="landing__section-header">
+    <section class="landing__section landing__section--muted" id="faq" aria-labelledby="faq-heading">
+      <div class="landing__section-header" appRevealOnScroll>
         <h2 id="faq-heading" class="landing__section-title">{{ 'landing.faq.title' | translate }}</h2>
         <p class="landing__section-subtitle">{{ 'landing.faq.subtitle' | translate }}</p>
       </div>
 
-      <mat-accordion class="landing__faq">
+      <mat-accordion class="landing__faq" appRevealOnScroll>
         @for (item of faqItems; track item.questionKey) {
           <mat-expansion-panel class="landing__faq-panel">
             <mat-expansion-panel-header>
@@ -100,7 +151,7 @@
       </mat-accordion>
     </section>
 
-    <section class="landing__cta-band" aria-labelledby="cta-heading">
+    <section class="landing__cta-band" aria-labelledby="cta-heading" appRevealOnScroll>
       <h2 id="cta-heading" class="landing__cta-title">{{ 'landing.closingCta.title' | translate }}</h2>
       <p class="landing__cta-subtitle">{{ 'landing.closingCta.subtitle' | translate }}</p>
       <a mat-flat-button color="primary" routerLink="/register" class="landing__cta-button">
@@ -168,21 +219,29 @@
         <p class="landing__footer-tech">{{ 'landing.footer.about.tech' | translate }}</p>
       </div>
 
+      <nav class="landing__footer-nav" [attr.aria-label]="'landing.footer.product.title' | translate">
+        <span class="landing__footer-col-title landing__footer-col-title--product">{{ 'landing.footer.product.title' | translate }}</span>
+        <a href="#pillars">{{ 'landing.footer.product.features' | translate }}</a>
+        <a href="#ai-providers">{{ 'landing.footer.product.aiProviders' | translate }}</a>
+        <a href="#how-it-works">{{ 'landing.footer.product.howItWorks' | translate }}</a>
+      </nav>
+
       <nav class="landing__footer-nav" [attr.aria-label]="'landing.footer.nav.title' | translate">
-        <span class="landing__footer-col-title">{{ 'landing.footer.nav.title' | translate }}</span>
+        <span class="landing__footer-col-title landing__footer-col-title--resources">{{ 'landing.footer.nav.title' | translate }}</span>
         <a routerLink="/login">{{ 'landing.header.login' | translate }}</a>
         <a routerLink="/register">{{ 'landing.header.getStarted' | translate }}</a>
+        <a href="#faq">{{ 'landing.footer.nav.faq' | translate }}</a>
         <a href="#contact">{{ 'landing.footer.nav.contact' | translate }}</a>
       </nav>
 
       <div class="landing__footer-connect">
-        <span class="landing__footer-col-title">{{ 'landing.footer.social.title' | translate }}</span>
+        <span class="landing__footer-col-title landing__footer-col-title--connect">{{ 'landing.footer.social.title' | translate }}</span>
         <nav class="landing__footer-social" [attr.aria-label]="'landing.footer.social.nav' | translate">
         <a
           href="https://github.com/your-username"
           target="_blank"
           rel="noopener noreferrer"
-          class="landing__footer-social-link"
+          class="landing__footer-social-link landing__footer-social-link--github"
           [attr.aria-label]="'landing.footer.social.github' | translate"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
@@ -195,7 +254,7 @@
           href="https://www.linkedin.com/in/your-profile"
           target="_blank"
           rel="noopener noreferrer"
-          class="landing__footer-social-link"
+          class="landing__footer-social-link landing__footer-social-link--linkedin"
           [attr.aria-label]="'landing.footer.social.linkedin' | translate"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">
@@ -208,7 +267,7 @@
           href="https://www.xing.com/profile/your-profile"
           target="_blank"
           rel="noopener noreferrer"
-          class="landing__footer-social-link"
+          class="landing__footer-social-link landing__footer-social-link--xing"
           [attr.aria-label]="'landing.footer.social.xing' | translate"
         >
           <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true">

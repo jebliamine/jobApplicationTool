@@ -84,6 +84,13 @@
       "primaryCta": "Loslegen",
       "secondaryCta": "Anmelden"
     },
+    "trust": {
+      "items": {
+        "auth": "JWT-gesicherte Konten",
+        "encryption": "Verschlüsselte KI-Zugangsdaten",
+        "stack": "Selbst gehostet, offener Stack"
+      }
+    },
     "pillars": {
       "title": "Alles für Ihre Jobsuche",
       "subtitle": "Ein Arbeitsbereich für jeden Teil der Jobsuche — vom Lebenslauf bis zum Angebot.",
@@ -106,6 +113,28 @@
       "coverLetters": {
         "title": "Anschreiben",
         "description": "Generieren Sie mit Ihrem konfigurierten KI-Anbieter ein maßgeschneidertes Anschreiben auf Basis der Stellenbeschreibung und Ihres Lebenslaufs."
+      }
+    },
+    "aiProviders": {
+      "title": "Bringen Sie Ihren eigenen KI-Anbieter mit",
+      "subtitle": "JAPP bindet Sie bei der Generierung an keinen Anbieter — verbinden Sie den Anbieter, dem Sie bereits vertrauen, oder starten Sie mit dem integrierten Offline-Modus.",
+      "items": {
+        "gemini": {
+          "title": "Google Gemini",
+          "description": "Verbinden Sie einen Gemini-API-Schlüssel und generieren Sie Anschreiben und Lebenslauf-Profile mit den Modellen von Google."
+        },
+        "openaiCompatible": {
+          "title": "OpenAI-kompatibel",
+          "description": "Verbinden Sie JAPP mit jedem OpenAI-kompatiblen Endpunkt — OpenAI selbst oder einer selbst gehosteten Alternative."
+        },
+        "anthropic": {
+          "title": "Anthropic Claude",
+          "description": "Nutzen Sie die Messages API von Claude zur Generierung, mit Ihrem eigenen Anthropic-API-Schlüssel."
+        },
+        "placeholder": {
+          "title": "Offline-Platzhalter",
+          "description": "Noch kein API-Schlüssel? Ein integrierter deterministischer Modus erstellt einen Entwurf ganz ohne externen Aufruf, damit Sie den Ablauf zuerst ausprobieren können."
+        }
       }
     },
     "howItWorks": {
@@ -190,9 +219,16 @@
         "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua — ersetzen Sie dies durch ein paar Sätze über sich selbst.",
         "tech": "Erstellt mit Angular, Spring Boot & PostgreSQL."
       },
+      "product": {
+        "title": "Produkt",
+        "features": "Funktionen",
+        "aiProviders": "KI-Anbieter",
+        "howItWorks": "So funktioniert's"
+      },
       "nav": {
         "title": "Schnellzugriff",
-        "contact": "Kontakt"
+        "contact": "Kontakt",
+        "faq": "FAQ"
       },
       "social": {
         "title": "Vernetzen",

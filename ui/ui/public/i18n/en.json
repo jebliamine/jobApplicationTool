@@ -84,6 +84,13 @@
       "primaryCta": "Get Started",
       "secondaryCta": "Log In"
     },
+    "trust": {
+      "items": {
+        "auth": "JWT-secured accounts",
+        "encryption": "Encrypted AI credentials",
+        "stack": "Self-hosted, open stack"
+      }
+    },
     "pillars": {
       "title": "Everything for your job search",
       "subtitle": "One workspace for every part of a job search — from your CV to the offer.",
@@ -106,6 +113,28 @@
       "coverLetters": {
         "title": "Cover Letters",
         "description": "Generate a tailored cover letter with your configured AI provider, based on the job description and your CV."
+      }
+    },
+    "aiProviders": {
+      "title": "Bring your own AI provider",
+      "subtitle": "JAPP doesn't lock you into one vendor for generation — connect the provider you already trust, or start with the built-in offline mode.",
+      "items": {
+        "gemini": {
+          "title": "Google Gemini",
+          "description": "Connect a Gemini API key and generate cover letters and CV profiles with Google's models."
+        },
+        "openaiCompatible": {
+          "title": "OpenAI-compatible",
+          "description": "Point JAPP at any OpenAI-compatible endpoint — OpenAI itself, or a self-hosted alternative."
+        },
+        "anthropic": {
+          "title": "Anthropic Claude",
+          "description": "Use Claude's Messages API for generation, with your own Anthropic API key."
+        },
+        "placeholder": {
+          "title": "Offline placeholder",
+          "description": "No API key yet? A deterministic built-in mode drafts output with no external call, so you can try the workflow first."
+        }
       }
     },
     "howItWorks": {
@@ -190,9 +219,16 @@
         "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua — replace this with a couple of sentences about yourself.",
         "tech": "Built with Angular, Spring Boot & PostgreSQL."
       },
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "aiProviders": "AI Providers",
+        "howItWorks": "How it works"
+      },
       "nav": {
         "title": "Quick links",
-        "contact": "Contact"
+        "contact": "Contact",
+        "faq": "FAQ"
       },
       "social": {
         "title": "Connect",

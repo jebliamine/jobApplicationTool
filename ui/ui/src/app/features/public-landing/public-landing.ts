@@ -7,15 +7,23 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
+  LucideBrainCircuit,
   LucideBriefcase,
   LucideBuilding2,
+  LucideCircleDashed,
   LucideClipboardList,
   LucideFileText,
+  LucideLock,
   LucideMail,
+  LucidePlug,
+  LucideServer,
+  LucideShieldCheck,
+  LucideSparkles,
 } from '@lucide/angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ThemeToggle } from '../../layout/theme-toggle/theme-toggle';
 import { HeroIllustration } from './components/hero-illustration/hero-illustration';
+import { RevealOnScrollDirective } from './directives/reveal-on-scroll.directive';
 
 // No backend contact endpoint exists yet — the form builds a mailto: link
 // client-side and hands off to the visitor's own email client rather than
@@ -43,6 +51,17 @@ interface WorkflowStep {
 interface FaqItem {
   readonly questionKey: string;
   readonly answerKey: string;
+}
+
+interface TrustItem {
+  readonly icon: 'auth' | 'encryption' | 'stack';
+  readonly labelKey: string;
+}
+
+interface AiProvider {
+  readonly icon: 'gemini' | 'openai-compatible' | 'anthropic' | 'placeholder';
+  readonly titleKey: string;
+  readonly descriptionKey: string;
 }
 
 const PILLARS: readonly Pillar[] = [
@@ -89,6 +108,35 @@ const WORKFLOW_STEPS: readonly WorkflowStep[] = [
   },
 ];
 
+const TRUST_ITEMS: readonly TrustItem[] = [
+  { icon: 'auth', labelKey: 'landing.trust.items.auth' },
+  { icon: 'encryption', labelKey: 'landing.trust.items.encryption' },
+  { icon: 'stack', labelKey: 'landing.trust.items.stack' },
+];
+
+const AI_PROVIDERS: readonly AiProvider[] = [
+  {
+    icon: 'gemini',
+    titleKey: 'landing.aiProviders.items.gemini.title',
+    descriptionKey: 'landing.aiProviders.items.gemini.description',
+  },
+  {
+    icon: 'openai-compatible',
+    titleKey: 'landing.aiProviders.items.openaiCompatible.title',
+    descriptionKey: 'landing.aiProviders.items.openaiCompatible.description',
+  },
+  {
+    icon: 'anthropic',
+    titleKey: 'landing.aiProviders.items.anthropic.title',
+    descriptionKey: 'landing.aiProviders.items.anthropic.description',
+  },
+  {
+    icon: 'placeholder',
+    titleKey: 'landing.aiProviders.items.placeholder.title',
+    descriptionKey: 'landing.aiProviders.items.placeholder.description',
+  },
+];
+
 // Mirrored (in English) in the FAQPage JSON-LD in index.html — keep the two
 // in sync if these change, since that copy is static and won't pick up
 // translation edits automatically.
@@ -118,11 +166,19 @@ const FAQ_ITEMS: readonly FaqItem[] = [
     TranslatePipe,
     ThemeToggle,
     HeroIllustration,
+    RevealOnScrollDirective,
+    LucideBrainCircuit,
     LucideBriefcase,
     LucideBuilding2,
+    LucideCircleDashed,
     LucideClipboardList,
     LucideFileText,
+    LucideLock,
     LucideMail,
+    LucidePlug,
+    LucideServer,
+    LucideShieldCheck,
+    LucideSparkles,
   ],
   templateUrl: './public-landing.html',
   styleUrl: './public-landing.scss',
@@ -133,6 +189,8 @@ export class PublicLanding {
   private readonly translate = inject(TranslateService);
 
   protected readonly pillars = PILLARS;
+  protected readonly trustItems = TRUST_ITEMS;
+  protected readonly aiProviders = AI_PROVIDERS;
   protected readonly workflowSteps = WORKFLOW_STEPS;
   protected readonly faqItems = FAQ_ITEMS;
   protected readonly currentYear = new Date().getFullYear();

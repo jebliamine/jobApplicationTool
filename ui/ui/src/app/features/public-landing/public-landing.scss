@@ -1,19 +1,59 @@
 :host {
   display: block;
-  // Two soft brand-color glows over the base surface instead of a flat,
-  // all-white/all-charcoal page — subtle in both themes since they're mixed
-  // off the theme's own primary/accent tokens rather than fixed colors.
+  // Two brand-tinted washes (primary top-left, accent top-right) plus a fine
+  // dot grid for texture. Both color layers are mixed off the theme's own
+  // primary/accent tokens, so the page reads as colorful without hard-coding
+  // hues, and both stay correct in light and dark.
   background:
-    radial-gradient(900px 480px at 12% -8%, color-mix(in srgb, var(--japp-color-primary) 12%, transparent), transparent 60%),
-    radial-gradient(800px 420px at 100% 12%, color-mix(in srgb, var(--japp-color-accent) 10%, transparent), transparent 55%),
+    radial-gradient(820px 460px at 6% -10%, color-mix(in srgb, var(--japp-color-primary) 11%, transparent), transparent 58%),
+    radial-gradient(760px 420px at 96% 4%, color-mix(in srgb, var(--japp-color-accent) 10%, transparent), transparent 55%),
+    radial-gradient(
+        circle at 1px 1px,
+        color-mix(in srgb, var(--japp-text-primary) 7%, transparent) 1px,
+        transparent 0
+      )
+      0 0 / 28px 28px,
     var(--japp-background);
-  background-repeat: no-repeat;
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
 }
 
 .landing {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
+}
+
+// Scroll-reveal (applied by RevealOnScrollDirective). Starts hidden/offset,
+// transitions in once `.is-visible` lands. Reduced-motion visitors and
+// no-JS get `.is-visible` added synchronously by the directive, so this
+// fallback keeps content visible without relying on the transition firing.
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 480ms cubic-bezier(0.16, 1, 0.3, 1), transform 480ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+// Tactile press feedback on the primary marketing CTAs.
+.landing__hero-cta,
+.landing__cta-button {
+  transition: transform var(--japp-transition-fast);
+
+  &:active {
+    transform: translateY(1px) scale(0.98);
+  }
 }
 
 // Header
@@ -24,6 +64,21 @@
   background: color-mix(in srgb, var(--japp-surface) 92%, transparent);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--japp-border);
+
+  // A thin brand-gradient hairline under the blur, instead of a flat border —
+  // the same primary→accent pairing used for the brand mark and footer.
+  &::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -2px 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--japp-color-primary) 55%, transparent),
+      color-mix(in srgb, var(--japp-color-accent) 55%, transparent) 55%,
+      transparent
+    );
+  }
 }
 
 .landing__header-bar {
@@ -51,7 +106,7 @@
   width: 32px;
   height: 32px;
   border-radius: var(--japp-radius-md);
-  background: var(--japp-color-primary);
+  background: linear-gradient(155deg, var(--japp-color-primary), var(--japp-color-accent));
   color: var(--japp-color-on-primary);
   font-weight: 700;
 }
@@ -123,6 +178,30 @@
   justify-content: center;
 }
 
+.landing__trust-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--japp-spacing-md) var(--japp-spacing-lg);
+  margin: var(--japp-spacing-xl) 0 0;
+  padding: var(--japp-spacing-md) 0 0;
+  list-style: none;
+  border-top: 1px solid var(--japp-border);
+}
+
+.landing__trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--japp-text-secondary);
+
+  svg {
+    flex: none;
+    color: var(--japp-color-primary);
+  }
+}
+
 // Sections
 .landing__section {
   padding: var(--japp-spacing-xl) var(--japp-spacing-lg);
@@ -132,7 +211,13 @@
 
 .landing__section--muted {
   max-width: 100%;
-  background: var(--japp-surface);
+  // A faint accent wash over the plain surface tone, rather than a flat
+  // fill — echoes the hero's accent glow so color carries down the page.
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--japp-color-accent) 5%, var(--japp-surface)),
+    var(--japp-surface)
+  );
   border-top: 1px solid var(--japp-border);
   border-bottom: 1px solid var(--japp-border);
 }
@@ -145,10 +230,30 @@
 // One tone deeper than --muted (surface-container vs. surface) so sections
 // step down the same background/surface/surface-container/surface-container-high
 // ladder used everywhere else, instead of an abrupt seam against the section above.
+// Also carries a primary+accent wash — this is the contact/email section, and
+// it should read as color-compatible with the rest of the page rather than a
+// flat neutral slab.
 .landing__section--elevated {
+  position: relative;
   max-width: 100%;
-  background: var(--japp-surface-container);
-  border-top: 1px solid var(--japp-border);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--japp-color-primary) 7%, var(--japp-surface-container)),
+    color-mix(in srgb, var(--japp-color-accent) 6%, var(--japp-surface-container))
+  );
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--japp-color-primary) 55%, transparent),
+      color-mix(in srgb, var(--japp-color-accent) 55%, transparent) 55%,
+      transparent
+    );
+  }
 }
 
 .landing__section--elevated > * {
@@ -181,11 +286,12 @@
   color: var(--japp-text-secondary);
 }
 
-// Pillars
+// Pillars — an asymmetric bento (one featured tile + a mixed grid) rather
+// than five equal-width cards in a row.
 .landing__pillars {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: var(--japp-spacing-lg);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--japp-spacing-md);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -196,14 +302,48 @@
   flex-direction: column;
   gap: var(--japp-spacing-xs);
   padding: var(--japp-spacing-lg);
+  grid-column: span 3;
   border: 1px solid var(--japp-border);
   border-radius: var(--japp-radius-lg);
   background: var(--japp-surface);
-  transition: border-color var(--japp-transition-fast), box-shadow var(--japp-transition-fast);
+  transition: border-color var(--japp-transition-fast), box-shadow var(--japp-transition-fast),
+    transform var(--japp-transition-fast);
 
   &:hover {
     border-color: var(--japp-color-primary);
     box-shadow: var(--japp-shadow-sm);
+    transform: translateY(-2px);
+  }
+
+  &:nth-child(2) {
+    grid-column: span 2;
+  }
+
+  &:nth-child(3),
+  &:nth-child(4),
+  &:nth-child(5) {
+    grid-column: span 2;
+  }
+}
+
+.landing__pillar--featured {
+  grid-column: span 4;
+  padding: var(--japp-spacing-xl);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--japp-color-primary) 6%, var(--japp-surface)),
+    var(--japp-surface)
+  );
+
+  .landing__pillar-icon {
+    width: 56px;
+    height: 56px;
+    background: var(--japp-color-primary);
+    color: var(--japp-color-on-primary);
+  }
+
+  .landing__pillar-title {
+    font-size: 1.25rem;
   }
 }
 
@@ -233,23 +373,101 @@
   color: var(--japp-text-secondary);
 }
 
-// How it works
-.landing__steps {
+// AI providers — a left intro column beside an asymmetric 2-up provider
+// grid (wider left column), instead of a fourth equal-card row.
+.landing__ai-providers {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
-  gap: var(--japp-spacing-lg);
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: var(--japp-spacing-xl);
+  align-items: start;
+}
+
+.landing__ai-providers-intro {
+  position: sticky;
+  top: calc(var(--japp-topbar-height) + var(--japp-spacing-lg));
+}
+
+.landing__provider-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: var(--japp-spacing-md);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
+.landing__provider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--japp-spacing-md) var(--japp-spacing-lg) var(--japp-spacing-lg);
+  border-radius: var(--japp-radius-md);
+  background: var(--japp-surface);
+  border: 1px solid var(--japp-border);
+  transition: border-color var(--japp-transition-fast);
+
+  &:hover {
+    border-color: var(--japp-color-primary);
+  }
+}
+
+.landing__provider-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--japp-radius-sm);
+  background: var(--japp-surface-container-high);
+  color: var(--japp-color-primary);
+  margin-bottom: 2px;
+}
+
+.landing__provider-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--japp-text-primary);
+}
+
+.landing__provider-description {
+  margin: 0;
+  font-size: 0.8438rem;
+  line-height: 1.5;
+  color: var(--japp-text-secondary);
+}
+
+// How it works — a connected horizontal timeline instead of an equal grid
+// of numbered cards.
+.landing__steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--japp-spacing-lg);
+  margin: 0;
+  padding: var(--japp-spacing-lg) 0 0;
+  list-style: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: calc(var(--japp-spacing-lg) + 18px);
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: var(--japp-border);
+  }
+}
+
 .landing__step {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
 .landing__step-number {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -261,6 +479,7 @@
   font-family: var(--japp-font-display);
   font-weight: 700;
   margin-bottom: var(--japp-spacing-xs);
+  box-shadow: 0 0 0 5px var(--japp-background);
 }
 
 .landing__step-title {
@@ -277,20 +496,21 @@
   color: var(--japp-text-secondary);
 }
 
-// FAQ
+// FAQ — a flat divide-y list rather than a stack of bordered boxes.
 .landing__faq {
   display: block;
   max-width: 800px;
   margin-inline: auto;
   background: transparent;
+  border-top: 1px solid var(--japp-border);
 }
 
 .landing__faq-panel {
-  border: 1px solid var(--japp-border) !important;
-  border-radius: var(--japp-radius-md) !important;
-  background: var(--japp-surface) !important;
+  border: none !important;
+  border-bottom: 1px solid var(--japp-border) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
   box-shadow: none !important;
-  margin-bottom: var(--japp-spacing-sm);
 
   &::before {
     display: none;
@@ -317,10 +537,10 @@
   border-radius: var(--japp-radius-lg);
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--japp-color-primary) 12%, var(--japp-surface)),
-    color-mix(in srgb, var(--japp-color-accent) 10%, var(--japp-surface))
+    color-mix(in srgb, var(--japp-color-primary) 14%, var(--japp-surface)),
+    color-mix(in srgb, var(--japp-color-accent) 12%, var(--japp-surface))
   );
-  border: 1px solid var(--japp-border);
+  border: 1px solid color-mix(in srgb, var(--japp-color-primary) 25%, var(--japp-border));
 }
 
 .landing__cta-title {
@@ -390,19 +610,37 @@
 
 // Footer
 .landing__footer {
+  position: relative;
   // surface-container-high alone reads almost identically to the contact
   // section's surface-container in this palette (a few RGB units apart) —
   // mixing in some on-surface color pushes it further along the same scale
   // (darker in light mode, lighter in dark mode) so the band is actually
-  // visible, plus a brand-color hairline on top to mark the seam.
-  border-top: 1px solid color-mix(in srgb, var(--japp-color-primary) 35%, var(--japp-border));
-  background: color-mix(in srgb, var(--japp-text-primary) 8%, var(--japp-surface-container-high));
+  // visible. A primary→accent wash (same pairing as the header/hero) instead
+  // of a flat fill, plus a gradient hairline on top to mark the seam.
+  background: linear-gradient(
+    170deg,
+    color-mix(in srgb, var(--japp-color-primary) 6%, color-mix(in srgb, var(--japp-text-primary) 8%, var(--japp-surface-container-high))),
+    color-mix(in srgb, var(--japp-color-accent) 5%, color-mix(in srgb, var(--japp-text-primary) 8%, var(--japp-surface-container-high)))
+  );
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--japp-color-primary) 65%, transparent),
+      color-mix(in srgb, var(--japp-color-accent) 65%, transparent) 55%,
+      transparent
+    );
+  }
 }
 
 .landing__footer-content {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--japp-spacing-xl);
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.85fr) minmax(0, 0.85fr) minmax(0, 0.85fr);
+  gap: var(--japp-spacing-lg);
   max-width: 1200px;
   margin-inline: auto;
   padding: var(--japp-spacing-xl) var(--japp-spacing-lg) 0;
@@ -458,6 +696,16 @@
   color: var(--japp-text-secondary);
 }
 
+// A little color per column instead of every heading in the same neutral —
+// mirrors the primary/accent pairing used elsewhere on the page.
+.landing__footer-col-title--product {
+  color: color-mix(in srgb, var(--japp-color-primary) 75%, var(--japp-text-secondary));
+}
+
+.landing__footer-col-title--resources {
+  color: color-mix(in srgb, var(--japp-color-accent) 75%, var(--japp-text-secondary));
+}
+
 .landing__footer-nav {
   display: flex;
   flex-direction: column;
@@ -501,13 +749,35 @@
   border-radius: 50%;
   background: var(--japp-surface-container-high);
   color: var(--japp-text-secondary);
-  transition: color var(--japp-transition-fast), background-color var(--japp-transition-fast);
+  transition: color var(--japp-transition-fast), background-color var(--japp-transition-fast),
+    transform var(--japp-transition-fast);
 
   &:hover,
   &:focus-visible {
-    color: var(--japp-color-on-primary);
-    background: var(--japp-color-primary);
+    transform: translateY(-2px);
   }
+}
+
+// Each profile gets its own brand-adjacent tint on hover — a tinted
+// background + solid-color icon (same pattern as the pillar icons and the
+// footer badge) rather than an inverted fill, so contrast stays safe in
+// both themes without needing dedicated "on-*" tokens for every hue.
+.landing__footer-social-link--github:hover,
+.landing__footer-social-link--github:focus-visible {
+  color: var(--japp-text-primary);
+  background: color-mix(in srgb, var(--japp-text-primary) 16%, var(--japp-surface-container-high));
+}
+
+.landing__footer-social-link--linkedin:hover,
+.landing__footer-social-link--linkedin:focus-visible {
+  color: var(--japp-color-info);
+  background: color-mix(in srgb, var(--japp-color-info) 18%, var(--japp-surface-container-high));
+}
+
+.landing__footer-social-link--xing:hover,
+.landing__footer-social-link--xing:focus-visible {
+  color: var(--japp-color-success);
+  background: color-mix(in srgb, var(--japp-color-success) 18%, var(--japp-surface-container-high));
 }
 
 .landing__footer-bar {
@@ -552,8 +822,44 @@
     order: -1;
   }
 
+  .landing__trust-strip {
+    justify-content: center;
+  }
+
+  .landing__pillars {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing__pillar,
+  .landing__pillar:nth-child(2),
+  .landing__pillar:nth-child(3),
+  .landing__pillar:nth-child(4),
+  .landing__pillar:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  .landing__pillar--featured {
+    grid-column: span 2;
+  }
+
+  .landing__ai-providers {
+    grid-template-columns: 1fr;
+  }
+
+  .landing__ai-providers-intro {
+    position: static;
+  }
+
+  .landing__steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .landing__steps::before {
+    display: none;
+  }
+
   .landing__footer-content {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .landing__footer-about {
@@ -573,6 +879,24 @@
 
   .landing__section {
     padding: var(--japp-spacing-xl) var(--japp-spacing-md);
+  }
+
+  .landing__pillars,
+  .landing__steps {
+    grid-template-columns: 1fr;
+  }
+
+  .landing__pillar,
+  .landing__pillar--featured,
+  .landing__pillar:nth-child(2),
+  .landing__pillar:nth-child(3),
+  .landing__pillar:nth-child(4),
+  .landing__pillar:nth-child(5) {
+    grid-column: span 1;
+  }
+
+  .landing__provider-grid {
+    grid-template-columns: 1fr;
   }
 
   .landing__contact-row {
