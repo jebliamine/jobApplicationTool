@@ -1,9 +1,8 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**

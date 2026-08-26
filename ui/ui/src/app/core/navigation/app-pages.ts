@@ -2,6 +2,7 @@ export type AppPageIcon =
   | 'dashboard'
   | 'cv'
   | 'jobs'
+  | 'job-search'
   | 'companies'
   | 'applications'
   | 'cover-letters'
@@ -25,6 +26,7 @@ export const USER_APP_PAGES: readonly AppPage[] = [
   { label: 'nav.dashboard', path: '/dashboard', icon: 'dashboard' },
   { label: 'nav.cv', path: '/cv', icon: 'cv' },
   { label: 'nav.jobs', path: '/jobs', icon: 'jobs' },
+  { label: 'nav.jobSearch', path: '/job-search', icon: 'job-search' },
   { label: 'nav.companies', path: '/companies', icon: 'companies' },
   { label: 'nav.applications', path: '/applications', icon: 'applications' },
   { label: 'nav.coverLetters', path: '/cover-letters', icon: 'cover-letters' },

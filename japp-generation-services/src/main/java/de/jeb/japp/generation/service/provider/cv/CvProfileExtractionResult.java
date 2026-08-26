@@ -1,4 +1,6 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
+
+import de.jeb.japp.generation.service.provider.LanguageData;
 
 import java.util.List;
 

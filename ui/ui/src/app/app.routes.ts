@@ -94,6 +94,10 @@ export const routes: Routes = [
         ],
       },
       {
+        path: 'job-search',
+        loadComponent: () => import('./features/job-search/job-search').then((m) => m.JobSearch),
+      },
+      {
         path: 'applications',
         children: [
           {

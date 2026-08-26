@@ -1,4 +1,6 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
+
+import de.jeb.japp.generation.service.provider.GenerationInput;
 
 /**
  * Everything a CvProfileExtractionAdapter needs to extract a structured

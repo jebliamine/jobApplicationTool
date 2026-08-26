@@ -1,6 +1,8 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.job;
 
-/** Builds the prompt asking a model to extract a structured job posting from pasted text, as JSON only. */
+/**
+ * Builds the prompt asking a model to extract a structured job posting from pasted text, as JSON only.
+ */
 public final class JobExtractionPromptBuilder {
 
     private JobExtractionPromptBuilder() {
@@ -11,7 +13,7 @@ public final class JobExtractionPromptBuilder {
                 You are extracting structured data from a job posting. Read the text below and \
                 respond with ONLY a single JSON object — no markdown, no code fences, no commentary \
                 before or after it — matching exactly this shape:
-
+                
                 {
                   "title": string or null (the job title),
                   "companyName": string or null (the hiring company's name),
@@ -25,11 +27,11 @@ public final class JobExtractionPromptBuilder {
                   "salaryRange": string or null (as stated, e.g. "€60,000–€75,000"),
                   "url": string or null (a posting URL, only if one literally appears in the text)
                 }
-
+                
                 If the text is empty, unreadable, or not a job posting, return {"title": null, \
                 "companyName": null, "description": null, "location": null, "employmentType": null, \
                 "workMode": null, "salaryRange": null, "url": null}.
-
+                
                 Job posting text:
                 """ + input.rawText();
     }

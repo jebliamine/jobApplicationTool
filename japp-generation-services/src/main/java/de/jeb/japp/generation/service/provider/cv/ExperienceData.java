@@ -1,4 +1,4 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
 
 /**
  * One work-experience entry as extracted by an LLM — dates are plain

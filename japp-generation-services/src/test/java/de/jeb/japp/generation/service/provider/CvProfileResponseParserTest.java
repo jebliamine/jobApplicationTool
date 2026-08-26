@@ -1,6 +1,8 @@
 package de.jeb.japp.generation.service.provider;
 
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
+import de.jeb.japp.generation.service.provider.cv.CvProfileExtractionResult;
+import de.jeb.japp.generation.service.provider.cv.CvProfileResponseParser;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

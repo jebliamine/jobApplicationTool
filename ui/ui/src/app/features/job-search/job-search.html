@@ -1,0 +1,99 @@
+<div class="job-search-page">
+  <header class="job-search-page__header">
+    <h1 class="job-search-page__title">Job Search</h1>
+    <p class="job-search-page__subtitle">
+      Search live postings from Adzuna, Jooble, and JSearch at once, then save any result straight
+      into your tracked jobs.
+    </p>
+  </header>
+
+  <mat-card appearance="outlined" class="job-search-form-card">
+    <mat-card-content>
+      <form class="job-search-form" [formGroup]="form" (ngSubmit)="search()">
+        <mat-form-field appearance="outline" class="job-search-form__field">
+          <mat-label>Job title or keyword</mat-label>
+          <svg matIconPrefix lucideSearch [size]="18" aria-hidden="true"></svg>
+          <input matInput formControlName="keyword" placeholder="e.g. Backend Engineer" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="job-search-form__field">
+          <mat-label>Location</mat-label>
+          <svg matIconPrefix lucideMapPin [size]="18" aria-hidden="true"></svg>
+          <input matInput formControlName="location" placeholder="e.g. Berlin" />
+        </mat-form-field>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="loading()" class="job-search-form__submit">
+          Search
+        </button>
+      </form>
+    </mat-card-content>
+  </mat-card>
+
+  @if (sources().length > 0) {
+    <ul class="job-search-sources">
+      @for (summary of sources(); track summary.source) {
+        <li class="job-search-source" [class.job-search-source--muted]="!summary.configured || !summary.succeeded">
+          <span class="job-search-source__name">{{ formatSource(summary.source) }}</span>
+          <span class="job-search-source__status">{{ sourceStatusLabel(summary) }}</span>
+        </li>
+      }
+    </ul>
+  }
+
+  @if (loading()) {
+    <div class="job-search-state">
+      <mat-progress-spinner diameter="28" mode="indeterminate" />
+      <span>Searching…</span>
+    </div>
+  } @else if (error()) {
+    <div class="job-search-state job-search-state--error" role="alert">
+      <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
+      <span>We could not run that search. Please try again.</span>
+      <button mat-stroked-button type="button" (click)="search()">Retry</button>
+    </div>
+  } @else if (searched() && results().length === 0) {
+    <div class="job-search-state job-search-state--empty">
+      <svg lucideSearchX [size]="24" aria-hidden="true"></svg>
+      <p>No results for that search. Try a different keyword or location.</p>
+    </div>
+  } @else if (!searched()) {
+    <div class="job-search-state job-search-state--empty">
+      <svg lucideBriefcase [size]="24" aria-hidden="true"></svg>
+      <p>Search above to pull in live postings from every connected source.</p>
+    </div>
+  } @else {
+    <ul class="job-search-results">
+      @for (listing of results(); track trackListing($index, listing)) {
+        <li class="job-search-result">
+          <div class="job-search-result__header">
+            <h3 class="job-search-result__title">{{ listing.title }}</h3>
+            <span class="job-search-result__source">{{ formatSource(listing.source) }}</span>
+          </div>
+          <p class="job-search-result__meta">
+            {{ listing.companyName || 'Unknown company' }}
+            @if (listing.location) {
+              · {{ listing.location }}
+            }
+            @if (listing.salaryRange) {
+              · {{ listing.salaryRange }}
+            }
+          </p>
+          @if (listing.description) {
+            <p class="job-search-result__description">{{ listing.description | slice: 0 : 240 }}…</p>
+          }
+          <div class="job-search-result__actions">
+            @if (listing.url) {
+              <a mat-stroked-button [href]="listing.url" target="_blank" rel="noopener noreferrer">
+                <svg lucideExternalLink [size]="16" aria-hidden="true"></svg>
+                Open posting
+              </a>
+            }
+            <button mat-flat-button color="primary" type="button" (click)="saveListing(listing)">
+              Save to my jobs
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

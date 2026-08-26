@@ -1,4 +1,4 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
 
 import de.jeb.japp.generation.service.provider.anthropic.AnthropicCvProfileExtractionAdapter;
 import de.jeb.japp.generation.service.provider.gemini.GeminiCvProfileExtractionAdapter;
@@ -9,7 +9,7 @@ import org.springframework.web.client.RestClient;
 
 /**
  * Wires the CV-profile-extraction adapter beans onto the RestClient already
- * defined in {@link GenerationAdapterConfig} (autowired here by type — kept
+ * defined in GenerationAdapterConfig (autowired here by type — kept
  * as a separate config class so that file, and its existing cover-letter
  * beans/tests, are untouched by this feature).
  * PlaceholderCvProfileExtractionAdapter needs no HTTP client and is a plain

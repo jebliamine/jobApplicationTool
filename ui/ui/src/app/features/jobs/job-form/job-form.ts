@@ -23,6 +23,7 @@ import { isProviderBusy } from '../../../core/http/is-provider-busy';
 import { AiProviderResponse } from '../../cover-letters/ai-provider.models';
 import { AiProviderService } from '../../cover-letters/ai-provider.service';
 import { StatusBadge } from '../../../shared/components/status-badge/status-badge';
+import { ExternalJobListing, ExternalJobSource } from '../../job-search/job-search.models';
 import {
   EMPLOYMENT_TYPES,
   EmploymentType,
@@ -32,6 +33,12 @@ import {
   WorkMode,
 } from '../job.models';
 import { JobService } from '../job.service';
+
+const EXTERNAL_SOURCE_LABELS: Record<ExternalJobSource, string> = {
+  ADZUNA: 'Adzuna',
+  JOOBLE: 'Jooble',
+  JSEARCH: 'JSearch',
+};
 
 interface JobFormControls {
   companyId: FormControl<string>;
@@ -91,6 +98,13 @@ export class JobForm {
 
   private readonly jobId = this.route.snapshot.paramMap.get('id');
   protected readonly isEditMode = this.jobId !== null;
+
+  // Set only when navigated here from the job-search page's "Save to my jobs" — read
+  // synchronously in the constructor since Router only exposes the in-flight navigation's state
+  // for the duration of the navigation that's constructing this component.
+  private readonly externalListing = (
+    this.router.getCurrentNavigation()?.extras.state as { externalListing?: ExternalJobListing } | undefined
+  )?.externalListing;
 
   protected readonly companies = signal<CompanyResponse[]>([]);
   protected readonly loading = signal(true);
@@ -190,24 +204,42 @@ export class JobForm {
   }
 
   private applyExtractionResult(result: JobExtractionResponse): void {
-    const current = this.form.getRawValue();
-    this.form.patchValue({
-      title: result.title ?? current.title,
-      description: result.description ?? current.description,
-      location: result.location ?? current.location,
-      employmentType: result.employmentType ?? current.employmentType,
-      workMode: result.workMode ?? current.workMode,
-      url: result.url ?? current.url,
-      salaryRange: result.salaryRange ?? current.salaryRange,
-    });
-
-    if (result.companyName) {
-      this.matchOrCreateCompany(result.companyName);
-    }
-
+    this.prefillFields(result, result.companyName);
     this.showPasteImport.set(false);
     this.pasteText.setValue('');
     this.toast.success('Job details extracted. Review before saving.');
+  }
+
+  /** Prefills the form from a job-search result handed over via router state (see the `externalListing` field). */
+  private applyExternalListing(listing: ExternalJobListing): void {
+    const sourceLabel = EXTERNAL_SOURCE_LABELS[listing.source];
+    this.prefillFields(listing, listing.companyName, sourceLabel);
+    this.toast.success(`Loaded from ${sourceLabel}. Review before saving.`);
+  }
+
+  private prefillFields(
+    fields: Pick<
+      JobExtractionResponse,
+      'title' | 'description' | 'location' | 'employmentType' | 'workMode' | 'url' | 'salaryRange'
+    >,
+    companyName: string | null,
+    source?: string,
+  ): void {
+    const current = this.form.getRawValue();
+    this.form.patchValue({
+      title: fields.title ?? current.title,
+      description: fields.description ?? current.description,
+      location: fields.location ?? current.location,
+      employmentType: fields.employmentType ?? current.employmentType,
+      workMode: fields.workMode ?? current.workMode,
+      url: fields.url ?? current.url,
+      salaryRange: fields.salaryRange ?? current.salaryRange,
+      source: source ?? current.source,
+    });
+
+    if (companyName) {
+      this.matchOrCreateCompany(companyName);
+    }
   }
 
   /** Extraction returns a plain company name — match it against the user's existing companies, or offer to create it. */
@@ -277,9 +309,12 @@ export class JobForm {
         this.companies.set(companies);
         if (this.isEditMode) {
           this.loadJob();
-        } else {
-          this.loading.set(false);
+          return;
         }
+        if (this.externalListing) {
+          this.applyExternalListing(this.externalListing);
+        }
+        this.loading.set(false);
       },
       error: () => {
         this.loading.set(false);

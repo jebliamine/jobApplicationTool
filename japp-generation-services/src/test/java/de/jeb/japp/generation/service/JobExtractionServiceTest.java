@@ -6,9 +6,9 @@ import de.jeb.japp.commons.exceptions.ai.AiProviderNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobExtractionException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapter;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapterRegistry;
-import de.jeb.japp.generation.service.provider.JobExtractionResult;
+import de.jeb.japp.generation.service.provider.job.JobExtractionAdapter;
+import de.jeb.japp.generation.service.provider.job.JobExtractionAdapterRegistry;
+import de.jeb.japp.generation.service.provider.job.JobExtractionResult;
 import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.job.EmploymentType;
@@ -27,9 +27,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class JobExtractionServiceTest {

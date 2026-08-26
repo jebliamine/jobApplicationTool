@@ -2,11 +2,7 @@ package de.jeb.japp.generation.service.provider.anthropic;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.job.JobExtractionException;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapter;
-import de.jeb.japp.generation.service.provider.JobExtractionInput;
-import de.jeb.japp.generation.service.provider.JobExtractionPromptBuilder;
-import de.jeb.japp.generation.service.provider.JobExtractionResponseParser;
-import de.jeb.japp.generation.service.provider.JobExtractionResult;
+import de.jeb.japp.generation.service.provider.job.*;
 import de.jeb.japp.model.ai.AdapterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

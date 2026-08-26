@@ -1,7 +1,8 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapter;
 import de.jeb.japp.model.ai.AdapterType;
 
 /**

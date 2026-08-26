@@ -1,4 +1,4 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.job;
 
 /**
  * The outcome of a successful JobExtractionAdapter call — mirrors the JSON shape requested by

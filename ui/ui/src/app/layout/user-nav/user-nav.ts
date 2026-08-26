@@ -9,6 +9,7 @@ import {
   LucideLayoutDashboard,
   LucideMail,
   LucideMenu,
+  LucideSearch,
   LucideX,
 } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -44,6 +45,7 @@ import { UserMenu } from '../user-menu/user-menu';
     LucideLayoutDashboard,
     LucideMail,
     LucideMenu,
+    LucideSearch,
     LucideX,
   ],
   templateUrl: './user-nav.html',

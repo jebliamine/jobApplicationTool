@@ -2,9 +2,9 @@ package de.jeb.japp.generation.service.provider.placeholder;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.job.JobExtractionException;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapter;
-import de.jeb.japp.generation.service.provider.JobExtractionInput;
-import de.jeb.japp.generation.service.provider.JobExtractionResult;
+import de.jeb.japp.generation.service.provider.job.JobExtractionAdapter;
+import de.jeb.japp.generation.service.provider.job.JobExtractionInput;
+import de.jeb.japp.generation.service.provider.job.JobExtractionResult;
 import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Service;
 

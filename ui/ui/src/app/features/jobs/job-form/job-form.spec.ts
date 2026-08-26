@@ -67,7 +67,7 @@ describe('JobForm', () => {
           provide: ActivatedRoute,
           useValue: { snapshot: { paramMap: { get: () => null } } },
         },
-        { provide: Router, useValue: { navigateByUrl: vi.fn() } },
+        { provide: Router, useValue: { navigateByUrl: vi.fn(), getCurrentNavigation: () => null } },
         { provide: JobService, useValue: { extract: extractSpy, create: vi.fn(), update: vi.fn(), get: vi.fn() } },
         { provide: CompanyService, useValue: { list: () => of(companies) } },
         { provide: AiProviderService, useValue: { list: () => of([PLACEHOLDER_PROVIDER]) } },

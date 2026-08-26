@@ -2,9 +2,9 @@ package de.jeb.japp.generation.service.provider.placeholder;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapter;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionInput;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionResult;
+import de.jeb.japp.generation.service.provider.cv.CvProfileExtractionAdapter;
+import de.jeb.japp.generation.service.provider.cv.CvProfileExtractionInput;
+import de.jeb.japp.generation.service.provider.cv.CvProfileExtractionResult;
 import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Service;
 

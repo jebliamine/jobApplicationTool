@@ -9,20 +9,11 @@ import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
 import de.jeb.japp.dao.cv.CVDao;
 import de.jeb.japp.dao.cv.CVProfileDao;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapter;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapterRegistry;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionInput;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionResult;
-import de.jeb.japp.generation.service.provider.ExperienceData;
 import de.jeb.japp.generation.service.provider.LanguageData;
+import de.jeb.japp.generation.service.provider.cv.*;
 import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
-import de.jeb.japp.model.cv.CVDocument;
-import de.jeb.japp.model.cv.CVProfile;
-import de.jeb.japp.model.cv.Experience;
-import de.jeb.japp.model.cv.Language;
-import de.jeb.japp.model.cv.ProfileGenerationStatus;
-import de.jeb.japp.model.cv.Skill;
+import de.jeb.japp.model.cv.*;
 import de.jeb.japp.model.user.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +87,9 @@ public class CvProfileExtractionService {
         return cvProfileDao.save(profile);
     }
 
-    /** Empty if no generation has ever been attempted for this CV. */
+    /**
+     * Empty if no generation has ever been attempted for this CV.
+     */
     public Optional<CVProfile> get(UUID cvDocumentId, User owner) {
         getOwnedCv(cvDocumentId, owner);
         return cvProfileDao.getByCvDocumentId(cvDocumentId);
@@ -191,7 +184,9 @@ public class CvProfileExtractionService {
         }
     }
 
-    /** No providerId means "use the built-in Placeholder instance" — same convention as GenerationRequestService. */
+    /**
+     * No providerId means "use the built-in Placeholder instance" — same convention as GenerationRequestService.
+     */
     private AiProviderConfiguration resolveProviderInstance(UUID providerId) {
         if (providerId == null) {
             return providerDao.getFirstByAdapterType(AdapterType.PLACEHOLDER.name())

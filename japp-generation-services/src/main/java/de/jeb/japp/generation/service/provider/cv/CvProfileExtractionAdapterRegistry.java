@@ -1,6 +1,7 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.cv;
 
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
+import de.jeb.japp.generation.service.provider.CoverLetterGenerationAdapterRegistry;
 import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Component;
 

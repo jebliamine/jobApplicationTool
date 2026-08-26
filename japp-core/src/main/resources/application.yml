@@ -59,6 +59,19 @@ ai:
   credentials:
     encryption-key: ${AI_CREDENTIALS_ENCRYPTION_KEY:}
 
+job-search:
+  # Each external source is independently optional — same "still starts, only the dependent
+  # feature is disabled" convention as AI_CREDENTIALS_ENCRYPTION_KEY/SMTP above. The job-search
+  # page simply omits a source (and says so) until its key(s) are set.
+  adzuna:
+    app-id: ${ADZUNA_APP_ID:}
+    app-key: ${ADZUNA_APP_KEY:}
+    country: ${ADZUNA_COUNTRY:de}
+  jooble:
+    api-key: ${JOOBLE_API_KEY:}
+  jsearch:
+    rapidapi-key: ${JSEARCH_RAPIDAPI_KEY:}
+
 logging:
   level:
     org.springframework.security: TRACE

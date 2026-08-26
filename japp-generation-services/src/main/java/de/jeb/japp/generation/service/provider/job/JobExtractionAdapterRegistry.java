@@ -1,6 +1,7 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.job;
 
 import de.jeb.japp.commons.exceptions.job.JobExtractionException;
+import de.jeb.japp.generation.service.provider.cv.CvProfileExtractionAdapterRegistry;
 import de.jeb.japp.model.ai.AdapterType;
 import org.springframework.stereotype.Component;
 

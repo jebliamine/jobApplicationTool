@@ -1,4 +1,4 @@
-package de.jeb.japp.generation.service.provider;
+package de.jeb.japp.generation.service.provider.job;
 
 import de.jeb.japp.generation.service.provider.anthropic.AnthropicJobExtractionAdapter;
 import de.jeb.japp.generation.service.provider.gemini.GeminiJobExtractionAdapter;
@@ -9,8 +9,8 @@ import org.springframework.web.client.RestClient;
 
 /**
  * Wires the job-extraction adapter beans onto the RestClient already defined in
- * {@link GenerationAdapterConfig} (autowired here by type — kept as a separate config class, same
- * pattern as {@link CvProfileAdapterConfig}). PlaceholderJobExtractionAdapter needs no HTTP client
+ * GenerationAdapterConfig (autowired here by type — kept as a separate config class, same
+ * pattern as  CvProfileAdapterConfig). PlaceholderJobExtractionAdapter needs no HTTP client
  * and is a plain {@code @Service} instead.
  */
 @Configuration

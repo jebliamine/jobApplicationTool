@@ -2,11 +2,7 @@ package de.jeb.japp.generation.service.provider.anthropic;
 
 import de.jeb.japp.ai.service.ResolvedProviderConfig;
 import de.jeb.japp.commons.exceptions.generation.CvProfileGenerationException;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionAdapter;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionInput;
-import de.jeb.japp.generation.service.provider.CvProfileExtractionResult;
-import de.jeb.japp.generation.service.provider.CvProfilePromptBuilder;
-import de.jeb.japp.generation.service.provider.CvProfileResponseParser;
+import de.jeb.japp.generation.service.provider.cv.*;
 import de.jeb.japp.model.ai.AdapterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

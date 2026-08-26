@@ -6,10 +6,10 @@ import de.jeb.japp.commons.exceptions.ai.AiProviderNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobExtractionException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.dao.ai.AiProviderConfigurationDao;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapter;
-import de.jeb.japp.generation.service.provider.JobExtractionAdapterRegistry;
-import de.jeb.japp.generation.service.provider.JobExtractionInput;
-import de.jeb.japp.generation.service.provider.JobExtractionResult;
+import de.jeb.japp.generation.service.provider.job.JobExtractionAdapter;
+import de.jeb.japp.generation.service.provider.job.JobExtractionAdapterRegistry;
+import de.jeb.japp.generation.service.provider.job.JobExtractionInput;
+import de.jeb.japp.generation.service.provider.job.JobExtractionResult;
 import de.jeb.japp.model.ai.AdapterType;
 import de.jeb.japp.model.ai.AiProviderConfiguration;
 import de.jeb.japp.model.job.EmploymentType;
@@ -102,7 +102,9 @@ public class JobExtractionService {
         return (value == null || value.isBlank()) ? null : value.trim();
     }
 
-    /** No providerId means "use the built-in Placeholder instance" — same convention as CvProfileExtractionService. */
+    /**
+     * No providerId means "use the built-in Placeholder instance" — same convention as CvProfileExtractionService.
+     */
     private AiProviderConfiguration resolveProviderInstance(UUID providerId) {
         if (providerId == null) {
             return providerDao.getFirstByAdapterType(AdapterType.PLACEHOLDER.name())
