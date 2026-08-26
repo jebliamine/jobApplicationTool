@@ -39,6 +39,11 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
+    /** Null when the user has no uploaded avatar — the frontend falls back to an initials avatar. */
+    private String avatarStorageKey;
+
+    private String avatarContentType;
+
 
     public String getEmail() {
         return email;
@@ -102,5 +107,21 @@ public class User {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getAvatarStorageKey() {
+        return avatarStorageKey;
+    }
+
+    public void setAvatarStorageKey(String avatarStorageKey) {
+        this.avatarStorageKey = avatarStorageKey;
+    }
+
+    public String getAvatarContentType() {
+        return avatarContentType;
+    }
+
+    public void setAvatarContentType(String avatarContentType) {
+        this.avatarContentType = avatarContentType;
     }
 }

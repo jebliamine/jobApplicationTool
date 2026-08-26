@@ -1,6 +1,7 @@
 package de.jeb.japp.rest.admin;
 
 import de.jeb.japp.commons.exceptions.user.DuplicateEmailException;
+import de.jeb.japp.commons.exceptions.user.InvalidAvatarException;
 import de.jeb.japp.commons.exceptions.user.InvalidPasswordChangeException;
 import de.jeb.japp.commons.exceptions.user.InvalidProfileUpdateException;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,11 @@ public class UserProfileExceptionHandler {
 
     @ExceptionHandler(InvalidPasswordChangeException.class)
     public ResponseEntity<Map<String, String>> handleInvalidPasswordChange(InvalidPasswordChangeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidAvatarException.class)
+    public ResponseEntity<Map<String, String>> handleInvalidAvatar(InvalidAvatarException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", ex.getMessage()));
     }
 }

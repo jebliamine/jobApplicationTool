@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, effect, inject, signal, untracked } from '@angular/core';
 import { Observable, Subscription, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ChangePasswordRequest, UpdateUserRequest, UserProfile } from '../models/user.models';
@@ -33,6 +33,21 @@ export class UserService {
    */
   private pendingFetch: Subscription | null = null;
 
+  /**
+   * The avatar endpoint requires auth, so a plain `<img [src]>` can't hit it directly (no way to
+   * attach the Authorization header to an <img> request) — instead it's fetched as a Blob (auth
+   * interceptor attaches the header the same as any other HttpClient call) and re-exposed as an
+   * object URL. Re-derived automatically whenever currentUser().avatarUrl changes.
+   */
+  private readonly _avatarObjectUrl = signal<string | null>(null);
+  readonly avatarObjectUrl = this._avatarObjectUrl.asReadonly();
+
+  constructor() {
+    effect(() => {
+      this.loadAvatarBlob(this._currentUser()?.avatarUrl ?? null);
+    });
+  }
+
   /** Fetches the profile if it hasn't been loaded (or isn't already loading). */
   ensureLoaded(): void {
     if (this.state() === 'idle' || this.state() === 'error') {
@@ -60,6 +75,28 @@ export class UserService {
     return this.http.put<void>(`${this.baseUrl}/me/password`, request);
   }
 
+  /** POST /users/me/avatar (multipart) — updates state from the response, same as updateProfile. */
+  uploadAvatar(file: File): Observable<UserProfile> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<UserProfile>(`${this.baseUrl}/me/avatar`, formData).pipe(
+      tap((profile) => {
+        this._currentUser.set(profile);
+        this.state.set('loaded');
+      }),
+    );
+  }
+
+  /** DELETE /users/me/avatar — reverts to the initials avatar. */
+  deleteAvatar(): Observable<UserProfile> {
+    return this.http.delete<UserProfile>(`${this.baseUrl}/me/avatar`).pipe(
+      tap((profile) => {
+        this._currentUser.set(profile);
+        this.state.set('loaded');
+      }),
+    );
+  }
+
   /** Resets state — called on logout so stale data doesn't leak into the next session. */
   clear(): void {
     this.pendingFetch?.unsubscribe();
@@ -80,6 +117,27 @@ export class UserService {
         this._currentUser.set(null);
         this.state.set('error');
       },
+    });
+  }
+
+  private loadAvatarBlob(avatarPath: string | null): void {
+    // untracked: this method only ever runs inside the effect() above, which is tracking
+    // currentUser().avatarUrl — reading _avatarObjectUrl() here too (even just to revoke the old
+    // one) would register it as a second dependency, and setting it below would then re-trigger
+    // this same effect, in an infinite refetch loop.
+    const previous = untracked(this._avatarObjectUrl);
+    if (previous) {
+      URL.revokeObjectURL(previous);
+      this._avatarObjectUrl.set(null);
+    }
+    if (!avatarPath) {
+      return;
+    }
+
+    this.http.get(`${environment.apiUrl}${avatarPath}`, { responseType: 'blob' }).subscribe({
+      next: (blob) => this._avatarObjectUrl.set(URL.createObjectURL(blob)),
+      // A stale avatarUrl (e.g. the file was deleted directly on disk) just falls back to initials.
+      error: () => this._avatarObjectUrl.set(null),
     });
   }
 }

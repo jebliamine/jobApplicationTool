@@ -55,18 +55,94 @@
   }
 }
 
+.account-section__avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-lg);
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.account-section__avatar-wrap {
+  position: relative;
+  flex: none;
+}
+
 .account-section__avatar {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 56px;
   height: 56px;
-  margin-bottom: var(--japp-spacing-lg);
   border-radius: var(--japp-radius-full);
   background: var(--japp-color-primary);
   color: var(--japp-color-on-primary);
   font-weight: 700;
   font-size: 1.5rem;
+}
+
+// object-fit: cover (rather than the image's natural size/aspect-ratio) plus a matching
+// border-radius is what actually keeps a non-square source photo filling the circle instead of
+// squashing or spilling out of it.
+.account-section__avatar--image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.account-section__avatar-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--japp-radius-full);
+  background: color-mix(in srgb, var(--japp-surface) 70%, transparent);
+
+  mat-progress-spinner {
+    --mdc-circular-progress-active-indicator-color: var(--japp-color-primary);
+  }
+}
+
+.account-section__avatar-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--japp-spacing-xs);
+
+  button svg {
+    margin-right: var(--japp-spacing-xs);
+  }
+}
+
+.account-section__avatar-remove {
+  color: var(--japp-color-error);
+  border-color: color-mix(in srgb, var(--japp-color-error) 40%, var(--japp-border));
+}
+
+// Visually hidden but still focusable/clickable via the "Change photo" button — matches the
+// .japp-visually-hidden utility's approach (never `display: none`, which would break the native
+// file picker in some browsers when triggered programmatically).
+.account-section__avatar-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.account-section__avatar-hint {
+  margin: 2px 0 0;
+  font-size: 0.8125rem;
+  color: var(--japp-text-secondary);
+}
+
+.account-section__avatar-error {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--japp-color-error);
 }
 
 .account-section__details {

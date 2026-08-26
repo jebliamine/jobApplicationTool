@@ -35,7 +35,10 @@ build/
 .playwright-mcp/
 
 ### Uploaded files (local file storage) ###
-/storage/
+# Not anchored to root: LocalFileStorageService/LocalAvatarStorageService resolve "storage/..."
+# relative to the JVM's working directory, which differs depending on how spring-boot:run is
+# launched (repo root vs. from japp-core/ directly) — so this needs to match at any depth.
+storage/
 
 ### Local secrets — never commit real API keys/credentials ###
 .env

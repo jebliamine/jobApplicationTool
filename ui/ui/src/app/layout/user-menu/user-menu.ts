@@ -33,6 +33,7 @@ export class UserMenu {
     return (name ?? '?').charAt(0).toUpperCase();
   });
 
+  protected readonly avatarObjectUrl = this.userService.avatarObjectUrl;
   protected readonly isAdmin = computed(() => this.userService.currentUser()?.role === 'ADMIN');
 
   protected logout(): void {

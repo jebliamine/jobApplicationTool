@@ -8,19 +8,23 @@ public class UserDto {
     private String email;
     private UserRole role;
     private boolean emailVerified;
+    /** Relative to /api/v1 (e.g. "/users/{id}/avatar"), matching how the frontend builds every other API URL. Null when the user has no uploaded avatar. */
+    private String avatarUrl;
 
     public UserDto() {
     }
 
-    public UserDto(String fullName, String email, UserRole role, boolean emailVerified) {
+    public UserDto(String fullName, String email, UserRole role, boolean emailVerified, String avatarUrl) {
         this.fullName = fullName;
         this.email = email;
         this.role = role;
         this.emailVerified = emailVerified;
+        this.avatarUrl = avatarUrl;
     }
 
     public static UserDto from(User user) {
-        return new UserDto(user.getFullName(), user.getEmail(), user.getRole(), user.isEmailVerified());
+        String avatarUrl = user.getAvatarStorageKey() != null ? "/users/" + user.getId() + "/avatar" : null;
+        return new UserDto(user.getFullName(), user.getEmail(), user.getRole(), user.isEmailVerified(), avatarUrl);
     }
 
     public String getFullName() {
@@ -53,5 +57,13 @@ public class UserDto {
 
     public void setEmailVerified(boolean emailVerified) {
         this.emailVerified = emailVerified;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 }

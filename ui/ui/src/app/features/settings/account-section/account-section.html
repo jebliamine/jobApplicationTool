@@ -19,8 +19,56 @@
   } @else if (userService.currentUser(); as user) {
     <mat-card appearance="outlined" class="account-section__card">
       <mat-card-content>
-        <div class="account-section__avatar" aria-hidden="true">
-          {{ (user.fullName || '?').charAt(0).toUpperCase() }}
+        <div class="account-section__avatar-row">
+          <div class="account-section__avatar-wrap">
+            @if (avatarObjectUrl(); as avatarUrl) {
+              <img [src]="avatarUrl" alt="" class="account-section__avatar account-section__avatar--image" />
+            } @else {
+              <div class="account-section__avatar" aria-hidden="true">
+                {{ (user.fullName || '?').charAt(0).toUpperCase() }}
+              </div>
+            }
+            @if (uploadingAvatar()) {
+              <div class="account-section__avatar-overlay">
+                <mat-progress-spinner diameter="24" mode="indeterminate" />
+              </div>
+            }
+          </div>
+
+          <div class="account-section__avatar-actions">
+            <input
+              #avatarFileInput
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/gif"
+              class="account-section__avatar-input"
+              (change)="onAvatarFileSelected($event)"
+            />
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="uploadingAvatar() || removingAvatar()"
+              (click)="triggerAvatarUpload()"
+            >
+              <svg lucideCamera [size]="16" aria-hidden="true"></svg>
+              {{ 'settings.account.changePhoto' | translate }}
+            </button>
+            @if (avatarObjectUrl()) {
+              <button
+                mat-stroked-button
+                type="button"
+                class="account-section__avatar-remove"
+                [disabled]="uploadingAvatar() || removingAvatar()"
+                (click)="removeAvatar()"
+              >
+                <svg lucideTrash2 [size]="16" aria-hidden="true"></svg>
+                {{ 'settings.account.removePhoto' | translate }}
+              </button>
+            }
+            <p class="account-section__avatar-hint">{{ 'settings.account.photoHint' | translate }}</p>
+            @if (avatarError()) {
+              <p class="account-section__avatar-error" role="alert">{{ avatarError() }}</p>
+            }
+          </div>
         </div>
 
         @if (!editing() && user.emailVerified === false) {

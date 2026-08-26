@@ -10,6 +10,8 @@ export interface UserProfile {
   email: string;
   role: 'USER' | 'ADMIN';
   emailVerified?: boolean;
+  /** Relative to environment.apiUrl (e.g. "/users/{id}/avatar"). Null/absent when no avatar is set — same optionality reasoning as emailVerified above. */
+  avatarUrl?: string | null;
 }
 
 /** Mirrors the request body of PUT /api/v1/users/me — only self-editable fields. */

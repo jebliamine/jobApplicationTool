@@ -2,7 +2,23 @@
   display: contents;
 }
 
+// mat-icon-button's own padding/centering assumes a ~24px mat-icon child; our 28px avatar
+// doesn't fit that assumption and ends up off-center (verified: content box is smaller than the
+// avatar, so it isn't centered by the button's normal layout at all). Absolute-centering the
+// avatar inside the button sidesteps that entirely instead of fighting Material's internal
+// padding/flex — it's centered by geometry, not by whatever box model the button happens to use.
+.user-menu__trigger {
+  position: relative;
+  // Material's hover/focus/pressed state-layer defaults to the button's full 40px touch target —
+  // a visibly oversized gray halo around a 28px avatar, with an obvious gap between the photo and
+  // the ring. Sizing it to the avatar (plus a slim margin) makes it hug the photo instead.
+  --mat-icon-button-state-layer-size: 32px;
+}
+
 .user-menu__avatar {
+  position: absolute;
+  inset: 0;
+  margin: auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -13,6 +29,14 @@
   color: var(--japp-color-on-primary);
   font-size: 0.8125rem;
   font-weight: 700;
+}
+
+// An uploaded photo replaces the initials span above — object-fit: cover (rather than the
+// image's natural size/aspect-ratio) plus a matching border-radius is what actually keeps a
+// non-square source photo filling the circle instead of squashing/spilling out of it.
+.user-menu__avatar--image {
+  object-fit: cover;
+  object-position: center;
 }
 
 .user-menu__item-icon {

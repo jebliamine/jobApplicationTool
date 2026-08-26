@@ -35,7 +35,13 @@ describe('AccountSection', () => {
         provideTranslateService({ lang: 'en', fallbackLang: 'en' }),
         {
           provide: UserService,
-          useValue: { currentUser: () => user, loading: () => false, error: () => false, refresh: vi.fn() },
+          useValue: {
+            currentUser: () => user,
+            loading: () => false,
+            error: () => false,
+            refresh: vi.fn(),
+            avatarObjectUrl: () => null,
+          },
         },
         { provide: AuthService, useValue: { resendVerification: resendSpy } },
         { provide: ToastService, useValue: { success: toastSuccessSpy, error: toastErrorSpy } },
