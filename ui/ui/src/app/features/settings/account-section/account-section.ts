@@ -16,6 +16,7 @@ import {
 } from '@lucide/angular';
 import { TranslatePipe } from '@ngx-translate/core';
 import { finalize } from 'rxjs';
+import { AuthService } from '../../../core/auth/auth.service';
 import { describeProfileUpdateError } from '../../../core/user/user-error';
 import { UserService } from '../../../core/user/user.service';
 
@@ -45,11 +46,13 @@ interface AccountForm {
 })
 export class AccountSection {
   protected readonly userService = inject(UserService);
+  private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
 
   protected readonly editing = signal(false);
   protected readonly submitting = signal(false);
   protected readonly saveError = signal<string | null>(null);
+  protected readonly resendingVerification = signal(false);
 
   protected readonly form = new FormGroup<AccountForm>({
     fullName: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -61,6 +64,23 @@ export class AccountSection {
 
   protected retry(): void {
     this.userService.refresh();
+  }
+
+  protected resendVerification(): void {
+    const user = this.userService.currentUser();
+    if (!user || this.resendingVerification()) {
+      return;
+    }
+
+    this.resendingVerification.set(true);
+    this.authService
+      .resendVerification({ email: user.email })
+      .pipe(finalize(() => this.resendingVerification.set(false)))
+      .subscribe({
+        // Always resolves regardless of whether the email exists/is already verified.
+        next: () => this.toast.success('Verification email sent.'),
+        error: () => this.toast.error('Something went wrong. Please try again.'),
+      });
   }
 
   protected startEdit(): void {

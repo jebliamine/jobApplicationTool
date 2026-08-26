@@ -19,4 +19,26 @@ export interface DashboardResponse {
   generationRequestCount: number;
   generationStatusCounts: Record<GenerationStatus, number>;
   totalUsers: number | null;
+  funnelMetrics: FunnelMetricsResponse;
+}
+
+/**
+ * Nested in DashboardResponse. responseRate/offerRate/averageDaysInCurrentStatus are derived from
+ * each application's *current* status only — there is no per-status change history, so
+ * averageDaysInCurrentStatus approximates "time in stage" using each application's last-updated
+ * timestamp (see FunnelMetricsCalculator on the backend for the exact rules).
+ */
+export interface FunnelMetricsResponse {
+  totalApplications: number;
+  responseRate: number;
+  offerRate: number;
+  averageDaysInCurrentStatus: Partial<Record<ApplicationStatus, number>>;
+  byCompany: CompanyFunnelStat[];
+}
+
+export interface CompanyFunnelStat {
+  companyName: string;
+  applications: number;
+  responseRate: number;
+  offerRate: number;
 }

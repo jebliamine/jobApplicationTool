@@ -64,6 +64,10 @@ public class AuthServiceImpl implements AuthServiceInterface {
         );
         user.setRole(UserRole.USER);
         user.setCreatedAt(LocalDateTime.now());
+        // A fresh self-registration starts unverified; the caller (AuthController) is
+        // responsible for triggering the verification email — this module has no mail-sending
+        // capability of its own (see EmailVerificationService in japp-user-Service).
+        user.setEmailVerified(false);
         return new AuthResponse(jwt.generateToken(userDao.registerUser(user).getEmail()));
 
     }

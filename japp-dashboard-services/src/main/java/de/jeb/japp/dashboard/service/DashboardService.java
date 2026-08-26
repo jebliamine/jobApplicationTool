@@ -58,6 +58,7 @@ public class DashboardService {
         response.setArchivedCoverLetterCount(coverLetterService.countArchived(requester));
         response.setGenerationRequestCount(generationRequestService.count(requester));
         response.setGenerationStatusCounts(generationRequestService.countByStatus(requester));
+        response.setFunnelMetrics(FunnelMetricsCalculator.calculate(applicationService.list(requester)));
 
         if (requester.getRole() == UserRole.ADMIN) {
             response.setTotalUsers(userService.countAllUsers());

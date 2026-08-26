@@ -23,6 +23,21 @@
           {{ (user.fullName || '?').charAt(0).toUpperCase() }}
         </div>
 
+        @if (!editing() && user.emailVerified === false) {
+          <div class="account-section__unverified" role="status">
+            <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+            <span>{{ 'settings.account.emailUnverified' | translate }}</span>
+            <button
+              mat-stroked-button
+              type="button"
+              [disabled]="resendingVerification()"
+              (click)="resendVerification()"
+            >
+              {{ 'settings.account.resendVerification' | translate }}
+            </button>
+          </div>
+        }
+
         @if (!editing()) {
           <dl class="account-section__details">
             <div class="account-section__row">

@@ -106,6 +106,16 @@
                   >
                     <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
                   </a>
+                } @else {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    disabled
+                    matTooltip="No posting link"
+                    [attr.aria-label]="'No posting link for ' + job.title"
+                  >
+                    <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
+                  </button>
                 }
                 <button
                   mat-icon-button
@@ -207,6 +217,16 @@
                   >
                     <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
                   </a>
+                } @else {
+                  <button
+                    mat-icon-button
+                    type="button"
+                    disabled
+                    matTooltip="No posting link"
+                    [attr.aria-label]="'No posting link for ' + job.title"
+                  >
+                    <svg lucideExternalLink [size]="18" aria-hidden="true"></svg>
+                  </button>
                 }
                 <button
                   mat-icon-button

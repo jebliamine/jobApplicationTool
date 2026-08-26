@@ -119,6 +119,11 @@ public class ApplicationService {
                 : applicationDao.countByOwnerGroupByAppliedAtSince(requester, since);
     }
 
+    /** CSV export of every application the requester can see — same {@link #list} scoping. */
+    public String exportCsv(User requester) {
+        return ApplicationCsvExporter.toCsv(list(requester));
+    }
+
     public Application update(UUID id, ApplicationRequest request, User requester) {
         Application application = get(id, requester);
         validate(request);

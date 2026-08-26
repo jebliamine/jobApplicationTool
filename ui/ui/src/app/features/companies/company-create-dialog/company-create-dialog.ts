@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -17,6 +17,11 @@ interface CompanyForm {
   website: FormControl<string>;
   location: FormControl<string>;
   notes: FormControl<string>;
+}
+
+/** Optional dialog data — lets a caller (e.g. job-posting extraction) pre-fill the company name. */
+export interface CompanyCreateDialogData {
+  name?: string;
 }
 
 @Component({
@@ -36,9 +41,10 @@ interface CompanyForm {
 export class CompanyCreateDialog {
   private readonly companyService = inject(CompanyService);
   private readonly dialogRef = inject(MatDialogRef<CompanyCreateDialog, CompanyResponse | null>);
+  private readonly data = inject<CompanyCreateDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   protected readonly form = new FormGroup<CompanyForm>({
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    name: new FormControl(this.data?.name ?? '', { nonNullable: true, validators: [Validators.required] }),
     website: new FormControl('', { nonNullable: true }),
     location: new FormControl('', { nonNullable: true }),
     notes: new FormControl('', { nonNullable: true }),

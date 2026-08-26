@@ -135,6 +135,30 @@ class JobServiceTest {
     }
 
     @Test
+    void createRejectsADuplicateTitleAtTheSameCompany() {
+        JobRequest request = validRequest();
+        when(companyService.getOwnedByExactly(request.getCompanyId(), owner)).thenReturn(company);
+        when(jobDao.existsByOwnerAndTitleAndCompanyId(owner, request.getTitle(), company.getId())).thenReturn(true);
+
+        assertThatThrownBy(() -> jobService.create(request, owner))
+                .isInstanceOf(JobValidationException.class);
+
+        verify(jobDao, never()).saveJob(any());
+    }
+
+    @Test
+    void createAllowsTheSameTitleAtADifferentCompany() {
+        JobRequest request = validRequest();
+        when(companyService.getOwnedByExactly(request.getCompanyId(), owner)).thenReturn(company);
+        when(jobDao.existsByOwnerAndTitleAndCompanyId(owner, request.getTitle(), company.getId())).thenReturn(false);
+        when(jobDao.saveJob(any())).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Job created = jobService.create(request, owner);
+
+        assertThat(created.getTitle()).isEqualTo("Backend Engineer");
+    }
+
+    @Test
     void createRejectsCompanyOwnedBySomeoneElse() {
         JobRequest request = validRequest();
         when(companyService.getOwnedByExactly(request.getCompanyId(), owner))

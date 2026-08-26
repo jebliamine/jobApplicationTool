@@ -15,3 +15,24 @@ export interface RegisterRequest {
 export interface AuthResponse {
   token: string;
 }
+
+/** Mirrors POST /api/v1/auth/forgot-password request body. */
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+/** Mirrors POST /api/v1/auth/reset-password request body. */
+export interface ResetPasswordRequest {
+  token: string;
+  newPassword: string;
+}
+
+/** Mirrors POST /api/v1/auth/verify-email request body. */
+export interface VerifyEmailRequest {
+  token: string;
+}
+
+/** Mirrors POST /api/v1/auth/resend-verification request body. */
+export interface ResendVerificationRequest {
+  email: string;
+}

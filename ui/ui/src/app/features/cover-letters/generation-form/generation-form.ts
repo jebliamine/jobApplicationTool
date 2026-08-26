@@ -12,6 +12,7 @@ import { ToastService } from '../../../core/ui/toast.service';
 import { LucideCircleAlert, LucideClock, LucideSparkles } from '@lucide/angular';
 import { finalize, forkJoin, timer } from 'rxjs';
 import { describeApiError } from '../../../core/http/describe-api-error';
+import { isProviderBusy } from '../../../core/http/is-provider-busy';
 import { AiProviderResponse } from '../ai-provider.models';
 import { AiProviderService } from '../ai-provider.service';
 import { CvProfileResponse, CvResponse } from '../../cv/cv.models';
@@ -24,18 +25,6 @@ import { GenerationService } from '../generation.service';
 
 const POLL_INTERVAL_MS = 1000;
 const MAX_POLL_ATTEMPTS = 15;
-
-/**
- * Matches the wording adapters use for a transient, capacity-related failure (rate limit hit,
- * provider temporarily unavailable, connection timeout) — deliberately provider-agnostic so it
- * covers Gemini/OpenAI-compatible/Anthropic without depending on their exact phrasing. Anything
- * that doesn't match (misconfiguration, auth, validation) is treated as a real error.
- */
-const RETRYABLE_FAILURE_PATTERN = /rate limit|currently unavailable|temporarily unavailable|timeout or connection/i;
-
-function isProviderBusy(message: string): boolean {
-  return RETRYABLE_FAILURE_PATTERN.test(message);
-}
 
 interface GenerationFormControls {
   jobId: FormControl<string>;

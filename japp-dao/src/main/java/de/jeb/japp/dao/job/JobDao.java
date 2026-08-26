@@ -42,6 +42,11 @@ public class JobDao {
         return jobRepository.existsByCompanyId(companyId);
     }
 
+    /** Used for duplicate detection before creating a job — same title, same company, same owner. */
+    public boolean existsByOwnerAndTitleAndCompanyId(User owner, String title, UUID companyId) {
+        return jobRepository.existsByOwnerAndTitleIgnoreCaseAndCompanyId(owner, title, companyId);
+    }
+
     public long countAll() {
         return jobRepository.count();
     }

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { JobRequest, JobResponse } from './job.models';
+import { JobExtractionRequest, JobExtractionResponse, JobRequest, JobResponse } from './job.models';
 
 @Injectable({ providedIn: 'root' })
 export class JobService {
@@ -20,6 +20,13 @@ export class JobService {
 
   create(request: JobRequest): Observable<JobResponse> {
     return this.http.post<JobResponse>(this.baseUrl, request);
+  }
+
+  /** POST /jobs/extract — stateless preview, nothing is persisted; providerId omitted uses the built-in Placeholder. */
+  extract(rawText: string, providerId?: string): Observable<JobExtractionResponse> {
+    const request: JobExtractionRequest = { rawText };
+    const params = providerId ? { providerId } : undefined;
+    return this.http.post<JobExtractionResponse>(`${this.baseUrl}/extract`, request, { params });
   }
 
   update(id: string, request: JobRequest): Observable<JobResponse> {

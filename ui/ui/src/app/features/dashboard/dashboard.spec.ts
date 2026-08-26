@@ -28,6 +28,13 @@ const EMPTY_DASHBOARD: DashboardResponse = {
   generationRequestCount: 0,
   generationStatusCounts: { PENDING: 0, IN_PROGRESS: 0, COMPLETED: 0, FAILED: 0 },
   totalUsers: null,
+  funnelMetrics: {
+    totalApplications: 0,
+    responseRate: 0,
+    offerRate: 0,
+    averageDaysInCurrentStatus: {},
+    byCompany: [],
+  },
 };
 
 const ACTIVE_DASHBOARD: DashboardResponse = {
@@ -35,6 +42,13 @@ const ACTIVE_DASHBOARD: DashboardResponse = {
   cvCount: 1,
   jobCount: 3,
   applicationCount: 2,
+  funnelMetrics: {
+    totalApplications: 2,
+    responseRate: 0.5,
+    offerRate: 0,
+    averageDaysInCurrentStatus: { APPLIED: 3 },
+    byCompany: [{ companyName: 'Acme', applications: 2, responseRate: 0.5, offerRate: 0 }],
+  },
 };
 
 const APPLICATION: ApplicationResponse = {
@@ -95,5 +109,26 @@ describe('Dashboard', () => {
     setup(ACTIVE_DASHBOARD);
 
     expect(fixture.componentInstance['firstName']()).toBe('Jane');
+  });
+
+  it('renders response rate and offer rate as rounded percentages', () => {
+    setup(ACTIVE_DASHBOARD, [APPLICATION]);
+
+    const text = fixture.nativeElement.textContent;
+    expect(text).toContain('50%');
+    expect(text).toContain('0%');
+  });
+
+  it('shows the by-company breakdown table when there is data', () => {
+    setup(ACTIVE_DASHBOARD, [APPLICATION]);
+
+    expect(fixture.nativeElement.textContent).toContain('Acme');
+    expect(fixture.nativeElement.querySelector('.dashboard__funnel-table')).not.toBeNull();
+  });
+
+  it('hides the by-company table when there is no breakdown data', () => {
+    setup({ ...ACTIVE_DASHBOARD, funnelMetrics: { ...ACTIVE_DASHBOARD.funnelMetrics, byCompany: [] } }, [APPLICATION]);
+
+    expect(fixture.nativeElement.querySelector('.dashboard__funnel-table')).toBeNull();
   });
 });

@@ -88,6 +88,19 @@
   flex-direction: column;
 }
 
+.auth-page__forgot-password {
+  align-self: flex-end;
+  margin-top: calc(-1 * var(--japp-spacing-sm));
+  margin-bottom: var(--japp-spacing-md);
+  font-size: 0.8125rem;
+  color: var(--japp-color-primary);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
 .auth-page__field {
   width: 100%;
 }

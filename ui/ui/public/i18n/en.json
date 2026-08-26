@@ -249,6 +249,14 @@
       "statusTitle": "Applications by status",
       "activityTitle": "Applications over the last 12 weeks"
     },
+    "funnel": {
+      "title": "Pipeline funnel",
+      "responseRate": "Response rate",
+      "offerRate": "Offer rate",
+      "byCompanyTitle": "By company",
+      "company": "Company",
+      "applications": "Applications"
+    },
     "stats": {
       "cvs": "CVs",
       "jobs": "Jobs",
@@ -284,7 +292,9 @@
       "editProfile": "Edit profile",
       "fullNameRequired": "Full name is required.",
       "emailRequired": "Email is required.",
-      "emailInvalid": "Enter a valid email address."
+      "emailInvalid": "Enter a valid email address.",
+      "emailUnverified": "Your email address is not verified.",
+      "resendVerification": "Resend verification email"
     },
     "appearance": {
       "themeLabel": "Theme",

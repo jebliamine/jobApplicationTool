@@ -75,6 +75,8 @@ export class Dashboard {
     return !!data && data.cvCount === 0 && data.jobCount === 0 && data.applicationCount === 0;
   });
 
+  protected readonly topCompanies = computed(() => this.dashboard()?.funnelMetrics.byCompany.slice(0, 5) ?? []);
+
   constructor() {
     this.load();
   }
@@ -96,5 +98,9 @@ export class Dashboard {
       },
       error: () => this.state.set('error'),
     });
+  }
+
+  protected formatPercent(rate: number): string {
+    return `${Math.round(rate * 100)}%`;
   }
 }

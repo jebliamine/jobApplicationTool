@@ -45,3 +45,24 @@ export interface JobRequest {
   source: string | null;
   salaryRange: string | null;
 }
+
+/** Request body for POST /api/v1/jobs/extract. */
+export interface JobExtractionRequest {
+  rawText: string;
+}
+
+/**
+ * Response body of POST /api/v1/jobs/extract — suggested field values to review before creating
+ * the job. companyName is a plain string, not a companyId: the form matches it against the
+ * user's existing companies, or offers to create a new one.
+ */
+export interface JobExtractionResponse {
+  title: string | null;
+  companyName: string | null;
+  description: string | null;
+  location: string | null;
+  employmentType: EmploymentType | null;
+  workMode: WorkMode | null;
+  salaryRange: string | null;
+  url: string | null;
+}

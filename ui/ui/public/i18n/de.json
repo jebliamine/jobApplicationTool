@@ -249,6 +249,14 @@
       "statusTitle": "Bewerbungen nach Status",
       "activityTitle": "Bewerbungen in den letzten 12 Wochen"
     },
+    "funnel": {
+      "title": "Bewerbungstrichter",
+      "responseRate": "Rücklaufquote",
+      "offerRate": "Angebotsquote",
+      "byCompanyTitle": "Nach Unternehmen",
+      "company": "Unternehmen",
+      "applications": "Bewerbungen"
+    },
     "stats": {
       "cvs": "Lebensläufe",
       "jobs": "Stellen",
@@ -284,7 +292,9 @@
       "editProfile": "Profil bearbeiten",
       "fullNameRequired": "Der vollständige Name ist erforderlich.",
       "emailRequired": "Die E-Mail-Adresse ist erforderlich.",
-      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein."
+      "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein.",
+      "emailUnverified": "Ihre E-Mail-Adresse ist nicht verifiziert.",
+      "resendVerification": "Bestätigungs-E-Mail erneut senden"
     },
     "appearance": {
       "themeLabel": "Design",

@@ -1,0 +1,49 @@
+<div class="auth-page">
+  <div class="auth-page__wrap">
+    <a class="auth-page__brand" routerLink="/login">
+      <span class="auth-page__brand-mark" aria-hidden="true">J</span>
+      <span class="auth-page__brand-name">JAPP</span>
+    </a>
+
+    <mat-card appearance="outlined" class="auth-page__card">
+      <mat-card-content>
+        @switch (state()) {
+          @case ('verifying') {
+            <div class="auth-page__loading">
+              <mat-progress-spinner diameter="28" mode="indeterminate" />
+              <span>Verifying your email…</span>
+            </div>
+          }
+          @case ('success') {
+            <div class="auth-page__success">
+              <svg lucideCircleCheck [size]="28" aria-hidden="true"></svg>
+              <h1 class="auth-page__title">Email verified</h1>
+              <p class="auth-page__subtitle">Your email address has been verified.</p>
+              <button mat-flat-button color="primary" type="button" class="auth-page__submit" routerLink="/dashboard">
+                Go to dashboard
+              </button>
+            </div>
+          }
+          @case ('missing-token') {
+            <div class="auth-page__error" role="alert">
+              <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+              <span>This verification link is missing its token. Please use the link from your email.</span>
+            </div>
+            <p class="auth-page__footer">
+              <a routerLink="/login">Back to sign in</a>
+            </p>
+          }
+          @case ('error') {
+            <div class="auth-page__error" role="alert">
+              <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+              <span>{{ errorMessage() }}</span>
+            </div>
+            <p class="auth-page__footer">
+              <a routerLink="/login">Back to sign in</a>
+            </p>
+          }
+        }
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

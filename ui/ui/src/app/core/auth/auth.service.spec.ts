@@ -76,6 +76,50 @@ describe('AuthService', () => {
     expect(service.isAuthenticated()).toBe(false);
   });
 
+  it('forgotPassword() POSTs /auth/forgot-password', () => {
+    const service = TestBed.inject(AuthService);
+
+    service.forgotPassword({ email: 'jane@example.com' }).subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/forgot-password`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'jane@example.com' });
+    req.flush(null);
+  });
+
+  it('resetPassword() POSTs /auth/reset-password', () => {
+    const service = TestBed.inject(AuthService);
+
+    service.resetPassword({ token: 'abc123', newPassword: 'new-password-123' }).subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/reset-password`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ token: 'abc123', newPassword: 'new-password-123' });
+    req.flush(null);
+  });
+
+  it('verifyEmail() POSTs /auth/verify-email', () => {
+    const service = TestBed.inject(AuthService);
+
+    service.verifyEmail({ token: 'xyz789' }).subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/verify-email`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ token: 'xyz789' });
+    req.flush(null);
+  });
+
+  it('resendVerification() POSTs /auth/resend-verification', () => {
+    const service = TestBed.inject(AuthService);
+
+    service.resendVerification({ email: 'jane@example.com' }).subscribe();
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/auth/resend-verification`);
+    expect(req.request.method).toBe('POST');
+    expect(req.request.body).toEqual({ email: 'jane@example.com' });
+    req.flush(null);
+  });
+
   it('clears the token on logout', () => {
     const service = TestBed.inject(AuthService);
     const token = fakeToken({ sub: 'jane@example.com', exp: Math.floor(Date.now() / 1000) + 3600 });

@@ -27,6 +27,15 @@ public class User {
     @Column(nullable = false)
     private boolean enabled = true;
 
+    /**
+     * Defaults true for the same reason {@link #enabled} does — every existing call site keeps
+     * working unchanged. AuthController explicitly sets this false right after a new self-registration
+     * and only flips it once the user follows their emailed verification link; nothing currently
+     * gates login or feature access on this flag (see EmailVerificationService for the full rationale).
+     */
+    @Column(nullable = false)
+    private boolean emailVerified = true;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -77,6 +86,14 @@ public class User {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
     }
 
     public LocalDateTime getCreatedAt() {

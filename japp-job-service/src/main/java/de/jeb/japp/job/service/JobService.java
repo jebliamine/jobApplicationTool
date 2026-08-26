@@ -53,6 +53,10 @@ public class JobService {
         // The job's owner is always the authenticated requester, so the
         // referenced company must belong to that same requester.
         Company company = companyService.getOwnedByExactly(request.getCompanyId(), owner);
+        if (jobDao.existsByOwnerAndTitleAndCompanyId(owner, request.getTitle().trim(), company.getId())) {
+            throw new JobValidationException(
+                    "You already have a job titled \"" + request.getTitle().trim() + "\" at this company.");
+        }
 
         Job job = new Job();
         applyRequest(job, request, company);

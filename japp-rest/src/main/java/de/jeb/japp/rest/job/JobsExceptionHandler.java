@@ -4,6 +4,7 @@ import de.jeb.japp.commons.exceptions.company.CompanyAccessDeniedException;
 import de.jeb.japp.commons.exceptions.company.CompanyNotFoundException;
 import de.jeb.japp.commons.exceptions.company.CompanyValidationException;
 import de.jeb.japp.commons.exceptions.job.JobAccessDeniedException;
+import de.jeb.japp.commons.exceptions.job.JobExtractionException;
 import de.jeb.japp.commons.exceptions.job.JobNotFoundException;
 import de.jeb.japp.commons.exceptions.job.JobValidationException;
 import de.jeb.japp.commons.exceptions.tag.TagAccessDeniedException;
@@ -35,5 +36,14 @@ public class JobsExceptionHandler {
     @ExceptionHandler({JobAccessDeniedException.class, CompanyAccessDeniedException.class, TagAccessDeniedException.class})
     public ResponseEntity<Map<String, String>> handleAccessDenied(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("message", ex.getMessage()));
+    }
+
+    /**
+     * Job-posting extraction has no persisted entity to attach a FAILED status to (unlike
+     * CV-profile generation), so a provider/adapter failure surfaces directly here as 502.
+     */
+    @ExceptionHandler(JobExtractionException.class)
+    public ResponseEntity<Map<String, String>> handleExtractionFailure(JobExtractionException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(Map.of("message", ex.getMessage()));
     }
 }

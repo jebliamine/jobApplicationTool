@@ -605,4 +605,25 @@ class ApplicationServiceTest {
 
         assertThat(result.getInterviewStages()).containsExactly(keep);
     }
+
+    @Test
+    void exportCsvUsesTheSameOwnerScopedListAsList() {
+        when(applicationDao.getAllApplicationsByOwner(owner)).thenReturn(List.of(applicationOwnedBy(owner)));
+
+        String csv = applicationService.exportCsv(owner);
+
+        assertThat(csv).contains("Backend Engineer");
+        verify(applicationDao).getAllApplicationsByOwner(owner);
+        verify(applicationDao, never()).getAllApplications();
+    }
+
+    @Test
+    void exportCsvUsesTheGlobalListForAdmin() {
+        when(applicationDao.getAllApplications()).thenReturn(List.of(applicationOwnedBy(owner)));
+
+        applicationService.exportCsv(admin);
+
+        verify(applicationDao).getAllApplications();
+        verify(applicationDao, never()).getAllApplicationsByOwner(any());
+    }
 }

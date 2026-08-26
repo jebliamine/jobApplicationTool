@@ -21,6 +21,74 @@
           </div>
         }
 
+        @if (!isEditMode) {
+          <div class="job-form-page__paste-import">
+            <button
+              mat-stroked-button
+              type="button"
+              class="job-form-page__paste-toggle"
+              (click)="togglePasteImport()"
+            >
+              <svg lucideClipboardPaste [size]="16" aria-hidden="true"></svg>
+              Paste a job posting to auto-fill
+              <app-status-badge label="Beta" severity="info" />
+            </button>
+
+            @if (showPasteImport()) {
+              <div class="job-form-page__paste-panel">
+                @if (extractError()) {
+                  <div class="job-form-page__error" role="alert">
+                    <svg lucideCircleAlert [size]="18" aria-hidden="true"></svg>
+                    <span>{{ extractError() }}</span>
+                  </div>
+                }
+                @if (extractRetryNotice()) {
+                  <div class="job-form-page__warning" role="status">
+                    <span>{{ extractRetryNotice() }}</span>
+                  </div>
+                }
+
+                <mat-form-field appearance="outline" class="job-form-page__field">
+                  <mat-label>Job posting text</mat-label>
+                  <textarea
+                    matInput
+                    rows="6"
+                    [formControl]="pasteText"
+                    placeholder="Paste the full job posting text here"
+                  ></textarea>
+                </mat-form-field>
+
+                <div class="job-form-page__paste-actions">
+                  @if (providers().length > 0) {
+                    <mat-form-field appearance="outline" class="job-form-page__paste-provider">
+                      <mat-label>Provider</mat-label>
+                      <mat-select [(value)]="selectedProviderId">
+                        @for (provider of providers(); track provider.id) {
+                          <mat-option [value]="provider.id">{{ provider.displayName }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  }
+
+                  <button
+                    mat-flat-button
+                    color="primary"
+                    type="button"
+                    [disabled]="extracting() || !pasteText.value.trim()"
+                    (click)="extractFromPaste()"
+                  >
+                    @if (extracting()) {
+                      <mat-progress-spinner diameter="18" mode="indeterminate" />
+                    } @else {
+                      Extract
+                    }
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
         <form class="job-form-page__form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <div class="job-form-page__row">
             <mat-form-field appearance="outline" class="job-form-page__company-field">

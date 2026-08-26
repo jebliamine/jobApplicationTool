@@ -69,6 +69,46 @@
             <app-activity-chart [byDay]="data.applicationsByDay" />
           </div>
         </section>
+
+        <section class="dashboard__funnel">
+          <h2 class="dashboard__section-title">{{ 'dashboard.funnel.title' | translate }}</h2>
+          <div class="dashboard__funnel-stats">
+            <div class="dashboard__funnel-stat">
+              <span class="dashboard__funnel-value">{{ formatPercent(data.funnelMetrics.responseRate) }}</span>
+              <span class="dashboard__funnel-label">{{ 'dashboard.funnel.responseRate' | translate }}</span>
+            </div>
+            <div class="dashboard__funnel-stat">
+              <span class="dashboard__funnel-value">{{ formatPercent(data.funnelMetrics.offerRate) }}</span>
+              <span class="dashboard__funnel-label">{{ 'dashboard.funnel.offerRate' | translate }}</span>
+            </div>
+          </div>
+
+          @if (topCompanies().length > 0) {
+            <h3 class="dashboard__funnel-subtitle">{{ 'dashboard.funnel.byCompanyTitle' | translate }}</h3>
+            <div class="dashboard__funnel-table-wrap">
+              <table class="dashboard__funnel-table">
+                <thead>
+                  <tr>
+                    <th>{{ 'dashboard.funnel.company' | translate }}</th>
+                    <th>{{ 'dashboard.funnel.applications' | translate }}</th>
+                    <th>{{ 'dashboard.funnel.responseRate' | translate }}</th>
+                    <th>{{ 'dashboard.funnel.offerRate' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (stat of topCompanies(); track stat.companyName) {
+                    <tr>
+                      <td>{{ stat.companyName }}</td>
+                      <td>{{ stat.applications }}</td>
+                      <td>{{ formatPercent(stat.responseRate) }}</td>
+                      <td>{{ formatPercent(stat.offerRate) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </section>
       }
 
       <section class="dashboard__recent">

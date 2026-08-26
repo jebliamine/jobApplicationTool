@@ -2,7 +2,15 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthResponse, LoginRequest, RegisterRequest } from '../models/auth.models';
+import {
+  AuthResponse,
+  ForgotPasswordRequest,
+  LoginRequest,
+  RegisterRequest,
+  ResendVerificationRequest,
+  ResetPasswordRequest,
+  VerifyEmailRequest,
+} from '../models/auth.models';
 import { UserService } from '../user/user.service';
 
 const TOKEN_STORAGE_KEY = 'japp-auth-token';
@@ -47,6 +55,24 @@ export class AuthService {
     return this.http
       .post<AuthResponse>(`${this.baseUrl}/register`, request)
       .pipe(tap((response) => this.setToken(response.token)));
+  }
+
+  /** Always resolves regardless of whether the email exists — see the backend's PasswordResetService. */
+  forgotPassword(request: ForgotPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/forgot-password`, request);
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/reset-password`, request);
+  }
+
+  verifyEmail(request: VerifyEmailRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/verify-email`, request);
+  }
+
+  /** Always resolves regardless of whether the email exists or is already verified. */
+  resendVerification(request: ResendVerificationRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/resend-verification`, request);
   }
 
   logout(): void {

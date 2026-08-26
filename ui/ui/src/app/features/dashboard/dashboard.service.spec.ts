@@ -24,6 +24,13 @@ const DASHBOARD: DashboardResponse = {
   generationRequestCount: 4,
   generationStatusCounts: { PENDING: 0, IN_PROGRESS: 0, COMPLETED: 3, FAILED: 1 },
   totalUsers: null,
+  funnelMetrics: {
+    totalApplications: 3,
+    responseRate: 0.33,
+    offerRate: 0,
+    averageDaysInCurrentStatus: { APPLIED: 2, INTERVIEWING: 5 },
+    byCompany: [{ companyName: 'Acme', applications: 3, responseRate: 0.33, offerRate: 0 }],
+  },
 };
 
 describe('DashboardService', () => {

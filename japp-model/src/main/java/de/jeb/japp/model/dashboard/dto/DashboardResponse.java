@@ -24,6 +24,7 @@ public class DashboardResponse {
     private long generationRequestCount;
     private Map<GenerationStatus, Long> generationStatusCounts;
     private Long totalUsers;
+    private FunnelMetricsResponse funnelMetrics;
 
     public DashboardResponse() {
     }
@@ -106,5 +107,13 @@ public class DashboardResponse {
 
     public void setTotalUsers(Long totalUsers) {
         this.totalUsers = totalUsers;
+    }
+
+    public FunnelMetricsResponse getFunnelMetrics() {
+        return funnelMetrics;
+    }
+
+    public void setFunnelMetrics(FunnelMetricsResponse funnelMetrics) {
+        this.funnelMetrics = funnelMetrics;
     }
 }

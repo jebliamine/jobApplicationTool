@@ -55,6 +55,7 @@ export class AdminDashboard {
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
   protected readonly dashboard = this._dashboard.asReadonly();
+  protected readonly topCompanies = computed(() => this.dashboard()?.funnelMetrics.byCompany.slice(0, 5) ?? []);
 
   constructor() {
     this.load();
@@ -69,5 +70,9 @@ export class AdminDashboard {
       },
       error: () => this.state.set('error'),
     });
+  }
+
+  protected formatPercent(rate: number): string {
+    return `${Math.round(rate * 100)}%`;
   }
 }

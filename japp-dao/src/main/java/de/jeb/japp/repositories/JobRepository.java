@@ -14,5 +14,7 @@ public interface JobRepository extends JpaRepository<Job, UUID> {
 
     boolean existsByCompanyId(UUID companyId);
 
+    boolean existsByOwnerAndTitleIgnoreCaseAndCompanyId(User owner, String title, UUID companyId);
+
     long countByOwner(User owner);
 }

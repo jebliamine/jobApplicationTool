@@ -1,6 +1,9 @@
 package de.jeb.japp.rest.job;
 
+import de.jeb.japp.generation.service.JobExtractionService;
 import de.jeb.japp.job.service.JobService;
+import de.jeb.japp.model.job.dto.JobExtractionRequest;
+import de.jeb.japp.model.job.dto.JobExtractionResponse;
 import de.jeb.japp.model.job.dto.JobRequest;
 import de.jeb.japp.model.job.dto.JobResponse;
 import de.jeb.japp.model.user.User;
@@ -16,9 +19,11 @@ import java.util.UUID;
 public class JobController {
 
     private final JobService jobService;
+    private final JobExtractionService jobExtractionService;
 
-    public JobController(JobService jobService) {
+    public JobController(JobService jobService, JobExtractionService jobExtractionService) {
         this.jobService = jobService;
+        this.jobExtractionService = jobExtractionService;
     }
 
     @GetMapping
@@ -29,6 +34,15 @@ public class JobController {
     @PostMapping
     public JobResponse createJob(@RequestBody JobRequest request, @AuthenticationPrincipal User user) {
         return JobResponse.from(jobService.create(request, user));
+    }
+
+    /** Stateless: extracts suggested field values from pasted job-posting text — nothing is persisted here. */
+    @PostMapping("/extract")
+    public JobExtractionResponse extractJob(
+            @RequestBody JobExtractionRequest request,
+            @RequestParam(required = false) UUID providerId
+    ) {
+        return jobExtractionService.extract(request.getRawText(), providerId);
     }
 
     @GetMapping("/{id}")

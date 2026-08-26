@@ -5,10 +5,14 @@ import de.jeb.japp.model.application.dto.ApplicationRequest;
 import de.jeb.japp.model.application.dto.ApplicationResponse;
 import de.jeb.japp.model.application.dto.InterviewStageRequest;
 import de.jeb.japp.model.user.User;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -38,6 +42,17 @@ public class ApplicationController {
     @GetMapping("/{id}")
     public ApplicationResponse getApplication(@PathVariable UUID id, @AuthenticationPrincipal User user) {
         return ApplicationResponse.from(applicationService.get(id, user));
+    }
+
+    /** CSV export of every application the caller can see (own applications, or all for an admin — same as {@link #getApplications}). */
+    @GetMapping(value = "/export", produces = "text/csv")
+    public ResponseEntity<byte[]> exportApplications(@AuthenticationPrincipal User user) {
+        byte[] body = applicationService.exportCsv(user).getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("text/csv"))
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        ContentDisposition.attachment().filename("applications.csv").build().toString())
+                .body(body);
     }
 
     @PutMapping("/{id}")

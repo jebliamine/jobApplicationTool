@@ -5,6 +5,8 @@ import de.jeb.japp.cv.service.CVServiceInterface;
 import de.jeb.japp.generation.service.CoverLetterService;
 import de.jeb.japp.generation.service.GenerationRequestService;
 import de.jeb.japp.job.service.JobService;
+import de.jeb.japp.model.application.Application;
+import de.jeb.japp.model.application.ApplicationStatus;
 import de.jeb.japp.model.dashboard.dto.DashboardResponse;
 import de.jeb.japp.model.generation.GenerationStatus;
 import de.jeb.japp.model.user.User;
@@ -16,11 +18,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -58,6 +63,18 @@ class DashboardServiceTest {
         admin = new User();
         admin.setId(UUID.randomUUID());
         admin.setRole(UserRole.ADMIN);
+
+        // Funnel metrics are computed from applicationService.list(...) — default to empty so
+        // existing tests that don't care about funnel metrics aren't forced to stub it.
+        lenient().when(applicationService.list(owner)).thenReturn(List.of());
+        lenient().when(applicationService.list(admin)).thenReturn(List.of());
+    }
+
+    private Application applicationWithStatus(ApplicationStatus status) {
+        Application application = new Application();
+        application.setStatus(status);
+        application.setUpdatedAt(LocalDateTime.now());
+        return application;
     }
 
     private Map<GenerationStatus, Long> statusCounts(long pending, long inProgress, long completed, long failed) {
@@ -145,5 +162,30 @@ class DashboardServiceTest {
         assertThat(response.getGenerationRequestCount()).isZero();
         assertThat(response.getGenerationStatusCounts().values()).allMatch(count -> count == 0L);
         assertThat(response.getTotalUsers()).isNull();
+    }
+
+    @Test
+    void includesFunnelMetricsComputedFromTheRequestersApplications() {
+        when(generationRequestService.countByStatus(owner)).thenReturn(statusCounts(0, 0, 0, 0));
+        when(applicationService.list(owner)).thenReturn(List.of(
+                applicationWithStatus(ApplicationStatus.APPLIED),
+                applicationWithStatus(ApplicationStatus.OFFER)));
+
+        DashboardResponse response = dashboardService.getDashboard(owner);
+
+        assertThat(response.getFunnelMetrics()).isNotNull();
+        assertThat(response.getFunnelMetrics().getTotalApplications()).isEqualTo(2);
+        assertThat(response.getFunnelMetrics().getOfferRate()).isEqualTo(0.5);
+    }
+
+    @Test
+    void funnelMetricsAreEmptyWhenTheRequesterHasNoApplications() {
+        when(generationRequestService.countByStatus(owner)).thenReturn(statusCounts(0, 0, 0, 0));
+
+        DashboardResponse response = dashboardService.getDashboard(owner);
+
+        assertThat(response.getFunnelMetrics().getTotalApplications()).isZero();
+        assertThat(response.getFunnelMetrics().getResponseRate()).isZero();
+        assertThat(response.getFunnelMetrics().getByCompany()).isEmpty();
     }
 }
