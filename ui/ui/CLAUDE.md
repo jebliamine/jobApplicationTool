@@ -8,6 +8,8 @@ The frontend communicates with the Spring Boot backend through REST APIs under `
 
 The frontend MUST NOT invent API endpoints, DTO fields, request/response structures, validation rules, authentication/authorization behavior, or business logic. Before implementing API-related functionality, inspect the corresponding backend controller/DTO/service.
 
+there is a skill under (`ui/ui/.agent/skills/design-taste-frontend-v1`) refer to it also for mdetailed ui rules.
+
 ---
 
 ## 2. Technology Stack
@@ -285,7 +287,7 @@ If requirements are unclear: inspect existing code, backend contracts, and docs;
 
 ## 37. Current Project State
 
-The frontend is well past an early scaffold: it has full auth flows, two routed shells (user + admin), a working theme system, i18n, and feature areas covering dashboard, CV, jobs, companies, applications (including a board view), cover letters (including AI generation), and settings/admin (including AI provider management). The backend it talks to is a mature 13-module system with a real AI provider/generation architecture (see root `CLAUDE.md`).
+The frontend is well past an early scaffold: it has full auth flows, two routed shells (user + admin), a working theme system, i18n, and feature areas covering dashboard, CV, jobs, companies, applications (including a board view), cover letters (including AI generation), tags, reminders, cross-entity search, live external job search, and settings/admin (including AI provider management). The backend it talks to is a mature 18-module system with a real AI provider/generation architecture (see root `CLAUDE.md` — verify the module count there before repeating it elsewhere, it has drifted before).
 
 This means: don't assume backend endpoints are missing or "not implemented yet" — check first. It's still appropriate to build new features incrementally and keep the backend contract authoritative, but "the backend is only partially implemented" is no longer a safe default assumption for this project — verify against the actual controller before assuming an endpoint doesn't exist.
 

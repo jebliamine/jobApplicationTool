@@ -49,7 +49,7 @@
     <div class="job-search-state job-search-state--error" role="alert">
       <svg lucideCircleAlert [size]="20" aria-hidden="true"></svg>
       <span>We could not run that search. Please try again.</span>
-      <button mat-stroked-button type="button" (click)="search()">Retry</button>
+      <button mat-stroked-button type="button" (click)="retry()">Retry</button>
     </div>
   } @else if (searched() && results().length === 0) {
     <div class="job-search-state job-search-state--empty">
@@ -95,5 +95,15 @@
         </li>
       }
     </ul>
+  }
+
+  @if (searched() && !error()) {
+    <div class="job-search-pagination">
+      <button mat-stroked-button type="button" [disabled]="!canGoPrevious()" (click)="previousPage()">
+        Previous
+      </button>
+      <span class="job-search-pagination__page">Page {{ page() }}</span>
+      <button mat-stroked-button type="button" [disabled]="!canGoNext()" (click)="nextPage()">Next</button>
+    </div>
   }
 </div>

@@ -167,6 +167,19 @@
   }
 }
 
+.job-search-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--japp-spacing-md);
+  margin-top: var(--japp-spacing-lg);
+}
+
+.job-search-pagination__page {
+  color: var(--japp-text-secondary);
+  font-size: 0.9375rem;
+}
+
 @media (max-width: 599.98px) {
   .job-search-form {
     flex-direction: column;

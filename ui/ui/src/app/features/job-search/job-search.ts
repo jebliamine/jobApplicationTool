@@ -68,12 +68,19 @@ export class JobSearch {
   private readonly state = signal<LoadState>('idle');
   private readonly _results = signal<ExternalJobListing[]>([]);
   private readonly _sources = signal<JobSearchSourceSummary[]>([]);
+  private readonly _page = signal(1);
 
   protected readonly loading = computed(() => this.state() === 'loading');
   protected readonly error = computed(() => this.state() === 'error');
   protected readonly searched = computed(() => this.state() === 'loaded' || this.state() === 'error');
   protected readonly results = this._results.asReadonly();
   protected readonly sources = this._sources.asReadonly();
+  protected readonly page = this._page.asReadonly();
+  protected readonly canGoPrevious = computed(() => this.page() > 1 && !this.loading());
+  // No total-result count comes back from the API (sources are merged/deduped), so "next" just
+  // stays enabled as long as the current page returned something — the true last page is only
+  // discovered by paging one step past it.
+  protected readonly canGoNext = computed(() => this.results().length > 0 && !this.loading());
 
   protected readonly form = new FormGroup<JobSearchForm>({
     keyword: new FormControl('', { nonNullable: true }),
@@ -84,9 +91,37 @@ export class JobSearch {
     if (this.loading()) {
       return;
     }
+    this._page.set(1);
+    this.runSearch();
+  }
+
+  protected retry(): void {
+    if (this.loading()) {
+      return;
+    }
+    this.runSearch();
+  }
+
+  protected nextPage(): void {
+    if (!this.canGoNext()) {
+      return;
+    }
+    this._page.update((current) => current + 1);
+    this.runSearch();
+  }
+
+  protected previousPage(): void {
+    if (!this.canGoPrevious()) {
+      return;
+    }
+    this._page.update((current) => current - 1);
+    this.runSearch();
+  }
+
+  private runSearch(): void {
     const { keyword, location } = this.form.getRawValue();
     this.state.set('loading');
-    this.jobSearchService.search(keyword, location).subscribe({
+    this.jobSearchService.search(keyword, location, this.page()).subscribe({
       next: (response) => {
         this._results.set(response.results);
         this._sources.set(response.sources);

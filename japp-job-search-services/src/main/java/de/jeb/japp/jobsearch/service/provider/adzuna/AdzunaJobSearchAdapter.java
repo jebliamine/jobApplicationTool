@@ -26,23 +26,25 @@ public class AdzunaJobSearchAdapter implements ExternalJobSearchAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(AdzunaJobSearchAdapter.class);
     private static final String BASE_URL = "https://api.adzuna.com/v1/api/jobs";
-    private static final int RESULTS_PER_PAGE = 20;
 
     private final RestClient restClient;
     private final String appId;
     private final String appKey;
     private final String country;
+    private final int resultsPerPage;
 
     public AdzunaJobSearchAdapter(
             RestClient restClient,
             @Value("${job-search.adzuna.app-id:}") String appId,
             @Value("${job-search.adzuna.app-key:}") String appKey,
-            @Value("${job-search.adzuna.country:de}") String country
+            @Value("${job-search.adzuna.country:de}") String country,
+            @Value("${job-search.adzuna.results-per-page:20}") int resultsPerPage
     ) {
         this.restClient = restClient;
         this.appId = appId;
         this.appKey = appKey;
         this.country = country;
+        this.resultsPerPage = resultsPerPage;
     }
 
     @Override
@@ -66,7 +68,7 @@ public class AdzunaJobSearchAdapter implements ExternalJobSearchAdapter {
                     .fromUriString(BASE_URL + "/{country}/search/{page}")
                     .queryParam("app_id", appId)
                     .queryParam("app_key", appKey)
-                    .queryParam("results_per_page", RESULTS_PER_PAGE)
+                    .queryParam("results_per_page", resultsPerPage)
                     .queryParamIfPresent("what", Optional.ofNullable(blankToNull(keyword)))
                     .queryParamIfPresent("where", Optional.ofNullable(blankToNull(location)))
                     .buildAndExpand(country, Math.max(page, 1))

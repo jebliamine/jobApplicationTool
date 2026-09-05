@@ -39,9 +39,10 @@ class JobSearchAdapterConfig {
             RestClient jobSearchAdapterRestClient,
             @Value("${job-search.adzuna.app-id:}") String appId,
             @Value("${job-search.adzuna.app-key:}") String appKey,
-            @Value("${job-search.adzuna.country:de}") String country
+            @Value("${job-search.adzuna.country:de}") String country,
+            @Value("${job-search.adzuna.results-per-page:20}") int resultsPerPage
     ) {
-        return new AdzunaJobSearchAdapter(jobSearchAdapterRestClient, appId, appKey, country);
+        return new AdzunaJobSearchAdapter(jobSearchAdapterRestClient, appId, appKey, country, resultsPerPage);
     }
 
     @Bean

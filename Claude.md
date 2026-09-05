@@ -29,7 +29,7 @@ Do not immediately start changing files based only on the user's description. Fo
 
 ## 3. Backend Module Structure
 
-The backend is 13 Maven modules at the repo root (siblings, not nested under a `backend/` folder):
+The backend is 18 Maven modules at the repo root (siblings, not nested under a `backend/` folder) — verify against the root `pom.xml` `<modules>` list before trusting this table, since it has drifted before:
 
 | Module | Responsibility |
 |---|---|
@@ -40,10 +40,14 @@ The backend is 13 Maven modules at the repo root (siblings, not nested under a `
 | `japp-file-storage` | Local filesystem file storage (`FileStorageServiceInterface` / `LocalFileStorageService`). Storage dir: `storage/`. Expected to change in a future phase — do not introduce cloud/object storage unless explicitly requested. |
 | `japp-user-Service` | User business logic. |
 | `japp-job-service` | Job and Company business logic. |
+| `japp-tag-service` | Per-user tag taxonomy, applicable to both jobs and applications (two join tables, `V8__tags.sql`). |
+| `japp-reminder-service` | Persists which derived reminder (user, application, kind, due date) has been dismissed/snoozed. Reminders themselves stay computed from `Application`'s own deadline/follow-up/interview-stage fields — this module has no reminder table of its own, only dismissal state (`V9__reminder_dismissals.sql`). |
+| `japp-search-service` | Cross-entity search over the caller's **own** tracked jobs/companies/applications/cover letters. Distinct from `japp-job-search-services` below. |
 | `japp-application-services` | Application-tracking business logic. |
 | `japp-cv-parser` | CV parsing/extraction (PDF, DOCX, DOC, OCR via Tika) and CV-profile extraction orchestration. Keep CV parsing concerns isolated from unrelated application logic. |
 | `japp-ai-provider-services` | Admin-managed AI provider configuration: `ProviderSettingsResolver`, credential encryption, connection testing, catalog. Has **no knowledge** of cover-letter/generation concepts. |
-| `japp-generation-services` | Cover-letter and CV-profile generation orchestration: adapter registries, prompt builders, response parsers, `GenerationRequestService`. Depends on `japp-ai-provider-services`, never the reverse. |
+| `japp-generation-services` | Cover-letter generation, CV-profile extraction, and job-posting extraction (paste-to-import) orchestration: adapter registries, prompt builders, response parsers, `GenerationRequestService`. Depends on `japp-ai-provider-services`, never the reverse. |
+| `japp-job-search-services` | Live external job search: fans a query out in parallel to Adzuna/Jooble/JSearch adapters, merges and de-dupes results. Nothing is persisted — results are only saved once the user picks "Save to my jobs," which reuses the existing `POST /api/v1/jobs` create flow. A source with no credentials configured just contributes zero results rather than failing the search (`AI_CREDENTIALS_ENCRYPTION_KEY`-style graceful-degradation convention). Depends only on `japp-model` + `japp-commons` — same leaf-ish shape as `japp-ai-provider-services`. |
 | `japp-dashboard-services` | Aggregates user/job/application/cv-parser/generation services for dashboard views. |
 | `japp-rest` | REST controllers, `/api/v1/**`. Delegates to the service modules above; contains **no** business logic itself. |
 | `japp-core` | Application bootstrap only: `JappApplication` (`@SpringBootApplication` main class), `spring-boot-maven-plugin`, `AdminSeeder`, `application.yml`, and all Flyway migrations (`src/main/resources/db/migration`). This is **not** a business-logic module — it's the runnable shell on top of `japp-rest`. |
@@ -61,14 +65,18 @@ japp-security-Service             → model, dao
 japp-file-storage                 → model
 japp-user-Service                 → model, dao, commons
 japp-job-service                  → model, dao, commons
+japp-tag-service                  → model, dao, commons
+japp-reminder-service             → model, dao, commons
+japp-search-service                → model, dao, commons
 japp-application-services         → model, dao, commons
 japp-ai-provider-services         → model, dao, commons
 japp-cv-parser                    → model, dao, security-Service, file-storage, commons
 japp-generation-services          → model, dao, commons, ai-provider-services
+japp-job-search-services          → model, commons
 japp-dashboard-services           → model, user-Service, job-service, application-services, cv-parser, generation-services
-japp-rest                         → model, dao, commons, security-Service, user-Service, job-service,
-                                     application-services, cv-parser, generation-services,
-                                     dashboard-services, ai-provider-services
+japp-rest                         → model, dao, commons, security-Service, user-Service, job-service, tag-service,
+                                     reminder-service, search-service, application-services, cv-parser,
+                                     generation-services, dashboard-services, ai-provider-services, job-search-services
 japp-core                         → security-Service, rest   (+ jpa, postgresql, flyway; owns spring-boot-maven-plugin)
 ```
 
@@ -87,7 +95,8 @@ This is a core part of the system and easy to get wrong by guessing — always i
 - **Provider model**: AI providers are **admin-managed instances**, not a closed enum. Multiple instances can share one `AdapterType` (e.g. several OpenAI-compatible endpoints). Stored in the `ai_provider_configuration` table (`AiProviderConfiguration` entity in `japp-model`). This model replaced an older hardcoded enum approach (Flyway `V4__dynamic_ai_provider_instances.sql`) — treat any documentation or comment describing a fixed `PLACEHOLDER`/`GEMINI` enum as **outdated** (this includes `docs/generation-providers.md`, which has not been updated since that migration and should not be trusted as current).
 - **`ProviderSettingsResolver`** (`japp-ai-provider-services`) resolves the effective config for a provider instance at generation-call time (never at startup), backed by a DB lookup with a 30s in-memory cache, invalidated on admin writes.
 - **Credential encryption**: `SpringSecurityAiCredentialEncryptor` uses Spring Security Crypto (`Encryptors.text`), keyed by env var `AI_CREDENTIALS_ENCRYPTION_KEY`. The key is never persisted to the database and never logged. If unset, encryption/decryption throws but the app still starts (only providers needing credentials fail).
-- **Adapter registry pattern**: `CoverLetterGenerationAdapterRegistry` and `CvProfileExtractionAdapterRegistry` (`japp-generation-services`) auto-collect Spring beans implementing the adapter interfaces, keyed by `AdapterType`. Adding a new provider wire protocol means adding a new adapter bean, not touching registry code. Current adapters: Gemini, OpenAI-compatible, Anthropic Messages, and a built-in Placeholder (no external call, deterministic) for each of generation and CV-profile extraction.
+- **Adapter registry pattern**: `CoverLetterGenerationAdapterRegistry`, `CvProfileExtractionAdapterRegistry`, and `JobExtractionAdapterRegistry` (all in `japp-generation-services`, adapter classes grouped under `service/provider/{cv,job}/...`) auto-collect Spring beans implementing the adapter interfaces, keyed by `AdapterType`. Adding a new provider wire protocol means adding a new adapter bean, not touching registry code. Current adapters: Gemini, OpenAI-compatible, Anthropic Messages, and a built-in Placeholder (no external call, deterministic) for each of cover-letter generation, CV-profile extraction, and job-posting extraction (`JobExtractionService`, backing `POST /api/v1/jobs/extract` — the paste-to-import feature on the job form).
+- **Live external job search is a separate, unrelated concept**: `japp-job-search-services`' Adzuna/Jooble/JSearch adapters (behind `ExternalJobSearchAdapter`, `GET /api/v1/job-search`) search public job-posting APIs and never call an AI provider — don't confuse them with the AI extraction adapters above, and don't route them through `ProviderSettingsResolver`/`GenerationRequestService`.
 - **Generation request persistence**: every generation call is persisted via `GenerationRequest` (entity + DAO + repository), with status `PENDING → IN_PROGRESS → COMPLETED/FAILED`, job/CV snapshots, resolved provider instance, and error message. Do not add a code path that calls a provider adapter without going through `GenerationRequestService` and this persistence.
 - **No providerId on a request** falls back to the built-in Placeholder instance — this is intentional, not a bug to "fix" by requiring a providerId.
 - Never log or return provider API keys/credentials in any response, error message, or log statement. Never hardcode a provider API key.
@@ -97,7 +106,7 @@ This is a core part of the system and easy to get wrong by guessing — always i
 
 Base path: `/api/v1/**`. Confirmed current controllers:
 
-`AuthController` (`/auth`), `UserController` (`/users`), `AdminUserController` (`/admin/users`), `CompanyController` (`/companies`), `JobController` (`/jobs`), `ApplicationController` (`/applications`), `CvController` (`/cv`), `CoverLetterController` (`/cover-letters`), `GenerationRequestController` (`/generation-requests`), `DashboardController` (`/dashboard`), `AiProviderController` (`/ai/providers`), `AdminAiProviderController` (`/admin/ai/providers`).
+`AuthController` (`/auth`), `UserController` (`/users`), `AdminUserController` (`/admin/users`), `CompanyController` (`/companies`), `JobController` (`/jobs`), `ApplicationController` (`/applications`), `CvController` (`/cv`), `CoverLetterController` (`/cover-letters`), `GenerationRequestController` (`/generation-requests`), `DashboardController` (`/dashboard`), `AiProviderController` (`/ai/providers`), `AdminAiProviderController` (`/admin/ai/providers`), `TagController` (`/tags`), `ReminderController` (`/reminders`), `SearchController` (`/search` — searches the caller's own tracked jobs/companies/applications/cover letters), `JobSearchController` (`/job-search` — live external listings, see §5).
 
 Controllers should delegate business logic to appropriate services; do not place substantial business logic directly inside a controller.
 
@@ -118,14 +127,14 @@ When modifying a DTO: find all backend usages, find all frontend usages, check s
 
 ## 8. Exception Handling
 
-Exception handling is **per-feature scoped**, not global. Each feature area has its own `@RestControllerAdvice`-style handler in `japp-rest` (e.g. `JobsExceptionHandler`, `CoverLetterExceptionHandler`, `ApplicationExceptionHandler`, `AdminAiProviderExceptionHandler`, `UserProfileExceptionHandler`, `GenerationRequestExceptionHandler`, `CvExceptionHandler`, `AdminUserExceptionHandler`). There is no global/root exception handler. When adding a new domain's error handling, follow this per-feature pattern rather than introducing a global handler, and don't introduce a second incompatible error-handling mechanism.
+Exception handling is **per-feature scoped**, not global. Each feature area has its own `@RestControllerAdvice`-style handler in `japp-rest` (e.g. `JobsExceptionHandler`, `CoverLetterExceptionHandler`, `ApplicationExceptionHandler`, `AdminAiProviderExceptionHandler`, `UserProfileExceptionHandler`, `GenerationRequestExceptionHandler`, `CvExceptionHandler`, `AdminUserExceptionHandler`, `AuthExceptionHandler`, `TagExceptionHandler`, `ReminderExceptionHandler`). `SearchController` and `JobSearchController` currently have no dedicated handler — neither throws a domain exception today. There is no global/root exception handler. When adding a new domain's error handling, follow this per-feature pattern rather than introducing a global handler, and don't introduce a second incompatible error-handling mechanism.
 
 Domain exceptions live in `japp-commons` (`de.jeb.japp.commons.exceptions.<domain>`).
 
 ## 9. Database
 
 - PostgreSQL, schema owned by **Flyway**. `spring.jpa.hibernate.ddl-auto: validate` — Hibernate will refuse to start if the schema doesn't match entities. Never rely on Hibernate auto-DDL for a schema change; never manually modify the schema as a replacement for a migration.
-- Migrations live in `japp-core/src/main/resources/db/migration/`, naming convention `V<n>__snake_case_description.sql`. Current migrations: `V1__baseline`, `V2__add_application_tracking_and_job_salary`, `V3__add_cv_extraction_fields`, `V4__dynamic_ai_provider_instances`, `V5__cv_profile_generation`, `V6__user_management`.
+- Migrations live in `japp-core/src/main/resources/db/migration/`, naming convention `V<n>__snake_case_description.sql`. Current migrations (verify against the directory before trusting this list — it has drifted before): `V1__baseline`, `V2__add_application_tracking_and_job_salary`, `V3__add_cv_extraction_fields`, `V4__dynamic_ai_provider_instances`, `V5__cv_profile_generation`, `V6__user_management`, `V7__cv_profile_skills_and_languages`, `V8__tags`, `V9__reminder_dismissals`, `V10__interview_stages` (replaces `application.interview_date` with a multi-round `interview_stage` table), `V11__password_reset_and_email_verification`, `V12__user_avatar`.
 - Before creating a migration: inspect existing migrations, inspect current entities, inspect DAO usage, determine whether the change is actually required. Never modify an already-applied migration unless explicitly requested.
 - **Database safety**: never perform destructive operations (DROP DATABASE, DROP TABLE, TRUNCATE, destructive DELETE/UPDATE) against a real database unless explicitly requested. Prefer read-only inspection first when using database tools.
 - Local Postgres is a native install (not Dockerized — there is no Dockerfile/docker-compose anywhere in this repo). Default connection: `localhost:5432/japp`, overridable via `DB_URL`/`DB_USERNAME`/`DB_PASSWORD`.

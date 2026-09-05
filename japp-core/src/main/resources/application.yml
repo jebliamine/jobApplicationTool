@@ -67,6 +67,7 @@ job-search:
     app-id: ${ADZUNA_APP_ID:}
     app-key: ${ADZUNA_APP_KEY:}
     country: ${ADZUNA_COUNTRY:de}
+    results-per-page: ${ADZUNA_RESULTS_PER_PAGE:20}
   jooble:
     api-key: ${JOOBLE_API_KEY:}
   jsearch:
