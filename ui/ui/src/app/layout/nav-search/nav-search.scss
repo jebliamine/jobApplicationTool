@@ -7,6 +7,20 @@
   align-items: center;
 }
 
+// `inset: 0` anchors to the nearest positioned ancestor — `.user-nav__bar`
+// itself (this host is `display: contents`, so the DOM parent is whatever
+// actually holds this template's elements). Its radius is read back via
+// the `--user-nav-bar-radius` custom property that bar publishes rather
+// than plain `border-radius: inherit`: custom properties inherit through
+// any number of descendants including a `display: contents` host, but
+// `border-radius` itself isn't a natively-inherited property, so
+// `inherit` only reaches this element's one *direct* DOM parent — which,
+// through that same `display: contents` host, is `<app-nav-search>`
+// itself (unstyled), not the bar two levels up. Falls back to `0` for any
+// other (non-`user-nav`) consumer, where the variable is simply unset.
+// `.nav-search--overlay-glass` (below) is the one piece that can't ride
+// this same mechanism — a background/blur pairing, not a single
+// keyword-able value — so it's opted in explicitly from the consumer.
 .nav-search--overlay {
   position: absolute;
   inset: 0;
@@ -14,7 +28,40 @@
   display: flex;
   align-items: center;
   padding-inline: var(--japp-spacing-md);
+  border-radius: var(--user-nav-bar-radius, 0);
   background: var(--japp-surface);
+  transform-origin: left center;
+  transition:
+    background-color 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    transform 260ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 200ms ease-out;
+
+  // Grows in from the mini trigger's rough position instead of just
+  // appearing — Angular's `@if`/`@else` swaps in a brand-new element on
+  // expand, so `@starting-style` (not a JS-measured FLIP) is what gives
+  // it a "from" state to transition out of.
+  @starting-style {
+    transform: scaleX(0.4);
+    opacity: 0;
+  }
+}
+
+.nav-search--overlay-glass {
+  background: color-mix(in srgb, var(--japp-surface) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-search--overlay {
+    transition: none;
+
+    @starting-style {
+      transform: none;
+      opacity: 1;
+    }
+  }
 }
 
 .nav-search__field {
@@ -44,6 +91,80 @@
 
 .nav-search--overlay .nav-search__field {
   max-width: none;
+}
+
+// The `miniBar` collapsed state (opt-in — see the component's `miniBar`
+// input doc). At rest it's styled identically to the plain icon button
+// (`.nav-search__mini-label` hidden) so a `miniBar` consumer looks the
+// same as every other `compact` consumer above the 900px breakpoint;
+// below it, it grows into a small labeled pill sitting among the other
+// icons instead of another bare icon button.
+.nav-search__mini {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--japp-spacing-xs);
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--japp-text-secondary);
+  font: inherit;
+  cursor: pointer;
+  transition:
+    background-color 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 300ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 300ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &:hover {
+    background: var(--japp-surface-container-high);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-search__mini {
+    transition: none;
+  }
+}
+
+.nav-search__mini-label {
+  display: none;
+}
+
+@media (max-width: 899.98px) {
+  .nav-search__mini {
+    flex: 1 1 auto;
+    justify-content: flex-start;
+    width: auto;
+    max-width: 180px;
+    height: 36px;
+    padding-inline: var(--japp-spacing-sm);
+    border: 1px solid var(--japp-border);
+    border-radius: var(--japp-radius-full);
+    background: var(--japp-surface-container-high);
+  }
+
+  // Matches the host navbar's own glass surface once it's scrolled (see
+  // the `glass` input doc) — without this the trigger stays a flat,
+  // opaque chip sitting on top of an otherwise blurred/translucent pill,
+  // which looks like a mismatched sticker rather than part of the same
+  // glass surface.
+  .nav-search__mini--glass {
+    border-color: color-mix(in srgb, var(--japp-border) 70%, transparent);
+    background: color-mix(in srgb, var(--japp-surface) 62%, transparent);
+    backdrop-filter: blur(16px) saturate(1.6);
+    -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  }
+
+  .nav-search__mini-label {
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+  }
 }
 
 .nav-search__result-title {

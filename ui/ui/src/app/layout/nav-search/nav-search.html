@@ -1,9 +1,26 @@
 @if (compact() && !expanded()) {
-  <button mat-icon-button type="button" [attr.aria-label]="'topbar.searchPages' | translate" (click)="expand()">
-    <svg lucideSearch [size]="20" aria-hidden="true"></svg>
-  </button>
+  @if (miniBar()) {
+    <button
+      type="button"
+      class="nav-search__mini"
+      [class.nav-search__mini--glass]="glass()"
+      [attr.aria-label]="'topbar.searchPages' | translate"
+      (click)="expand()"
+    >
+      <svg lucideSearch [size]="16" aria-hidden="true"></svg>
+      <span class="nav-search__mini-label">{{ 'topbar.searchPlaceholder' | translate }}</span>
+    </button>
+  } @else {
+    <button mat-icon-button type="button" [attr.aria-label]="'topbar.searchPages' | translate" (click)="expand()">
+      <svg lucideSearch [size]="20" aria-hidden="true"></svg>
+    </button>
+  }
 } @else {
-  <div class="nav-search" [class.nav-search--overlay]="compact() && expanded()">
+  <div
+    class="nav-search"
+    [class.nav-search--overlay]="compact() && expanded()"
+    [class.nav-search--overlay-glass]="compact() && expanded() && glass()"
+  >
     <mat-form-field appearance="outline" class="nav-search__field" subscriptSizing="dynamic">
       <svg matIconPrefix lucideSearch [size]="18" aria-hidden="true"></svg>
       <input

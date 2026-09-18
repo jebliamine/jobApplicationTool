@@ -1,23 +1,133 @@
+// `display: contents`, not `block`: a sticky element's containing block is
+// computed like a relatively-positioned one — the nearest ancestor BLOCK
+// CONTAINER, not the nearest positioned ancestor. If the host generated its
+// own box here, that box would be sized to exactly this ~64px bar (its only
+// content), leaving `.user-nav` zero room to actually stick — it would
+// scroll away immediately instead of staying pinned. `display: contents`
+// removes the host's own box so `.user-nav` (and the sentinel below) are
+// laid out as direct children of `.user-shell`, which spans the whole
+// scrollable page — same effect as the public Home page's header, which
+// avoids this because its header lives directly inside `.home` (no
+// component-boundary box in between) rather than inside a child component.
 :host {
-  display: block;
+  display: contents;
 }
 
+// 1x1px, absolutely positioned so it takes no layout space — purely a
+// scroll-position marker for the IntersectionObserver in user-nav.ts. Once
+// it scrolls out from under the bar, `scrolled` flips true. Same technique
+// as the public Home page's header.
+.user-nav__scroll-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+// Outer wrapper: at rest, a flush, edge-to-edge, full-width bar (the
+// "static position" the bar already had) — its own background/border
+// carry that look. Once scrolled, it steps back (transparent, no border,
+// a little padding) and hands the visible surface to `.user-nav__bar`
+// below, which is what actually shrinks into a floating glass pill —
+// same two-layer morph as the public Home page's header, adapted to
+// start from an opaque full-width bar instead of a hero-merged one.
+//
+// `flex-direction: column`, not `row` + `justify-content: center`: this
+// wrapper also contains `.user-nav__mobile-panel` as a second child once
+// the mobile menu opens. Row direction made the panel a flex sibling
+// squeezed beside the bar instead of stacking full-width below it.
+// Column direction stacks them top-to-bottom, and the default
+// `align-items: stretch` gives both children the full width for free —
+// `.user-nav__bar` still self-centers within that via its own
+// `margin-inline: auto` + `max-width`.
 .user-nav {
   position: sticky;
   top: 0;
   z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
   background: var(--japp-surface);
   border-bottom: 1px solid var(--japp-border);
+  transition:
+    padding 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.user-nav--scrolled {
+  padding: var(--japp-spacing-sm) var(--japp-spacing-md);
+  background: transparent;
+  border-bottom-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-nav {
+    transition: none;
+  }
 }
 
 .user-nav__bar {
+  // So the expanded mobile search overlay (absolutely positioned inside
+  // nav-search's own template) anchors here rather than falling back to
+  // `.user-nav` — this bar is what actually holds the current shrunk/
+  // glassy shape when scrolled, and the overlay needs to match it exactly.
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  padding-inline: var(--japp-spacing-lg);
+  height: var(--japp-topbar-height);
   display: flex;
   align-items: center;
   gap: var(--japp-spacing-lg);
-  height: var(--japp-topbar-height);
-  padding-inline: var(--japp-spacing-lg);
-  max-width: 1440px;
   margin-inline: auto;
+  // Also exposed as a custom property (naturally inherited down through
+  // any number of descendants, including through nav-search's own
+  // `display: contents` host — plain `border-radius: inherit` only
+  // reaches one DOM level and, empirically, does not see past a
+  // `display: contents` element for a non-natively-inherited property)
+  // so the search overlay can match this bar's current radius exactly.
+  --user-nav-bar-radius: 0;
+  border-radius: var(--user-nav-bar-radius);
+  border: 1px solid transparent;
+  background: transparent;
+  transition:
+    max-width 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    height 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    padding 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+// The actual shrink: narrower, shorter, rounded into a pill, and given
+// its own blurred glass surface now that the outer wrapper has gone
+// transparent.
+.user-nav--scrolled .user-nav__bar {
+  max-width: 1200px;
+  height: 56px;
+  --user-nav-bar-radius: var(--japp-radius-full);
+  border-radius: var(--user-nav-bar-radius);
+  border-color: color-mix(in srgb, var(--japp-border) 70%, transparent);
+  background: color-mix(in srgb, var(--japp-surface) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: var(--japp-card-inset-highlight), var(--japp-shadow-elevated);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .user-nav__bar {
+    transition: none;
+  }
+
+  .user-nav__brand,
+  .user-nav__icon-group {
+    transition: none;
+  }
 }
 
 .user-nav__brand {
@@ -27,6 +137,27 @@
   text-decoration: none;
   color: var(--japp-text-primary);
   flex: 0 0 auto;
+  // Fading back in (search closed) carries a short delay so it doesn't
+  // reappear while the overlay is still visibly clearing away; fading
+  // out (search opened, see `--search-active` below) overrides this back
+  // to no delay.
+  transition: opacity 180ms ease-out 90ms;
+}
+
+// While the mobile search overlay is open (`.user-nav__bar--search-active`,
+// set from nav-search's `(expandedChange)`), hide whatever else shares the
+// bar instead of leaving it rendered underneath the overlay's translucent/
+// blurred surface — left visible, it ghosts through the glass and reads as
+// a broken duplicate navbar rather than the actual page content showing
+// through a clean sheet of glass. The fade-out here is immediate (no
+// delay) so the bar is clear well before the overlay finishes growing
+// into it; fading back in on close carries a short delay (below) so the
+// two don't visually collide the other way.
+.user-nav__bar--search-active .user-nav__brand,
+.user-nav__bar--search-active .user-nav__icon-group {
+  opacity: 0;
+  pointer-events: none;
+  transition-delay: 0ms;
 }
 
 .user-nav__brand-mark {
@@ -86,6 +217,16 @@
   flex: 0 0 auto;
 }
 
+// Same gap as `.user-nav__actions` itself, so nesting this cluster inside
+// it is invisible on desktop — see the mobile override below for why it
+// exists at all.
+.user-nav__icon-group {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-xs);
+  transition: opacity 180ms ease-out 90ms;
+}
+
 .user-nav__menu-toggle {
   display: none;
 }
@@ -102,16 +243,37 @@
     display: none;
   }
 
+  // With the inline links gone, let the actions row claim the freed-up
+  // width and split into two ends: search stays free to sit in the
+  // middle (collapsed to just its icon button until tapped), while
+  // notification/theme/avatar/menu are grouped and forced flush right.
+  .user-nav__actions {
+    flex: 1 1 auto;
+    justify-content: space-between;
+  }
+
   .user-nav__menu-toggle {
     display: inline-flex;
   }
 
+  // Absolutely positioned (against `.user-nav`, itself sticky and so
+  // already a containing block) so the panel floats over the page instead
+  // of taking part in `.user-nav`'s own column flow — opening it must not
+  // push `<main>` down or resize the sticky bar's box.
   .user-nav__mobile-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 15;
     display: flex;
     flex-direction: column;
+    max-height: calc(100dvh - 100%);
+    overflow-y: auto;
     padding: var(--japp-spacing-sm);
     border-top: 1px solid var(--japp-border);
     background: var(--japp-surface);
+    box-shadow: var(--japp-shadow-elevated);
   }
 
   .user-nav__mobile-link {

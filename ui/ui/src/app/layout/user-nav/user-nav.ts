@@ -1,4 +1,4 @@
-import { Component, HostListener, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, effect, signal, viewChild } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -54,6 +54,35 @@ import { UserMenu } from '../user-menu/user-menu';
 export class UserNav {
   protected readonly pages: readonly AppPage[] = USER_APP_PAGES;
   protected readonly mobileMenuOpen = signal(false);
+
+  // Toggles the bar from its normal static surface into a glassy, blurred
+  // one once the page scrolls past the top — same IntersectionObserver-on-
+  // a-sentinel technique as the public Home page (see its header comment):
+  // not a scroll listener, per this app's own animation guardrail against
+  // window.addEventListener('scroll').
+  private readonly scrollSentinel = viewChild<ElementRef<HTMLElement>>('scrollSentinel');
+  protected readonly scrolled = signal(false);
+
+  // Set from nav-search's `(expandedChange)` — while the mobile search
+  // overlay is open, the brand and icon cluster are hidden (see
+  // user-nav.scss) rather than left rendered underneath the translucent/
+  // blurred overlay, where they'd ghost through it instead of the actual
+  // page content.
+  protected readonly searchExpanded = signal(false);
+
+  constructor() {
+    effect((onCleanup) => {
+      const el = this.scrollSentinel()?.nativeElement;
+      if (!el || !('IntersectionObserver' in window)) {
+        return;
+      }
+      const observer = new IntersectionObserver(([entry]) => this.scrolled.set(!entry.isIntersecting), {
+        threshold: 0,
+      });
+      observer.observe(el);
+      onCleanup(() => observer.disconnect());
+    });
+  }
 
   protected toggleMobileMenu(): void {
     this.mobileMenuOpen.update((open) => !open);

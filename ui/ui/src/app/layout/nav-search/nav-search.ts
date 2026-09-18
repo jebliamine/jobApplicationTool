@@ -1,4 +1,4 @@
-import { Component, ElementRef, computed, effect, inject, input, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, computed, effect, inject, input, output, signal, viewChild } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -51,6 +51,26 @@ export class NavSearch {
   readonly pages = input.required<readonly AppPage[]>();
   readonly compact = input(false);
   readonly contentSearch = input(false);
+  // Opt-in: while collapsed, render a small labeled pill instead of a bare
+  // icon button — UserNav's mobile layout wants a visible "mini search bar"
+  // sitting between its other icons rather than another icon-only button.
+  // Defaults false so every other `compact` consumer (AdminShell's topbar)
+  // is unaffected.
+  readonly miniBar = input(false);
+  // Opt-in: while expanded, adopt the host navbar's current scrolled/glass
+  // surface (translucent + blurred) instead of the plain opaque one — so
+  // the overlay matches whatever shape/style `.user-nav__bar` is already
+  // in (full-width at rest, or the shrunk glass pill once scrolled) rather
+  // than reverting to a flat opaque bar. Bind this to the host's own
+  // `scrolled` signal; defaults false so other consumers are unaffected.
+  readonly glass = input(false);
+
+  // Lets a `miniBar` consumer hide whatever else shares the bar (brand,
+  // other icons) while the overlay is open — otherwise those siblings
+  // stay rendered underneath the translucent/blurred overlay and ghost
+  // through it, which reads as a broken duplicate navbar rather than a
+  // clean sheet of glass over the actual page content.
+  readonly expandedChange = output<boolean>();
 
   protected readonly expanded = signal(false);
   protected readonly control = new FormControl('', { nonNullable: true });
@@ -75,6 +95,13 @@ export class NavSearch {
       if (this.expanded()) {
         this.searchInput()?.nativeElement.focus();
       }
+    });
+
+    // One effect covers every path that flips `expanded` (expand(),
+    // collapse(), and closeSearch() after navigating to a result) rather
+    // than emitting at each call site individually.
+    effect(() => {
+      this.expandedChange.emit(this.expanded());
     });
 
     toObservable(this.query)

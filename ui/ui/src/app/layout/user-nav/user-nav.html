@@ -1,5 +1,7 @@
-<header class="user-nav">
-  <div class="user-nav__bar">
+<div #scrollSentinel class="user-nav__scroll-sentinel" aria-hidden="true"></div>
+
+<header class="user-nav" [class.user-nav--scrolled]="scrolled()">
+  <div class="user-nav__bar" [class.user-nav__bar--search-active]="searchExpanded()">
     <a class="user-nav__brand" routerLink="/dashboard">
       <span class="user-nav__brand-mark" aria-hidden="true">J</span>
       <span class="user-nav__brand-name">JAPP</span>
@@ -19,25 +21,37 @@
     </nav>
 
     <div class="user-nav__actions">
-      <app-nav-search [pages]="pages" [compact]="true" [contentSearch]="true" />
-      <app-notification-bell />
-      <app-theme-toggle />
-      <app-user-menu />
+      <app-nav-search
+        [pages]="pages"
+        [compact]="true"
+        [contentSearch]="true"
+        [miniBar]="true"
+        [glass]="scrolled()"
+        (expandedChange)="searchExpanded.set($event)"
+      />
 
-      <button
-        mat-icon-button
-        type="button"
-        class="user-nav__menu-toggle"
-        [attr.aria-label]="(mobileMenuOpen() ? 'userNav.closeMenu' : 'userNav.openMenu') | translate"
-        [attr.aria-expanded]="mobileMenuOpen()"
-        (click)="toggleMobileMenu()"
-      >
-        @if (mobileMenuOpen()) {
-          <svg lucideX [size]="22" aria-hidden="true"></svg>
-        } @else {
-          <svg lucideMenu [size]="22" aria-hidden="true"></svg>
-        }
-      </button>
+      <!-- Grouped so the mobile layout can push this whole cluster to the
+           far right while the search above stays free to sit in the middle. -->
+      <div class="user-nav__icon-group">
+        <app-notification-bell />
+        <app-theme-toggle />
+        <app-user-menu />
+
+        <button
+          mat-icon-button
+          type="button"
+          class="user-nav__menu-toggle"
+          [attr.aria-label]="(mobileMenuOpen() ? 'userNav.closeMenu' : 'userNav.openMenu') | translate"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          (click)="toggleMobileMenu()"
+        >
+          @if (mobileMenuOpen()) {
+            <svg lucideX [size]="22" aria-hidden="true"></svg>
+          } @else {
+            <svg lucideMenu [size]="22" aria-hidden="true"></svg>
+          }
+        </button>
+      </div>
     </div>
   </div>
 
