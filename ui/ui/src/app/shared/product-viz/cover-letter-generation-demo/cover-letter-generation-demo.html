@@ -1,0 +1,29 @@
+<div class="cover-letter-gen-demo__stage" [class]="'is-step-' + step()">
+  <ul class="cover-letter-gen-demo__inputs">
+    @for (chip of inputChips; track chip; let i = $index) {
+      <li class="cover-letter-gen-demo__input-chip" [style.--i]="i">{{ chip }}</li>
+    }
+  </ul>
+
+  <div class="cover-letter-gen-demo__connector" aria-hidden="true">
+    <span class="cover-letter-gen-demo__connector-dot"></span>
+    <span class="cover-letter-gen-demo__connector-dot"></span>
+    <span class="cover-letter-gen-demo__connector-dot"></span>
+  </div>
+
+  <div class="cover-letter-gen-demo__letter">
+    <div class="cover-letter-gen-demo__letter-header">
+      <svg lucideMail [size]="13"></svg>
+      <span>Cover letter</span>
+      <span class="cover-letter-gen-demo__badge">
+        <svg lucideSparkles [size]="11"></svg>
+        AI generated
+      </span>
+    </div>
+    <div class="cover-letter-gen-demo__letter-body">
+      @for (width of letterLines; track $index; let i = $index) {
+        <span class="cover-letter-gen-demo__letter-line" [style.--i]="i" [style.width.%]="width"></span>
+      }
+    </div>
+  </div>
+</div>

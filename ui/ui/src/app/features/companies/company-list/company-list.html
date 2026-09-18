@@ -9,6 +9,11 @@
           Companies you're tracking jobs for.
         }
       </p>
+      @if (!loading() && !error() && companies().length > 0) {
+        <span class="company-list-page__count">
+          {{ companies().length }} compan{{ companies().length === 1 ? 'y' : 'ies' }} tracked
+        </span>
+      }
     </div>
     <a mat-flat-button color="primary" routerLink="/companies/new" class="company-list-page__add-button">
       <svg lucidePlus [size]="16" aria-hidden="true"></svg>
@@ -107,13 +112,17 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns(); let i = index"
+              [style.--japp-list-index]="i"
+            ></tr>
           </table>
         </div>
 
         <ul class="company-list__cards">
-          @for (company of companies(); track company.id) {
-            <li class="company-list__card">
+          @for (company of companies(); track company.id; let i = $index) {
+            <li class="company-list__card" [style.--japp-list-index]="i">
               <div class="company-list__card-header">
                 <svg lucideBuilding2 [size]="18" aria-hidden="true"></svg>
                 <span class="company-list__card-title">{{ company.name }}</span>

@@ -1,0 +1,120 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.workflow-spine__track {
+  position: relative;
+  max-width: 560px;
+  margin-inline: auto;
+}
+
+.workflow-spine__rail,
+.workflow-spine__rail-fill {
+  position: absolute;
+  top: 20px;
+  left: 19px;
+  width: 2px;
+  bottom: 20px;
+}
+
+.workflow-spine__rail {
+  background: var(--japp-border);
+}
+
+.workflow-spine__rail-fill {
+  bottom: auto;
+  background: var(--japp-color-primary);
+  transition: height 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.workflow-spine__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-xl);
+}
+
+.workflow-spine__item {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--japp-spacing-md);
+}
+
+.workflow-spine__marker {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--japp-surface);
+  border: 1px solid var(--japp-border);
+  color: var(--japp-text-secondary);
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    color 300ms ease,
+    transform 300ms ease;
+}
+
+.workflow-spine__marker.is-reached {
+  background: color-mix(in srgb, var(--japp-color-primary) 14%, var(--japp-surface));
+  border-color: var(--japp-color-primary);
+  color: var(--japp-color-primary);
+}
+
+.workflow-spine__item.is-current .workflow-spine__marker {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--japp-color-primary) 16%, transparent);
+}
+
+.workflow-spine__content {
+  padding-top: 6px;
+  max-width: 400px;
+}
+
+.workflow-spine__number {
+  display: block;
+  font-family: var(--japp-font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--japp-text-secondary);
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.workflow-spine__label {
+  margin: 0 0 6px;
+  font-family: var(--japp-font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--japp-text-primary);
+  transition: color 300ms ease;
+}
+
+.workflow-spine__item.is-current .workflow-spine__label {
+  color: var(--japp-color-primary);
+}
+
+.workflow-spine__description {
+  margin: 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--japp-text-secondary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .workflow-spine__rail-fill,
+  .workflow-spine__marker,
+  .workflow-spine__label {
+    transition: none;
+  }
+}

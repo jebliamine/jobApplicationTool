@@ -113,13 +113,17 @@
           </ng-container>
 
           <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns(); let i = index"
+            [style.--japp-list-index]="i"
+          ></tr>
         </table>
       </div>
 
       <ul class="cv-list__cards">
-        @for (cv of cvs(); track cv.id) {
-          <li class="cv-list__card">
+        @for (cv of cvs(); track cv.id; let i = $index) {
+          <li class="cv-list__card" [style.--japp-list-index]="i">
             <div class="cv-list__card-header">
               <svg lucideFileText [size]="18" aria-hidden="true"></svg>
               <span class="cv-list__card-title">{{ cv.title }}</span>

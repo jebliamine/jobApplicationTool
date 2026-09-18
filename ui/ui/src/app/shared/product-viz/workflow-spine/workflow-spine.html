@@ -1,0 +1,37 @@
+<div class="workflow-spine__track">
+  <div class="workflow-spine__rail"></div>
+  <div class="workflow-spine__rail-fill" [style.height.%]="fillPercent()"></div>
+
+  <ol class="workflow-spine__list">
+    @for (stage of stages(); track stage.key; let i = $index) {
+      <li
+        class="workflow-spine__item"
+        appScrollStage
+        (activeChange)="onStageActive(i, $event)"
+        [class.is-current]="activeIndex() === i"
+      >
+        <span class="workflow-spine__marker" [class.is-reached]="activeIndex() >= i">
+          @switch (stage.key) {
+            @case ('discover') {
+              <svg lucideSearch [size]="16"></svg>
+            }
+            @case ('prepare') {
+              <svg lucideSparkles [size]="16"></svg>
+            }
+            @case ('apply') {
+              <svg lucideMail [size]="16"></svg>
+            }
+            @case ('track') {
+              <svg lucideClipboardList [size]="16"></svg>
+            }
+          }
+        </span>
+        <div class="workflow-spine__content">
+          <span class="workflow-spine__number">0{{ i + 1 }}</span>
+          <h3 class="workflow-spine__label">{{ stage.label }}</h3>
+          <p class="workflow-spine__description">{{ stage.description }}</p>
+        </div>
+      </li>
+    }
+  </ol>
+</div>

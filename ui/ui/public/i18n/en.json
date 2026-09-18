@@ -240,6 +240,124 @@
       }
     }
   },
+  "home": {
+    "nav": {
+      "accountNav": "Account",
+      "discover": "Discover",
+      "prepare": "Prepare",
+      "apply": "Apply",
+      "track": "Track",
+      "login": "Log In",
+      "getStarted": "Get Started"
+    },
+    "hero": {
+      "eyebrow": "Live product preview",
+      "title": "From search to offer, in one place.",
+      "subtitle": "JAPP connects live job search, CV intelligence, AI-generated cover letters, and application tracking into a single workspace — so nothing about your job search falls through the cracks.",
+      "primaryCta": "Get Started",
+      "secondaryCta": "Log In",
+      "trust": {
+        "auth": "JWT-secured accounts",
+        "encryption": "Encrypted AI credentials",
+        "stack": "Self-hosted, open stack"
+      }
+    },
+    "valueProps": {
+      "title": "Built around how a job search actually works.",
+      "subtitle": "Four moments, one connected workspace.",
+      "discover": {
+        "title": "Discover",
+        "description": "Search live listings across multiple sources and save the roles worth pursuing."
+      },
+      "prepare": {
+        "title": "Prepare",
+        "description": "See exactly what a role needs against what your CV already shows."
+      },
+      "apply": {
+        "title": "Apply",
+        "description": "Generate a cover letter that actually references the job, not a template."
+      },
+      "track": {
+        "title": "Track",
+        "description": "Follow every application from applied to offer, without a spreadsheet."
+      }
+    },
+    "workflow": {
+      "title": "How it works",
+      "subtitle": "The same four steps, every time — from your first search to your next offer.",
+      "stages": {
+        "discover": {
+          "label": "Discover",
+          "description": "Search live listings and save the roles worth pursuing."
+        },
+        "prepare": {
+          "label": "Prepare",
+          "description": "Extract skills from your CV and requirements from the posting."
+        },
+        "apply": {
+          "label": "Apply",
+          "description": "Generate a cover letter tailored to both, in your voice."
+        },
+        "track": {
+          "label": "Track",
+          "description": "Follow every application from applied through to offer."
+        }
+      }
+    },
+    "sections": {
+      "discover": {
+        "eyebrow": "01 — Discover",
+        "title": "Search once, see everything.",
+        "description": "JAPP searches multiple live job boards in parallel and merges the results, so you're not tab-switching between five different sites. Save what's worth a closer look — the details carry over automatically."
+      },
+      "prepare": {
+        "eyebrow": "02 — Prepare",
+        "title": "Know exactly where you stand.",
+        "description": "JAPP reads your CV and the job description side by side, surfacing the skills you already have and the requirements you're missing — before you spend an hour writing an application."
+      },
+      "apply": {
+        "eyebrow": "03 — Apply",
+        "title": "A cover letter that actually fits.",
+        "description": "Generate a cover letter grounded in your real CV and the actual job description — using Gemini, an OpenAI-compatible endpoint, Anthropic's Claude, or a built-in offline mode."
+      },
+      "track": {
+        "eyebrow": "04 — Track",
+        "title": "Never lose track of an application again.",
+        "description": "Move every application through Applied, Phone Screen, Interviewing, and Offer on a real board — not a spreadsheet you forget to update."
+      }
+    },
+    "trust": {
+      "title": "Built to be trusted with your job search",
+      "items": {
+        "auth": "JWT-secured accounts",
+        "encryption": "Encrypted AI credentials",
+        "stack": "Self-hosted, open stack",
+        "providers": "Bring your own AI provider — Gemini, OpenAI-compatible, Anthropic, or the built-in offline mode"
+      }
+    },
+    "closingCta": {
+      "title": "Ready to organize your job search?",
+      "subtitle": "Create your free account and add your first job in minutes.",
+      "cta": "Get Started"
+    },
+    "footer": {
+      "badge": "Beta",
+      "tagline": "A workspace for the entire job search, from first search to signed offer.",
+      "copyright": "© {{year}} JAPP",
+      "product": {
+        "title": "Product",
+        "discover": "Discover",
+        "prepare": "Prepare",
+        "apply": "Apply",
+        "track": "Track"
+      },
+      "account": {
+        "title": "Account",
+        "login": "Log In",
+        "getStarted": "Get Started"
+      }
+    }
+  },
   "dashboard": {
     "greeting": "Welcome back, {{name}}",
     "subtitle": "Here's what's happening with your job search.",

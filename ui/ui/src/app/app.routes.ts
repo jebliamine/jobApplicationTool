@@ -5,10 +5,15 @@ import { AdminShell } from './layout/admin-shell/admin-shell';
 import { UserShell } from './layout/user-shell/user-shell';
 
 export const routes: Routes = [
+  // REDESIGN IN PROGRESS — '' now serves the new `home` page directly (early
+  // cutover, ahead of the original Phase 7 schedule, at the user's request
+  // so real progress is visible at the actual URL rather than only on a
+  // preview route). PublicLanding is kept in the tree, unrouted, in case of
+  // rollback — remove it once the new page is confirmed good.
   {
     path: '',
     pathMatch: 'full',
-    loadComponent: () => import('./features/public-landing/public-landing').then((m) => m.PublicLanding),
+    loadComponent: () => import('./features/home/home').then((m) => m.Home),
     canActivate: [publicGuard],
   },
   {

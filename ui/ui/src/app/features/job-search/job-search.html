@@ -62,9 +62,12 @@
       <p>Search above to pull in live postings from every connected source.</p>
     </div>
   } @else {
+    <p class="job-search-results-count">
+      {{ results().length }} result{{ results().length === 1 ? '' : 's' }} on this page
+    </p>
     <ul class="job-search-results">
-      @for (listing of results(); track trackListing($index, listing)) {
-        <li class="job-search-result">
+      @for (listing of results(); track trackListing($index, listing); let i = $index) {
+        <li class="job-search-result" [style.--japp-list-index]="i">
           <div class="job-search-result__header">
             <h3 class="job-search-result__title">{{ listing.title }}</h3>
             <span class="job-search-result__source">{{ formatSource(listing.source) }}</span>

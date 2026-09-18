@@ -1,0 +1,31 @@
+<div class="app-lifecycle-demo__stage">
+  <ul class="app-lifecycle-demo__headers">
+    @for (stage of stages; track stage.label; let i = $index) {
+      <li class="app-lifecycle-demo__header" [class.is-active]="step() === i">{{ stage.label }}</li>
+    }
+  </ul>
+
+  <div class="app-lifecycle-demo__lane">
+    <div class="app-lifecycle-demo__rail"></div>
+    <div class="app-lifecycle-demo__card" [style.--step]="step()">
+      <span class="app-lifecycle-demo__card-line app-lifecycle-demo__card-line--title"></span>
+      <span class="app-lifecycle-demo__card-line app-lifecycle-demo__card-line--subtitle"></span>
+      <span class="app-lifecycle-demo__card-icon">
+        @switch (step()) {
+          @case (0) {
+            <svg lucideSend [size]="12"></svg>
+          }
+          @case (1) {
+            <svg lucideMessageCircle [size]="12"></svg>
+          }
+          @case (2) {
+            <svg lucideUsers [size]="12"></svg>
+          }
+          @case (3) {
+            <svg lucideCheck [size]="12"></svg>
+          }
+        }
+      </span>
+    </div>
+  </div>
+</div>

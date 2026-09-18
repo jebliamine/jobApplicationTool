@@ -70,8 +70,8 @@
           <p>No skills found.</p>
         } @else {
           <ul class="cv-profile-dialog__skills">
-            @for (skill of profile.skills; track skill.id) {
-              <li class="cv-profile-dialog__skill">{{ skill.name }}</li>
+            @for (skill of profile.skills; track skill.id; let i = $index) {
+              <li class="cv-profile-dialog__skill" [style.--japp-list-index]="i">{{ skill.name }}</li>
             }
           </ul>
         }

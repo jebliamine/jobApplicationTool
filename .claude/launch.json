@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "japp-ui",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "start", "--prefix", "ui/ui"],
+      "port": 4200
+    }
+  ]
+}

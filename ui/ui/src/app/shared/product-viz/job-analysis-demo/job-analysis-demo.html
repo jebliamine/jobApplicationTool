@@ -1,0 +1,32 @@
+<div class="job-analysis-demo__stage" [class]="'is-step-' + step()">
+  <div class="job-analysis-demo__doc">
+    <div class="job-analysis-demo__doc-label">
+      <svg lucideFileText [size]="11"></svg>
+      <span>Job description</span>
+    </div>
+    <p class="job-analysis-demo__paragraph">
+      <span class="job-analysis-demo__word job-analysis-demo__word--wide"></span>
+      <span class="job-analysis-demo__word"></span>
+      <span class="job-analysis-demo__phrase">5+ years experience</span>
+      <span class="job-analysis-demo__word job-analysis-demo__word--wide"></span>
+      <span class="job-analysis-demo__word job-analysis-demo__word--short"></span>
+      <span class="job-analysis-demo__phrase">TypeScript</span>
+      <span class="job-analysis-demo__word"></span>
+      <span class="job-analysis-demo__word job-analysis-demo__word--wide"></span>
+      <span class="job-analysis-demo__phrase">remote-friendly</span>
+      <span class="job-analysis-demo__word job-analysis-demo__word--short"></span>
+    </p>
+  </div>
+
+  <div class="job-analysis-demo__tray">
+    <span class="job-analysis-demo__tray-label">
+      <svg lucideClipboardList [size]="12"></svg>
+      Requirements found
+    </span>
+    <ul class="job-analysis-demo__tags">
+      @for (requirement of requirements; track requirement; let i = $index) {
+        <li class="job-analysis-demo__tag" [style.--i]="i">{{ requirement }}</li>
+      }
+    </ul>
+  </div>
+</div>

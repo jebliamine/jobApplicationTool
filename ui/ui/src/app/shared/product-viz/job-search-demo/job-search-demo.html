@@ -1,0 +1,31 @@
+<div class="job-search-demo__panel" [class]="'is-step-' + step()">
+  <div class="job-search-demo__bar">
+    <svg lucideSearch [size]="14"></svg>
+    <span class="job-search-demo__query">{{ query.slice(0, typedLength()) }}<span class="job-search-demo__caret"></span></span>
+  </div>
+
+  <ul class="job-search-demo__results">
+    @for (result of results; track result.title; let i = $index) {
+      <li class="job-search-demo__result" [class.is-selected]="step() === 3 && i === 0" [style.--i]="i">
+        <span class="job-search-demo__result-icon">
+          <svg lucideBriefcase [size]="13"></svg>
+        </span>
+        <span class="job-search-demo__result-body">
+          <span class="job-search-demo__result-title">{{ result.title }}</span>
+          <span class="job-search-demo__result-meta">
+            {{ result.company }}
+            <span class="job-search-demo__result-dot" aria-hidden="true"></span>
+            <svg lucideMapPin [size]="11"></svg>
+            {{ result.location }}
+          </span>
+        </span>
+        @if (step() === 3 && i === 0) {
+          <span class="job-search-demo__saved">
+            <svg lucideCheck [size]="12"></svg>
+            Saved
+          </span>
+        }
+      </li>
+    }
+  </ul>
+</div>

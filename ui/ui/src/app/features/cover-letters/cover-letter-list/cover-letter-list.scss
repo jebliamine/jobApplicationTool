@@ -23,6 +23,14 @@
   color: var(--japp-text-secondary);
 }
 
+.cover-letter-list-page__count {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--japp-font-mono);
+  font-size: 0.75rem;
+  color: var(--japp-color-primary);
+}
+
 .cover-letter-list-page__add-button {
   flex: none;
 
@@ -91,6 +99,40 @@
     color: var(--japp-text-secondary);
     font-weight: 600;
   }
+
+  // Without this, the action icon-buttons wrap onto a second line whenever
+  // the column is a little tight instead of staying aligned on one row.
+  td.mat-mdc-cell:has(button) {
+    white-space: nowrap;
+  }
+
+  tr.mat-mdc-row {
+    transition: background-color var(--japp-transition-fast);
+    animation: japp-list-item-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation-delay: calc(var(--japp-list-index, 0) * 35ms);
+
+    &:hover {
+      background: color-mix(in srgb, var(--japp-color-primary) 5%, transparent);
+    }
+  }
+}
+
+@keyframes japp-list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-letter-list__table tr.mat-mdc-row,
+  .cover-letter-list__card {
+    animation: none;
+  }
 }
 
 .cover-letter-list__owner {
@@ -121,6 +163,16 @@
   padding: var(--japp-spacing-md);
   border: 1px solid var(--japp-border);
   border-radius: var(--japp-radius-md);
+  transition:
+    border-color var(--japp-transition-base),
+    box-shadow var(--japp-transition-base);
+  animation: japp-list-item-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--japp-list-index, 0) * 35ms);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--japp-color-primary) 40%, var(--japp-border));
+    box-shadow: var(--japp-shadow-sm);
+  }
 }
 
 .cover-letter-list__card-header {

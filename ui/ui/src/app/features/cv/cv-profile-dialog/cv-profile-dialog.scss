@@ -85,6 +85,11 @@
   padding: var(--japp-spacing-sm) var(--japp-spacing-md);
   border: 1px solid var(--japp-border);
   border-radius: var(--japp-radius-md);
+  transition: border-color var(--japp-transition-base);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--japp-color-primary) 35%, var(--japp-border));
+  }
 
   p {
     margin: 4px 0 0;
@@ -118,9 +123,30 @@
 .cv-profile-dialog__skill {
   padding: 3px 10px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--japp-text-primary) 6%, var(--japp-surface));
-  border: 1px solid var(--japp-border);
+  background: color-mix(in srgb, var(--japp-color-accent) 14%, var(--japp-surface));
+  border: 1px solid color-mix(in srgb, var(--japp-color-accent) 30%, transparent);
+  color: var(--japp-color-accent);
+  font-weight: 600;
   font-size: 0.8125rem;
+  opacity: 0;
+  transform: translateY(4px) scale(0.94);
+  animation: japp-chip-in 260ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--japp-list-index, 0) * 60ms);
+}
+
+@keyframes japp-chip-in {
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cv-profile-dialog__skill {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .cv-profile-dialog__languages {

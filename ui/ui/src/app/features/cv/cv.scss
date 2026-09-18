@@ -19,3 +19,11 @@
   margin: 0;
   color: var(--japp-text-secondary);
 }
+
+.cv-page__count {
+  display: inline-block;
+  margin-top: 4px;
+  font-family: var(--japp-font-mono);
+  font-size: 0.75rem;
+  color: var(--japp-color-primary);
+}

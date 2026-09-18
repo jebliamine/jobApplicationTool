@@ -107,14 +107,53 @@
   border: 1px solid var(--japp-border);
   border-radius: var(--japp-radius-md);
   background: var(--japp-surface);
+  box-shadow: var(--japp-card-inset-highlight), 0 0 #0000;
   cursor: grab;
+  // `translate` (the standalone CSS property), not `transform` — CDK's drag
+  // directive manages this element's `transform` directly for positioning
+  // during/after a drag, which silently wins over any `transform` set here.
+  // `translate`/`scale`/`rotate` are separate properties that compose with
+  // `transform` instead of conflicting, so the hover lift survives CDK drag.
+  transition:
+    border-color var(--japp-transition-base),
+    box-shadow var(--japp-transition-base),
+    translate var(--japp-transition-base);
+  animation: japp-list-item-in 280ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: calc(var(--japp-list-index, 0) * 40ms);
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--japp-color-primary) 35%, var(--japp-border));
+    box-shadow: var(--japp-card-inset-highlight), var(--japp-shadow-sm);
+    translate: 0 -1px;
+  }
 
   &.cdk-drag-preview {
-    box-shadow: var(--japp-shadow-md);
+    box-shadow: var(--japp-card-inset-highlight), var(--japp-shadow-elevated);
   }
 
   &.cdk-drag-placeholder {
     opacity: 0.4;
+  }
+}
+
+@keyframes japp-list-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .application-board__card {
+    animation: none;
+
+    &:hover {
+      translate: none;
+    }
   }
 }
 

@@ -1,0 +1,243 @@
+<div class="home">
+  <div #scrollSentinel class="home__scroll-sentinel" aria-hidden="true"></div>
+
+  <header class="home__header" [class.is-scrolled]="scrolled()">
+    <div class="home__header-bar">
+      <a routerLink="/" class="home__brand">
+        <span class="home__brand-mark" aria-hidden="true">J</span>
+        <span class="home__brand-name">JAPP</span>
+      </a>
+      <nav class="home__anchor-nav" [attr.aria-label]="'home.nav.accountNav' | translate">
+        <a href="#discover" [class.is-active]="activeSection() === 'discover'">
+          {{ 'home.nav.discover' | translate }}
+        </a>
+        <a href="#prepare" [class.is-active]="activeSection() === 'prepare'">
+          {{ 'home.nav.prepare' | translate }}
+        </a>
+        <a href="#apply" [class.is-active]="activeSection() === 'apply'">
+          {{ 'home.nav.apply' | translate }}
+        </a>
+        <a href="#track" [class.is-active]="activeSection() === 'track'">
+          {{ 'home.nav.track' | translate }}
+        </a>
+      </nav>
+      <div class="home__header-actions">
+        <app-theme-toggle />
+        <a mat-button routerLink="/login">{{ 'home.nav.login' | translate }}</a>
+        <a mat-flat-button color="primary" routerLink="/register">{{ 'home.nav.getStarted' | translate }}</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="home__main">
+    <section class="home__hero">
+      <div class="home__hero-photo" aria-hidden="true"></div>
+      <div class="home__hero-scrim" aria-hidden="true"></div>
+      <div class="home__container home__hero-grid">
+        <div class="home__hero-content">
+          <span class="home__hero-eyebrow">
+            <span class="home__hero-eyebrow-dot"></span>{{ 'home.hero.eyebrow' | translate }}
+          </span>
+          <h1 class="home__hero-title">{{ 'home.hero.title' | translate }}</h1>
+          <p class="home__hero-subtitle">{{ 'home.hero.subtitle' | translate }}</p>
+          <div class="home__hero-actions">
+            <a mat-flat-button color="primary" routerLink="/register" class="home__hero-cta">
+              {{ 'home.hero.primaryCta' | translate }}
+            </a>
+            <a mat-stroked-button routerLink="/login" class="home__hero-cta home__hero-cta--outline">
+              {{ 'home.hero.secondaryCta' | translate }}
+            </a>
+          </div>
+          <ul class="home__trust-strip">
+            <li><svg lucideLock [size]="15" aria-hidden="true"></svg><span>{{ 'home.hero.trust.auth' | translate }}</span></li>
+            <li><svg lucideShieldCheck [size]="15" aria-hidden="true"></svg><span>{{ 'home.hero.trust.encryption' | translate }}</span></li>
+            <li><svg lucideServer [size]="15" aria-hidden="true"></svg><span>{{ 'home.hero.trust.stack' | translate }}</span></li>
+          </ul>
+        </div>
+        <div class="home__hero-visual home__hero-visual--float">
+          <app-job-search-demo />
+        </div>
+      </div>
+    </section>
+
+    <section class="home__value-props" aria-labelledby="value-props-heading">
+      <div class="home__container">
+        <div class="home__section-header" appRevealOnScroll>
+          <h2 id="value-props-heading" class="home__section-title">{{ 'home.valueProps.title' | translate }}</h2>
+          <p class="home__section-subtitle">{{ 'home.valueProps.subtitle' | translate }}</p>
+        </div>
+        <ul class="home__value-prop-grid">
+          @for (item of valueProps; track item.key; let i = $index) {
+            <li class="home__value-prop" [appRevealOnScroll]="i * 60">
+              <span class="home__value-prop-index">0{{ i + 1 }}</span>
+              <h3 class="home__value-prop-title">{{ item.titleKey | translate }}</h3>
+              <p class="home__value-prop-description">{{ item.descriptionKey | translate }}</p>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="home__workflow" aria-labelledby="workflow-heading">
+      <div class="home__container">
+        <div class="home__section-header" appRevealOnScroll>
+          <h2 id="workflow-heading" class="home__section-title">{{ 'home.workflow.title' | translate }}</h2>
+          <p class="home__section-subtitle">{{ 'home.workflow.subtitle' | translate }}</p>
+        </div>
+        <app-workflow-spine [stages]="workflowStages()" />
+      </div>
+    </section>
+
+    <section
+      class="home__feature home__feature--bg"
+      id="discover"
+      aria-labelledby="discover-heading"
+      appScrollStage
+      (activeChange)="onSectionActive('discover', $event)"
+    >
+      <div class="home__feature-photo home__feature-photo--discover" aria-hidden="true"></div>
+      <div class="home__container home__feature-grid">
+        <div class="home__feature-copy" appRevealOnScroll>
+          <span class="home__feature-eyebrow">{{ 'home.sections.discover.eyebrow' | translate }}</span>
+          <h2 id="discover-heading" class="home__feature-title">{{ 'home.sections.discover.title' | translate }}</h2>
+          <p class="home__feature-description">{{ 'home.sections.discover.description' | translate }}</p>
+        </div>
+        <div class="home__feature-visual" appRevealOnScroll>
+          <app-job-search-demo />
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="home__feature home__feature--reverse home__feature--bg"
+      id="prepare"
+      aria-labelledby="prepare-heading"
+      appScrollStage
+      (activeChange)="onSectionActive('prepare', $event)"
+    >
+      <div class="home__feature-photo home__feature-photo--prepare" aria-hidden="true"></div>
+      <div class="home__container home__feature-grid">
+        <div class="home__feature-copy" appRevealOnScroll>
+          <span class="home__feature-eyebrow">{{ 'home.sections.prepare.eyebrow' | translate }}</span>
+          <h2 id="prepare-heading" class="home__feature-title">{{ 'home.sections.prepare.title' | translate }}</h2>
+          <p class="home__feature-description">{{ 'home.sections.prepare.description' | translate }}</p>
+        </div>
+        <div class="home__feature-visual home__feature-visual--stacked" appRevealOnScroll>
+          <app-cv-skill-extraction-demo />
+          <app-job-analysis-demo />
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="home__feature home__feature--bg"
+      id="apply"
+      aria-labelledby="apply-heading"
+      appScrollStage
+      (activeChange)="onSectionActive('apply', $event)"
+    >
+      <div class="home__feature-photo home__feature-photo--apply" aria-hidden="true"></div>
+      <div class="home__container home__feature-grid">
+        <div class="home__feature-copy" appRevealOnScroll>
+          <span class="home__feature-eyebrow">{{ 'home.sections.apply.eyebrow' | translate }}</span>
+          <h2 id="apply-heading" class="home__feature-title">{{ 'home.sections.apply.title' | translate }}</h2>
+          <p class="home__feature-description">{{ 'home.sections.apply.description' | translate }}</p>
+        </div>
+        <div class="home__feature-visual" appRevealOnScroll>
+          <app-cover-letter-generation-demo />
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="home__feature home__feature--reverse home__feature--bg"
+      id="track"
+      aria-labelledby="track-heading"
+      appScrollStage
+      (activeChange)="onSectionActive('track', $event)"
+    >
+      <div class="home__feature-photo home__feature-photo--track" aria-hidden="true"></div>
+      <div class="home__container home__feature-grid">
+        <div class="home__feature-copy" appRevealOnScroll>
+          <span class="home__feature-eyebrow">{{ 'home.sections.track.eyebrow' | translate }}</span>
+          <h2 id="track-heading" class="home__feature-title">{{ 'home.sections.track.title' | translate }}</h2>
+          <p class="home__feature-description">{{ 'home.sections.track.description' | translate }}</p>
+        </div>
+        <div class="home__feature-visual" appRevealOnScroll>
+          <app-application-lifecycle-demo />
+        </div>
+      </div>
+    </section>
+
+    <section class="home__trust" aria-labelledby="trust-heading">
+      <div class="home__container">
+        <div class="home__section-header home__section-header--center" appRevealOnScroll>
+          <h2 id="trust-heading" class="home__section-title">{{ 'home.trust.title' | translate }}</h2>
+        </div>
+        <ul class="home__trust-grid">
+          @for (item of trustItems; track item.icon; let i = $index) {
+            <li class="home__trust-item" [appRevealOnScroll]="i * 60">
+              @switch (item.icon) {
+                @case ('auth') {
+                  <svg lucideLock [size]="18" aria-hidden="true"></svg>
+                }
+                @case ('encryption') {
+                  <svg lucideShieldCheck [size]="18" aria-hidden="true"></svg>
+                }
+                @case ('stack') {
+                  <svg lucideServer [size]="18" aria-hidden="true"></svg>
+                }
+                @case ('providers') {
+                  <svg lucideSparkles [size]="18" aria-hidden="true"></svg>
+                }
+              }
+              <span>{{ item.labelKey | translate }}</span>
+            </li>
+          }
+        </ul>
+      </div>
+    </section>
+
+    <section class="home__cta-band" aria-labelledby="cta-heading" appRevealOnScroll>
+      <div class="home__cta-photo" aria-hidden="true"></div>
+      <div class="home__cta-scrim" aria-hidden="true"></div>
+      <div class="home__container home__cta-content">
+        <h2 id="cta-heading" class="home__cta-title">{{ 'home.closingCta.title' | translate }}</h2>
+        <p class="home__cta-subtitle">{{ 'home.closingCta.subtitle' | translate }}</p>
+        <a mat-flat-button color="primary" routerLink="/register" class="home__cta-button">
+          {{ 'home.closingCta.cta' | translate }}
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="home__footer">
+    <div class="home__container home__footer-content">
+      <div class="home__footer-about">
+        <div class="home__footer-brand-row">
+          <span class="home__footer-brand">JAPP</span>
+          <span class="home__footer-badge">{{ 'home.footer.badge' | translate }}</span>
+        </div>
+        <p class="home__footer-tagline">{{ 'home.footer.tagline' | translate }}</p>
+      </div>
+
+      <nav class="home__footer-nav" [attr.aria-label]="'home.footer.product.title' | translate">
+        <span class="home__footer-col-title">{{ 'home.footer.product.title' | translate }}</span>
+        <a href="#discover">{{ 'home.footer.product.discover' | translate }}</a>
+        <a href="#prepare">{{ 'home.footer.product.prepare' | translate }}</a>
+        <a href="#apply">{{ 'home.footer.product.apply' | translate }}</a>
+        <a href="#track">{{ 'home.footer.product.track' | translate }}</a>
+      </nav>
+
+      <nav class="home__footer-nav" [attr.aria-label]="'home.footer.account.title' | translate">
+        <span class="home__footer-col-title">{{ 'home.footer.account.title' | translate }}</span>
+        <a routerLink="/login">{{ 'home.footer.account.login' | translate }}</a>
+        <a routerLink="/register">{{ 'home.footer.account.getStarted' | translate }}</a>
+      </nav>
+    </div>
+
+    <div class="home__container home__footer-bar">
+      <span class="home__footer-copyright">{{ 'home.footer.copyright' | translate: { year: currentYear } }}</span>
+    </div>
+  </footer>
+</div>

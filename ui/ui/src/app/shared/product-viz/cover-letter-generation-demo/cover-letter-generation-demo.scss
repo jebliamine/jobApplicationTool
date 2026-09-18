@@ -1,0 +1,167 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.cover-letter-gen-demo__stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 340px;
+  margin-inline: auto;
+}
+
+.cover-letter-gen-demo__inputs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+}
+
+.cover-letter-gen-demo__input-chip {
+  padding: 4px 9px;
+  border-radius: var(--japp-radius-full);
+  background: color-mix(in srgb, var(--japp-color-accent) 14%, var(--japp-surface));
+  border: 1px solid color-mix(in srgb, var(--japp-color-accent) 30%, transparent);
+  color: var(--japp-color-accent);
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.cover-letter-gen-demo__connector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+  justify-content: center;
+}
+
+.cover-letter-gen-demo__connector-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--japp-border-strong);
+  transition: background-color 200ms ease;
+}
+
+.is-step-1 .cover-letter-gen-demo__connector-dot {
+  animation: japp-dot-pulse 1000ms ease-in-out infinite;
+}
+
+.is-step-1 .cover-letter-gen-demo__connector-dot:nth-child(2) {
+  animation-delay: 160ms;
+}
+
+.is-step-1 .cover-letter-gen-demo__connector-dot:nth-child(3) {
+  animation-delay: 320ms;
+}
+
+.cover-letter-gen-demo__letter {
+  width: 100%;
+  padding: var(--japp-spacing-md);
+  border-radius: var(--japp-radius-lg);
+  background: var(--japp-surface);
+  border: 1px solid var(--japp-border);
+  box-shadow: var(--japp-card-inset-highlight), var(--japp-shadow-elevated);
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-sm);
+}
+
+.cover-letter-gen-demo__letter-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--japp-text-secondary);
+}
+
+.cover-letter-gen-demo__badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: var(--japp-radius-full);
+  background: color-mix(in srgb, var(--japp-color-primary) 16%, transparent);
+  color: var(--japp-color-primary);
+  font-size: 0.625rem;
+  font-weight: 700;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    opacity 320ms ease,
+    transform 320ms ease;
+}
+
+.is-step-2 .cover-letter-gen-demo__badge {
+  opacity: 1;
+  transform: none;
+}
+
+.cover-letter-gen-demo__letter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cover-letter-gen-demo__letter-line {
+  display: block;
+  height: 7px;
+  border-radius: var(--japp-radius-full);
+  background: var(--japp-surface-container-high);
+  transition:
+    background-color 280ms ease,
+    opacity 280ms ease;
+  transition-delay: calc(var(--i, 0) * 120ms);
+}
+
+.is-step-1 .cover-letter-gen-demo__letter-line {
+  animation: japp-line-shimmer 1300ms ease-in-out infinite;
+  animation-delay: calc(var(--i, 0) * 90ms);
+}
+
+.is-step-2 .cover-letter-gen-demo__letter-line {
+  background: var(--japp-border-strong);
+}
+
+@keyframes japp-dot-pulse {
+  0%,
+  100% {
+    background: var(--japp-border-strong);
+    transform: scale(1);
+  }
+  50% {
+    background: var(--japp-color-primary);
+    transform: scale(1.3);
+  }
+}
+
+@keyframes japp-line-shimmer {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cover-letter-gen-demo__connector-dot,
+  .cover-letter-gen-demo__letter-line {
+    animation: none;
+  }
+
+  .cover-letter-gen-demo__badge,
+  .cover-letter-gen-demo__letter-line {
+    transition: none;
+    transition-delay: 0s;
+  }
+}

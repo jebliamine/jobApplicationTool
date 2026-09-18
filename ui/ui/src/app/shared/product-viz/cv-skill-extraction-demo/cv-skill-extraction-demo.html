@@ -1,0 +1,31 @@
+<div class="cv-extract-demo__stage" [class]="'is-step-' + step()">
+  <div class="cv-extract-demo__cv">
+    <div class="cv-extract-demo__cv-header">
+      <span class="cv-extract-demo__avatar"></span>
+      <div class="cv-extract-demo__cv-lines">
+        <span class="cv-extract-demo__line cv-extract-demo__line--title"></span>
+        <span class="cv-extract-demo__line cv-extract-demo__line--subtitle"></span>
+      </div>
+    </div>
+    <div class="cv-extract-demo__section-label">
+      <svg lucideFileText [size]="11"></svg>
+      <span>Experience</span>
+    </div>
+    <span class="cv-extract-demo__line"></span>
+    <span class="cv-extract-demo__line"></span>
+    <span class="cv-extract-demo__line cv-extract-demo__line--short"></span>
+    <div class="cv-extract-demo__scan" aria-hidden="true"></div>
+  </div>
+
+  <div class="cv-extract-demo__tray">
+    <span class="cv-extract-demo__tray-label">
+      <svg lucideSparkles [size]="12"></svg>
+      Skills detected
+    </span>
+    <ul class="cv-extract-demo__chips">
+      @for (skill of skills; track skill; let i = $index) {
+        <li class="cv-extract-demo__chip" [style.--i]="i">{{ skill }}</li>
+      }
+    </ul>
+  </div>
+</div>

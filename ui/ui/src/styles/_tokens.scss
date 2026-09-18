@@ -11,6 +11,11 @@
   --japp-color-on-primary: var(--mat-sys-on-primary);
   --japp-color-accent: var(--mat-sys-tertiary);
   --japp-color-on-accent: var(--mat-sys-on-tertiary);
+  // A second, warm decorative hue for background gradients/glows only — never
+  // text, icons, or interactive elements (that stays teal, the one true
+  // action/brand color). Exists purely to give hero/section backgrounds real
+  // color depth instead of a single flat tint.
+  --japp-color-warm-glow: #e2703d;
 
   // Color — status
   --japp-color-error: var(--mat-sys-error);
@@ -46,6 +51,18 @@
   --japp-shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.08);
   --japp-shadow-md: 0 4px 6px rgba(15, 23, 42, 0.05), 0 10px 15px rgba(15, 23, 42, 0.08);
   --japp-shadow-lg: 0 8px 16px rgba(15, 23, 42, 0.06), 0 20px 32px rgba(15, 23, 42, 0.1);
+  // Reserved for things that are actually floating above the page (dialogs,
+  // a dragged Kanban card) — tinted toward the brand teal rather than a flat
+  // gray, per the "Structured Depth" direction. Deliberately not used for
+  // ordinary card elevation; --japp-shadow-sm/md/lg cover that.
+  --japp-shadow-elevated:
+    0 16px 32px -12px rgba(43, 111, 114, 0.22),
+    0 4px 10px rgba(15, 23, 42, 0.1);
+  // Soft top-edge light catch for cards. Zero-effect in light mode (shadows
+  // carry the depth signal there; the dark override below gives it a real
+  // value) — `0 0 #0000` rather than `none`, because `none` can't be
+  // combined with other shadows in a comma-separated box-shadow list.
+  --japp-card-inset-highlight: 0 0 #0000;
 
   // Transitions
   --japp-transition-fast: 120ms ease;
@@ -62,26 +79,38 @@
   --japp-font-display:
     'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial,
     sans-serif;
+  // Numeric/data face — application dates, stat figures, table counts.
+  // Deliberately not used for prose; see design-taste-frontend-v1 §3 Rule 1.
+  --japp-font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 }
 
-// Dark theme overrides. Deliberately NOT the raw M3-generated dark surfaces
-// (which read as flat/near-black on this palette) — a hand-picked charcoal/
-// slate hierarchy instead, layered on top of Material's own dark color
-// roles (--mat-sys-on-surface etc. stay Material-generated; only the
-// surface/background/border tokens below are overridden).
+// Dark theme overrides — "Structured Depth" direction: a true near-black
+// canvas (not the raw M3-generated dark surfaces, which read as flat/washed
+// on this palette, and not the previous charcoal/slate hierarchy either).
+// Layered on top of Material's own dark color roles (--mat-sys-on-surface
+// etc. stay Material-generated; only the surface/background/border tokens
+// below are overridden). Borders stay deliberately lighter than the surface
+// they sit on — in this direction, borders (not shadows) carry the
+// structural layering; --japp-shadow-* is reserved for things genuinely
+// floating (dialogs, a dragged Kanban card).
 :root[data-theme='dark'] {
-  --japp-background: #15161d;
-  --japp-surface: #1e2029;
-  --japp-surface-container: #1e2029;
-  --japp-surface-container-high: #262838;
-  --japp-border: #383b4d;
-  --japp-border-strong: #4a4e66;
+  --japp-background: #0b0c0f;
+  --japp-surface: #111318;
+  --japp-surface-container: #15171d;
+  --japp-surface-container-high: #1b1e26;
+  --japp-border: #262a34;
+  --japp-border-strong: #363b48;
 
   --japp-color-success: #4ade80;
   --japp-color-warning: #fbbf24;
   --japp-color-info: #38bdf8;
+  --japp-color-warm-glow: #f4915e;
 
   --japp-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 1px 3px rgba(0, 0, 0, 0.4);
   --japp-shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 20px rgba(0, 0, 0, 0.45);
   --japp-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.35), 0 20px 40px rgba(0, 0, 0, 0.5);
+  --japp-shadow-elevated:
+    0 20px 40px -12px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(61, 110, 138, 0.14);
+  --japp-card-inset-highlight: inset 0 1px 0 0 rgba(255, 255, 255, 0.04);
 }

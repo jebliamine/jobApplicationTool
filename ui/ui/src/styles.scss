@@ -43,6 +43,74 @@ html {
   box-sizing: border-box;
 }
 
+// ---------------------------------------------------------------------------
+// Outlined form fields — global, not per-component. Material's outline shape
+// (default ~4px corner, effectively 0 left-inset before an icon prefix) reads
+// as generic and cramped; this makes every mat-form-field in the app small,
+// rounded, and properly spaced in one place, using the same MDC class names
+// NavSearch's own component-scoped ::ng-deep override already documented as
+// necessary (M3's density/shape isn't exposed as an overridable CSS custom
+// property in this Angular Material version). NavSearch keeps its own
+// (more specific) override for topbar-specific sizing, which still wins
+// there; every other field in the app now gets this by default.
+// ---------------------------------------------------------------------------
+
+// !important on this whole block: Angular injects each lazy-loaded
+// component chunk's own copy of Material's structural CSS into <head> at
+// runtime, after this global stylesheet's <link> — so an equal-specificity
+// rule here loses on source order alone, regardless of how this file is
+// organized. Verified by inspecting the compiled bundle: this exact
+// selector/value pair already existed here, just always losing the cascade.
+.mdc-notched-outline__leading {
+  border-radius: var(--japp-radius-md) 0 0 var(--japp-radius-md) !important;
+}
+
+.mdc-notched-outline__trailing {
+  border-radius: 0 var(--japp-radius-md) var(--japp-radius-md) 0 !important;
+}
+
+.mat-mdc-text-field-wrapper {
+  border-radius: var(--japp-radius-md) !important;
+}
+
+// Real breathing room between the outline and a leading icon — was 0.
+.mat-mdc-form-field-icon-prefix {
+  padding-left: 12px !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+.mat-mdc-form-field-icon-suffix {
+  padding-right: 12px !important;
+  display: inline-flex;
+  align-items: center;
+}
+
+// The autocomplete/select suggestion panel is appended to <body> via CDK
+// overlay, so it needs its own (global) polish rather than relying on
+// mat-form-field's outline styling above.
+.mat-mdc-autocomplete-panel,
+.mat-mdc-select-panel {
+  border-radius: var(--japp-radius-md) !important;
+  border: 1px solid var(--japp-border);
+  box-shadow: var(--japp-shadow-elevated) !important;
+}
+
+.mat-mdc-option {
+  border-radius: var(--japp-radius-sm);
+  margin: 2px 4px;
+  width: calc(100% - 8px) !important;
+
+  &.mat-mdc-option-active,
+  &:hover:not(.mdc-list-item--disabled) {
+    background: color-mix(in srgb, var(--japp-color-primary) 10%, transparent) !important;
+  }
+
+  &.mdc-list-item--selected:not(.mat-mdc-option-multiple) {
+    background: color-mix(in srgb, var(--japp-color-primary) 14%, transparent) !important;
+  }
+}
+
 // Page-level titles only — dialog titles and the sidebar's group labels
 // intentionally stay on the body font (small, utilitarian text).
 h1 {
@@ -65,6 +133,30 @@ body {
 
 a {
   color: inherit;
+}
+
+// Global (not component-scoped) so `appRevealOnScroll` works from any
+// feature — it toggles these classes via direct classList mutation, which
+// crosses Angular's view-encapsulation boundary just fine, but the classes
+// still need a CSS definition that isn't trapped inside one component's
+// emulated-encapsulation styles.
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition: opacity 600ms cubic-bezier(0.16, 1, 0.3, 1), transform 600ms cubic-bezier(0.16, 1, 0.3, 1);
+
+  &.is-visible {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 // Visible focus state for keyboard users, on top of whatever Material

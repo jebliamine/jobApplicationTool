@@ -9,6 +9,9 @@
           Jobs you're personally tracking.
         }
       </p>
+      @if (!loading() && !error() && jobs().length > 0) {
+        <span class="job-list-page__count">{{ jobs().length }} job{{ jobs().length === 1 ? '' : 's' }} tracked</span>
+      }
     </div>
     <a mat-flat-button color="primary" routerLink="/jobs/new" class="job-list-page__add-button">
       <svg lucidePlus [size]="16" aria-hidden="true"></svg>
@@ -154,13 +157,17 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns(); let i = index"
+              [style.--japp-list-index]="i"
+            ></tr>
           </table>
         </div>
 
         <ul class="job-list__cards">
-          @for (job of jobs(); track job.id) {
-            <li class="job-list__card">
+          @for (job of jobs(); track job.id; let i = $index) {
+            <li class="job-list__card" [style.--japp-list-index]="i">
               <div class="job-list__card-header">
                 <svg lucideBriefcase [size]="18" aria-hidden="true"></svg>
                 <span class="job-list__card-title">{{ job.title }}</span>

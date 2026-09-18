@@ -8,6 +8,9 @@
         Upload and manage the CVs attached to your account.
       }
     </p>
+    @if (!loading() && !error() && cvs().length > 0) {
+      <span class="cv-page__count">{{ cvs().length }} CV{{ cvs().length === 1 ? '' : 's' }} uploaded</span>
+    }
   </header>
 
   <app-cv-upload (uploaded)="onUploaded($event)" />

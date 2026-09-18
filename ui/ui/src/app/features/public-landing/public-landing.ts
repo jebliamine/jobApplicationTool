@@ -22,8 +22,8 @@ import {
 } from '@lucide/angular';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { ThemeToggle } from '../../layout/theme-toggle/theme-toggle';
+import { RevealOnScrollDirective } from '../../shared/directives/reveal-on-scroll.directive';
 import { HeroIllustration } from './components/hero-illustration/hero-illustration';
-import { RevealOnScrollDirective } from './directives/reveal-on-scroll.directive';
 
 // No backend contact endpoint exists yet — the form builds a mailto: link
 // client-side and hands off to the visitor's own email client rather than

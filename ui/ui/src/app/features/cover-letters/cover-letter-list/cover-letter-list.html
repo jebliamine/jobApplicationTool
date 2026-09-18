@@ -9,6 +9,12 @@
           Cover letters you've generated for your job applications.
         }
       </p>
+      @if (!loading() && !error() && coverLetters().length > 0) {
+        <span class="cover-letter-list-page__count">
+          {{ coverLetters().length }} letter{{ coverLetters().length === 1 ? '' : 's' }}
+          {{ showArchived() ? 'archived' : 'active' }}
+        </span>
+      }
     </div>
     <a
       mat-flat-button
@@ -145,13 +151,17 @@
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns()"></tr>
+            <tr
+              mat-row
+              *matRowDef="let row; columns: displayedColumns(); let i = index"
+              [style.--japp-list-index]="i"
+            ></tr>
           </table>
         </div>
 
         <ul class="cover-letter-list__cards">
-          @for (letter of coverLetters(); track letter.id) {
-            <li class="cover-letter-list__card">
+          @for (letter of coverLetters(); track letter.id; let i = $index) {
+            <li class="cover-letter-list__card" [style.--japp-list-index]="i">
               <div class="cover-letter-list__card-header">
                 <svg lucideMail [size]="18" aria-hidden="true"></svg>
                 <span class="cover-letter-list__card-title">{{ letter.job.title }}</span>

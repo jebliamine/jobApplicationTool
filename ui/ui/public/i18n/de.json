@@ -240,6 +240,124 @@
       }
     }
   },
+  "home": {
+    "nav": {
+      "accountNav": "Konto",
+      "discover": "Entdecken",
+      "prepare": "Vorbereiten",
+      "apply": "Bewerben",
+      "track": "Verfolgen",
+      "login": "Anmelden",
+      "getStarted": "Loslegen"
+    },
+    "hero": {
+      "eyebrow": "Live-Produktvorschau",
+      "title": "Von der Suche bis zum Angebot — an einem Ort.",
+      "subtitle": "JAPP verbindet die Live-Jobsuche, Lebenslauf-Analyse, KI-generierte Anschreiben und die Bewerbungsverfolgung in einem einzigen Arbeitsbereich — damit nichts in Ihrer Jobsuche verloren geht.",
+      "primaryCta": "Loslegen",
+      "secondaryCta": "Anmelden",
+      "trust": {
+        "auth": "JWT-gesicherte Konten",
+        "encryption": "Verschlüsselte KI-Zugangsdaten",
+        "stack": "Selbst gehostet, offener Stack"
+      }
+    },
+    "valueProps": {
+      "title": "Gebaut für den echten Ablauf einer Jobsuche.",
+      "subtitle": "Vier Momente, ein verbundener Arbeitsbereich.",
+      "discover": {
+        "title": "Entdecken",
+        "description": "Durchsuchen Sie mehrere Stellenbörsen gleichzeitig und speichern Sie die Stellen, die sich lohnen."
+      },
+      "prepare": {
+        "title": "Vorbereiten",
+        "description": "Sehen Sie genau, was eine Stelle verlangt — im Vergleich zu dem, was Ihr Lebenslauf bereits zeigt."
+      },
+      "apply": {
+        "title": "Bewerben",
+        "description": "Erstellen Sie ein Anschreiben, das wirklich auf die Stelle eingeht — keine Vorlage."
+      },
+      "track": {
+        "title": "Verfolgen",
+        "description": "Verfolgen Sie jede Bewerbung von der Bewerbung bis zum Angebot, ganz ohne Tabelle."
+      }
+    },
+    "workflow": {
+      "title": "So funktioniert's",
+      "subtitle": "Die gleichen vier Schritte — von der ersten Suche bis zum nächsten Angebot.",
+      "stages": {
+        "discover": {
+          "label": "Entdecken",
+          "description": "Durchsuchen Sie Live-Angebote und speichern Sie die Stellen, die sich lohnen."
+        },
+        "prepare": {
+          "label": "Vorbereiten",
+          "description": "Extrahieren Sie Fähigkeiten aus Ihrem Lebenslauf und Anforderungen aus der Stellenanzeige."
+        },
+        "apply": {
+          "label": "Bewerben",
+          "description": "Erstellen Sie ein Anschreiben, das zu beidem passt — in Ihrem Ton."
+        },
+        "track": {
+          "label": "Verfolgen",
+          "description": "Verfolgen Sie jede Bewerbung von der Bewerbung bis zum Angebot."
+        }
+      }
+    },
+    "sections": {
+      "discover": {
+        "eyebrow": "01 — Entdecken",
+        "title": "Einmal suchen, alles sehen.",
+        "description": "JAPP durchsucht mehrere Live-Stellenbörsen parallel und führt die Ergebnisse zusammen — kein Wechseln zwischen fünf verschiedenen Seiten. Speichern Sie, was einen zweiten Blick wert ist — die Details werden automatisch übernommen."
+      },
+      "prepare": {
+        "eyebrow": "02 — Vorbereiten",
+        "title": "Wissen Sie genau, woran Sie sind.",
+        "description": "JAPP liest Ihren Lebenslauf und die Stellenbeschreibung nebeneinander und zeigt, welche Fähigkeiten Sie bereits mitbringen und welche Anforderungen noch fehlen — bevor Sie eine Stunde in eine Bewerbung investieren."
+      },
+      "apply": {
+        "eyebrow": "03 — Bewerben",
+        "title": "Ein Anschreiben, das wirklich passt.",
+        "description": "Erstellen Sie ein Anschreiben auf Basis Ihres echten Lebenslaufs und der tatsächlichen Stellenbeschreibung — mit Gemini, einem OpenAI-kompatiblen Endpunkt, Anthropics Claude oder einem integrierten Offline-Modus."
+      },
+      "track": {
+        "eyebrow": "04 — Verfolgen",
+        "title": "Verlieren Sie nie wieder den Überblick.",
+        "description": "Bewegen Sie jede Bewerbung durch Beworben, Telefoninterview, Vorstellungsgespräch und Angebot auf einem echten Board — nicht in einer Tabelle, die Sie zu pflegen vergessen."
+      }
+    },
+    "trust": {
+      "title": "Entwickelt, um Ihrer Jobsuche vertrauen zu können",
+      "items": {
+        "auth": "JWT-gesicherte Konten",
+        "encryption": "Verschlüsselte KI-Zugangsdaten",
+        "stack": "Selbst gehostet, offener Stack",
+        "providers": "Bringen Sie Ihren eigenen KI-Anbieter mit — Gemini, OpenAI-kompatibel, Anthropic oder den integrierten Offline-Modus"
+      }
+    },
+    "closingCta": {
+      "title": "Bereit, Ihre Jobsuche zu organisieren?",
+      "subtitle": "Erstellen Sie Ihr kostenloses Konto und fügen Sie in wenigen Minuten Ihre erste Stelle hinzu.",
+      "cta": "Loslegen"
+    },
+    "footer": {
+      "badge": "Beta",
+      "tagline": "Ein Arbeitsbereich für die gesamte Jobsuche — von der ersten Suche bis zum unterschriebenen Angebot.",
+      "copyright": "© {{year}} JAPP",
+      "product": {
+        "title": "Produkt",
+        "discover": "Entdecken",
+        "prepare": "Vorbereiten",
+        "apply": "Bewerben",
+        "track": "Verfolgen"
+      },
+      "account": {
+        "title": "Konto",
+        "login": "Anmelden",
+        "getStarted": "Loslegen"
+      }
+    }
+  },
   "dashboard": {
     "greeting": "Willkommen zurück, {{name}}",
     "subtitle": "Das ist der aktuelle Stand Ihrer Jobsuche.",

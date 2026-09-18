@@ -1,0 +1,734 @@
+:host {
+  display: block;
+}
+
+.home {
+  position: relative;
+  background: var(--japp-background);
+  color: var(--japp-text-primary);
+}
+
+// 1x1px, absolutely positioned so it takes no layout space — purely a
+// scroll-position marker for the IntersectionObserver in home.ts. Once it
+// scrolls out from under the header, `scrolled` flips true.
+.home__scroll-sentinel {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+// ---------------------------------------------------------------------------
+// Header — morphs from a flush, full-width bar merged with the hero (at the
+// very top) into a floating, rounded, glassy pill once the user scrolls,
+// driven by the `.is-scrolled` class (see home.ts's IntersectionObserver).
+// Stays `position: sticky` throughout — only its shape/size/surface change.
+// ---------------------------------------------------------------------------
+
+.home__header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: center;
+  padding: 0;
+  transition: padding 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home__header.is-scrolled {
+  padding: var(--japp-spacing-md);
+}
+
+.home__header-bar {
+  width: 100%;
+  max-width: 1200px;
+  padding: var(--japp-spacing-md) var(--japp-spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-lg);
+  border-radius: 0;
+  border: 1px solid transparent;
+  border-bottom-color: var(--japp-border);
+  background: var(--japp-background);
+  transition:
+    max-width 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    padding 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-radius 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    backdrop-filter 420ms cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 420ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home__header.is-scrolled .home__header-bar {
+  max-width: 880px;
+  padding: 10px var(--japp-spacing-lg);
+  border-radius: var(--japp-radius-full);
+  border-color: color-mix(in srgb, var(--japp-border) 70%, transparent);
+  background: color-mix(in srgb, var(--japp-surface) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(1.6);
+  -webkit-backdrop-filter: blur(16px) saturate(1.6);
+  box-shadow: var(--japp-card-inset-highlight), var(--japp-shadow-elevated);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__header,
+  .home__header-bar {
+    transition: none;
+  }
+}
+
+.home__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  text-decoration: none;
+  color: var(--japp-text-primary);
+  font-family: var(--japp-font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.home__brand-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--japp-radius-sm);
+  background: var(--japp-color-primary);
+  color: var(--japp-color-on-primary);
+  font-family: var(--japp-font-display);
+  font-weight: 700;
+}
+
+.home__anchor-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-lg);
+  margin-inline: auto;
+}
+
+.home__anchor-nav a {
+  text-decoration: none;
+  color: var(--japp-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color var(--japp-transition-fast);
+}
+
+.home__anchor-nav a:hover {
+  color: var(--japp-text-primary);
+}
+
+.home__anchor-nav a.is-active {
+  color: var(--japp-color-primary);
+  font-weight: 700;
+}
+
+.home__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+}
+
+@media (max-width: 899.98px) {
+  .home__anchor-nav {
+    display: none;
+  }
+
+  // Without the nav's own auto margins to fill the gap, actions would sit
+  // flush against the brand instead of at the far end of the pill.
+  .home__header-actions {
+    margin-left: auto;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shared section scaffolding
+// ---------------------------------------------------------------------------
+
+// `<main>` itself is intentionally unconstrained — every section is full
+// width so its background (photo, gradient, color) spans edge to edge.
+// `.home__container` is what actually constrains and centers a section's
+// CONTENT; every section wraps its content in it so the readable column
+// lines up identically everywhere. Never add width/padding to `.home__main`
+// or to an individual section's root — put it here, once.
+.home__container {
+  max-width: 1200px;
+  margin-inline: auto;
+  padding-inline: var(--japp-spacing-lg);
+}
+
+.home__section-header {
+  // Left-aligned to the same edge as the hero/feature sections' content —
+  // NOT centered. A centered 640px block here while every other section is
+  // a full-width, left-edge-aligned grid was the other half of the
+  // mismatched-geometry problem: it made this section's heading start at a
+  // different x-position than the sections directly above and below it.
+  max-width: 640px;
+  margin: 0 0 var(--japp-spacing-xl);
+  text-align: left;
+}
+
+.home__section-header--center {
+  text-align: center;
+  margin-inline: auto;
+}
+
+.home__section-title {
+  font-family: var(--japp-font-display);
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--japp-spacing-sm);
+}
+
+.home__section-subtitle {
+  font-size: 1rem;
+  color: var(--japp-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+// ---------------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------------
+
+.home__hero {
+  // Full width — the section itself only holds background layers (photo,
+  // scrim) and vertical padding. .home__hero-grid (below) is the
+  // .home__container-based inner wrapper that actually positions the
+  // content, so its left/right edges land exactly where every other
+  // section's content does.
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding-block: clamp(64px, 8vw, 120px);
+  color: #f4f5f4;
+}
+
+.home__hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--japp-spacing-xl);
+}
+
+.home__hero-photo {
+  position: absolute;
+  inset: -8%;
+  z-index: -2;
+  // Real photo goes at public/images/home/hero.jpg (served at
+  // /images/home/hero.jpg) — landscape, 1800x1200+. Missing file degrades
+  // gracefully to just the gradient scrim, no broken-image icon.
+  background-image: url('/images/home/hero.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: home-kenburns 22s ease-in-out infinite alternate;
+}
+
+.home__hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(1100px circle at 12% -10%, color-mix(in srgb, var(--japp-color-primary) 55%, transparent), transparent 55%),
+    radial-gradient(900px circle at 100% 110%, color-mix(in srgb, var(--japp-color-warm-glow) 40%, transparent), transparent 55%),
+    linear-gradient(200deg, rgba(6, 8, 10, 0.94), rgba(6, 8, 10, 0.82) 45%, rgba(6, 8, 10, 0.68));
+}
+
+.home__hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: color-mix(in srgb, var(--japp-color-primary) 55%, white);
+  margin-bottom: var(--japp-spacing-md);
+}
+
+.home__hero-eyebrow-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--japp-color-primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--japp-color-primary) 25%, transparent);
+  animation: home-pulse 1.8s ease-in-out infinite;
+}
+
+.home__hero-title {
+  font-family: var(--japp-font-display);
+  font-size: clamp(2.25rem, 1.4rem + 3.4vw, 3.75rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.06;
+  color: #fff;
+  margin: 0 0 var(--japp-spacing-md);
+}
+
+.home__hero-subtitle {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 46ch;
+  margin: 0 0 var(--japp-spacing-lg);
+}
+
+.home__hero-actions {
+  display: flex;
+  gap: var(--japp-spacing-sm);
+  margin-bottom: var(--japp-spacing-lg);
+}
+
+.home__hero-cta {
+  min-width: 148px;
+}
+
+.home__trust-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--japp-spacing-md);
+}
+
+.home__trust-strip li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.home__hero-cta--outline {
+  --mdc-outlined-button-label-text-color: #fff;
+  --mat-outlined-button-outline-color: rgba(255, 255, 255, 0.4);
+}
+
+.home__hero-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.home__hero-visual--float {
+  animation: home-float 5s ease-in-out infinite;
+  filter: drop-shadow(0 30px 50px rgba(0, 0, 0, 0.45));
+}
+
+@media (max-width: 899.98px) {
+  .home__hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home__hero-visual {
+    order: -1;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Value props
+// ---------------------------------------------------------------------------
+
+.home__value-props {
+  position: relative;
+  padding-block: clamp(48px, 6vw, 80px);
+  border-top: 1px solid var(--japp-border);
+  background:
+    radial-gradient(700px circle at 90% 0%, color-mix(in srgb, var(--japp-color-primary) 7%, transparent), transparent 60%),
+    radial-gradient(600px circle at 5% 100%, color-mix(in srgb, var(--japp-color-warm-glow) 6%, transparent), transparent 60%);
+}
+
+.home__value-prop-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--japp-spacing-xl);
+}
+
+.home__value-prop-index {
+  display: block;
+  font-family: var(--japp-font-mono);
+  font-size: 0.75rem;
+  color: var(--japp-color-primary);
+  margin-bottom: var(--japp-spacing-sm);
+}
+
+.home__value-prop-title {
+  font-family: var(--japp-font-display);
+  font-size: 1.0625rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.home__value-prop-description {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--japp-text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 899.98px) {
+  .home__value-prop-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 599.98px) {
+  .home__value-prop-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Workflow
+// ---------------------------------------------------------------------------
+
+.home__workflow {
+  padding-block: clamp(48px, 6vw, 96px);
+  border-top: 1px solid var(--japp-border);
+}
+
+// ---------------------------------------------------------------------------
+// Feature sections (discover / prepare / apply / track)
+// ---------------------------------------------------------------------------
+
+.home__feature {
+  // Full width, background/border only — .home__feature-grid (below) is the
+  // .home__container-based inner wrapper with the actual 2-column layout.
+  position: relative;
+  padding-block: clamp(56px, 7vw, 104px);
+  border-top: 1px solid var(--japp-border);
+  scroll-margin-top: 88px;
+}
+
+.home__feature--bg {
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.home__feature-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  align-items: center;
+  gap: var(--japp-spacing-xl);
+}
+
+.home__feature-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-size: cover;
+  background-position: center;
+  opacity: 0.1;
+  filter: saturate(0.7);
+  mask-image: linear-gradient(90deg, black, transparent 75%);
+}
+
+.home__feature--reverse .home__feature-photo {
+  mask-image: linear-gradient(270deg, black, transparent 75%);
+}
+
+// Real photos go at public/images/home/<name>.jpg (served at
+// /images/home/<name>.jpg) — landscape, 1200x900+ each. A missing file
+// degrades gracefully to just the section's existing background, no
+// broken-image icon.
+.home__feature-photo--discover {
+  background-image: url('/images/home/discover.jpg');
+}
+
+.home__feature-photo--prepare {
+  background-image: url('/images/home/prepare.jpg');
+}
+
+.home__feature-photo--apply {
+  background-image: url('/images/home/apply.jpg');
+}
+
+.home__feature-photo--track {
+  background-image: url('/images/home/track.jpg');
+}
+
+.home__feature--reverse .home__feature-grid {
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+}
+
+.home__feature--reverse .home__feature-copy {
+  order: 2;
+}
+
+.home__feature-eyebrow {
+  display: block;
+  font-family: var(--japp-font-mono);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--japp-color-primary);
+  margin-bottom: var(--japp-spacing-sm);
+}
+
+.home__feature-title {
+  font-family: var(--japp-font-display);
+  font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  margin: 0 0 var(--japp-spacing-sm);
+}
+
+.home__feature-description {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--japp-text-secondary);
+  margin: 0;
+  max-width: 48ch;
+}
+
+.home__feature-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.home__feature-visual--stacked {
+  flex-direction: column;
+  gap: var(--japp-spacing-lg);
+}
+
+@media (max-width: 899.98px) {
+  .home__feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home__feature--reverse .home__feature-copy {
+    order: 0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Trust
+// ---------------------------------------------------------------------------
+
+.home__trust {
+  padding-block: clamp(48px, 6vw, 80px);
+  border-top: 1px solid var(--japp-border);
+}
+
+.home__trust-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--japp-spacing-xl);
+}
+
+.home__trust-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  color: var(--japp-text-secondary);
+  font-size: 0.9375rem;
+}
+
+.home__trust-item svg {
+  color: var(--japp-color-primary);
+  flex: none;
+}
+
+// ---------------------------------------------------------------------------
+// Closing CTA
+// ---------------------------------------------------------------------------
+
+.home__cta-band {
+  // Full width, like the hero — no more inset "card" margin/radius, which
+  // was the odd one out compared to every other (full-bleed) section.
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding-block: clamp(56px, 7vw, 88px);
+  border-top: 1px solid var(--japp-border);
+  text-align: center;
+}
+
+.home__cta-photo {
+  position: absolute;
+  inset: -10%;
+  z-index: -2;
+  // Real photo goes at public/images/home/cta.jpg — landscape, 1600x900+.
+  background-image: url('/images/home/cta.jpg');
+  background-size: cover;
+  background-position: center;
+  animation: home-kenburns 20s ease-in-out infinite alternate;
+}
+
+.home__cta-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(800px circle at 50% 0%, color-mix(in srgb, var(--japp-color-primary) 45%, transparent), transparent 60%),
+    linear-gradient(rgba(6, 8, 10, 0.86), rgba(6, 8, 10, 0.86));
+}
+
+.home__cta-content {
+  color: #fff;
+}
+
+.home__cta-title {
+  font-family: var(--japp-font-display);
+  font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 var(--japp-spacing-sm);
+}
+
+.home__cta-subtitle {
+  color: rgba(255, 255, 255, 0.78);
+  margin: 0 0 var(--japp-spacing-lg);
+}
+
+.home__cta-button {
+  min-width: 180px;
+}
+
+// ---------------------------------------------------------------------------
+// Footer
+// ---------------------------------------------------------------------------
+
+.home__footer {
+  border-top: 1px solid var(--japp-border);
+}
+
+// Combined with .home__container in the template for the shared max-width.
+.home__footer-content {
+  padding-block: var(--japp-spacing-xl);
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr;
+  gap: var(--japp-spacing-xl);
+}
+
+.home__footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: var(--japp-spacing-sm);
+  margin-bottom: var(--japp-spacing-sm);
+}
+
+.home__footer-brand {
+  font-family: var(--japp-font-display);
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.home__footer-badge {
+  padding: 2px 8px;
+  border-radius: var(--japp-radius-full);
+  background: color-mix(in srgb, var(--japp-color-primary) 14%, transparent);
+  color: var(--japp-color-primary);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.home__footer-tagline {
+  color: var(--japp-text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.6;
+  max-width: 34ch;
+  margin: 0;
+}
+
+.home__footer-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--japp-spacing-sm);
+}
+
+.home__footer-nav a {
+  color: var(--japp-text-secondary);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color var(--japp-transition-fast);
+}
+
+.home__footer-nav a:hover {
+  color: var(--japp-text-primary);
+}
+
+.home__footer-col-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--japp-text-primary);
+  margin-bottom: 4px;
+}
+
+// Combined with .home__container in the template for the shared max-width.
+.home__footer-bar {
+  padding-block: var(--japp-spacing-md);
+  border-top: 1px solid var(--japp-border);
+}
+
+.home__footer-copyright {
+  font-size: 0.8125rem;
+  color: var(--japp-text-secondary);
+}
+
+@media (max-width: 699.98px) {
+  .home__footer-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Keyframes + reduced motion
+// ---------------------------------------------------------------------------
+
+@keyframes home-kenburns {
+  from {
+    transform: scale(1) translate(0, 0);
+  }
+  to {
+    transform: scale(1.12) translate(-1.5%, -1%);
+  }
+}
+
+@keyframes home-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.4);
+  }
+}
+
+@keyframes home-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__hero-photo,
+  .home__cta-photo,
+  .home__hero-visual--float,
+  .home__hero-eyebrow-dot {
+    animation: none;
+  }
+}
